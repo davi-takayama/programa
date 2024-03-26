@@ -26,7 +26,7 @@ class AudioAnalyzer(Thread):
             self._list_audio_devices()
             # TODO uncomment the following line and remove the line after that to let the user choose the input device
             # device_index = int(input("Enter the index of the audio input device you want to use: "))
-            device_index = 1
+            device_index = 2
             self.stream = self.audio_object.open(format=paInt16,
                                                  channels=1,
                                                  rate=self.SAMPLING_RATE,
