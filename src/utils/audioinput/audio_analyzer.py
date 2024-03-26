@@ -75,7 +75,8 @@ class AudioAnalyzer(Thread):
 
         number = AudioAnalyzer.frequency_to_number(frequency, a4_freq)
         note_name = AudioAnalyzer.number_to_note_name(number)
-        return note_name
+        note_number = number // 12
+        return note_name + str(int(note_number))
 
     def run(self):
         """ Main function where the microphone buffer gets read and

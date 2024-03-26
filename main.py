@@ -13,8 +13,7 @@ pygame.init()
 screen = pygame.display.set_mode((800, 450))
 clock = pygame.time.Clock()
 running_pygame = True
-dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
-print(dir_path)
+dir_path = os.path.dirname(os.path.realpath(__file__)) + "\\"
 
 pentagram = Pentagram(screen, dir_path)
 last_note = None
@@ -31,7 +30,7 @@ while running_pygame:
         last_note = analyzer.frequency_to_note_name(freq, 440)
 
     pentagram.render()
-    pentagram.draw_note(note = last_note if last_note is not None else "A")
+    pentagram.draw_note(note = last_note if last_note is not None else "A", note_type="quarter")
 
     pygame.display.flip()
 
