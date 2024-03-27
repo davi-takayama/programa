@@ -13,9 +13,9 @@ pygame.init()
 screen = pygame.display.set_mode((800, 450))
 clock = pygame.time.Clock()
 running_pygame = True
-dir_path = os.path.dirname(os.path.realpath(__file__)) + "\\"
+root_dir_path = os.path.dirname(os.path.realpath(__file__)) + "\\"
 
-pentagram = Pentagram(screen, dir_path)
+pentagram = Pentagram(screen, root_dir_path)
 last_note = None
 while running_pygame:
     for event in pygame.event.get():

@@ -1,16 +1,12 @@
 from turtle import width
 import pygame
 
+from utils.audioinput.audio_analyzer import AudioAnalyzer
+
 class TopMenu:
-    def __init__(self, screen, main_path):
+    def __init__(self, screen: pygame.Surface, main_path: str, audio_analyzer: AudioAnalyzer):
         self.screen = screen
         self.main_path = main_path
-        self.font = pygame.font.Font(None, 36)
-        self.text = self.font.render("Upper Menu", True, "black")
-        self.text_rect = self.text.get_rect()
-        self.text_rect.center = (self.screen.get_width() // 2, 20)
+        self.audio_analyzer = audio_analyzer
         
-    def render(self):
-        
-    # def update(self):
-    #     pass
+    

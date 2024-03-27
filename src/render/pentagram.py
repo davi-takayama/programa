@@ -12,7 +12,7 @@ class Pentagram:
     line_positions = []
     line_spacing = 16
     note_spacing = line_spacing // 2
-    e3_position = 0
+    c3_position = 0
     
     
     def __init__(self, screen, main_path):
@@ -20,7 +20,7 @@ class Pentagram:
         self.main_path = main_path
         for i in range(self.NUM_LINES):
             self.line_positions.append(self.screen.get_height() // 2 - self.line_spacing * (self.NUM_LINES // 2) + i * self.line_spacing)
-        self.e3_position = self.line_positions[-1]
+        self.c3_position = self.line_positions[-1] + self.line_spacing
         self.trebble_cleff_asset = ImageRescaler.rescale_from_height(pygame.image.load(self.main_path + "assets/images/trebble_cleff.png"), 100)
         
     def render(self):
@@ -38,10 +38,10 @@ class Pentagram:
         note_name = note_name_copy[0]
         note_quad = int(note[-1])
         has_sharp = '#' in note
-        notes_in_order = ['E', 'F', 'G', 'A', 'B', 'C', 'D']
+        notes_in_order = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
         note_index = notes_in_order.index(note_name)
         quadrant_space = 7 * self.note_spacing
-        note_position = self.e3_position - (quadrant_space * (note_quad - 4)) - (note_index * self.note_spacing)
+        note_position = self.c3_position - (quadrant_space * (note_quad - 4)) - (note_index * self.note_spacing)
 
         self._draw_note(x_pos, note_position, note_type, has_sharp)
             
