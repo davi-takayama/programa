@@ -30,7 +30,6 @@ while running_pygame:
         last_note = analyzer.frequency_to_note_name(freq, 440)
 
     pentagram.render()
-    pentagram.draw_note(note = last_note if last_note is not None else "A", note_type="quarter")
 
     pygame.display.flip()
 
