@@ -1,2 +1,3 @@
 /.vscode
 /venv_name
+programa/src/utils/__pycache__/*.pyc
