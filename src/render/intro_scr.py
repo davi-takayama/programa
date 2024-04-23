@@ -2,7 +2,7 @@ import pygame
 from pygame import Surface
 
 from ..render.pentagram import Pentagram
-from ..utils.note_drawer import NoteDrawer
+from ..utils.note_renderer import NoteRenderer
 from ..utils.renderable import Renderable
 
 
@@ -12,7 +12,7 @@ class IntroScr(Renderable):
         self.screen = screen
         self.main_path = main_path
         self.pentagram = Pentagram(screen, main_path)
-        self.note_drawer = NoteDrawer(screen)
+        self.note_drawer = NoteRenderer(screen)
         self.font = font
 
     def render(self) -> None:
@@ -25,7 +25,10 @@ class IntroScr(Renderable):
             x_pos=(self.screen.get_width() // 2) - 10,
             y_pos=(self.screen.get_height() // 2),
         )
-        self.font.render("Press any key to start", True, "black")
+        self.screen.blit(
+            self.font.render("Clique na nota para iniciar", True, "black"),
+            (self.screen.get_width() // 2 - 100, self.screen.get_height() // 2 - 50),
+        )
 
     def __on_click_note(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

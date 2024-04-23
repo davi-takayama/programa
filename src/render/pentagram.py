@@ -1,7 +1,7 @@
 import pygame
 
 from ..utils.image_rescaler import ImageRescaler
-from ..utils.note_drawer import NoteDrawer
+from ..utils.note_renderer import NoteRenderer
 from ..utils.renderable import Renderable
 
 
@@ -19,7 +19,7 @@ class Pentagram(Renderable):
             self.line_positions.append(self.screen.get_height() // 2 - self.line_spacing * (self.NUM_LINES // 2) + i * self.line_spacing)
         self.c3_position = self.line_positions[-1] + self.line_spacing
         self.trebble_cleff_asset = ImageRescaler.rescale_from_height(pygame.image.load(self.main_path + "assets/images/trebble_cleff.png"), 100)
-        self.note_drawer = NoteDrawer(screen)
+        self.note_drawer = NoteRenderer(screen)
 
     def render(self, render_cleff = True):
         line_width = 2
