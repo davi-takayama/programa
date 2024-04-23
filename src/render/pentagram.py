@@ -21,13 +21,15 @@ class Pentagram(Renderable):
         self.trebble_cleff_asset = ImageRescaler.rescale_from_height(pygame.image.load(self.main_path + "assets/images/trebble_cleff.png"), 100)
         self.note_drawer = NoteDrawer(screen)
 
-    def render(self):
-        cleff_y_position = self.screen.get_height() // 2 - self.trebble_cleff_asset.get_height() // 2 if self.trebble_cleff_asset is not None else 0
-        cleff_x_position = 0
+    def render(self, render_cleff = True):
         line_width = 2
-    
         for i in range(self.NUM_LINES):
             pygame.draw.line(self.screen, "black", (0, self.line_positions[i]), (self.screen.get_width(), self.line_positions[i]), line_width)
-            
-        self.screen.blit(self.trebble_cleff_asset, (cleff_x_position, cleff_y_position))
+    
+        if render_cleff:
+            cleff_y_position = self.screen.get_height() // 2 - self.trebble_cleff_asset.get_height() // 2 if self.trebble_cleff_asset is not None else 0
+            cleff_x_position = 0
+            self.screen.blit(self.trebble_cleff_asset, (cleff_x_position, cleff_y_position))
         
+    def event_check(self):
+        return super().event_check()
