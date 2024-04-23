@@ -4,7 +4,7 @@ import pygame
 from pygame import Surface
 
 from .render.intro_scr import IntroScr
-from .utils.renderable import Renderable
+from .render.renderable import Renderable
 
 
 class StateHandler(Renderable):

@@ -2,7 +2,7 @@ import pygame
 
 from ..utils.image_rescaler import ImageRescaler
 from ..utils.note_renderer import NoteRenderer
-from ..utils.renderable import Renderable
+from .renderable import Renderable
 
 
 class Pentagram(Renderable):

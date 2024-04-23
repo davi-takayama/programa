@@ -3,7 +3,7 @@ from pygame import Surface
 
 from ..render.pentagram import Pentagram
 from ..utils.note_renderer import NoteRenderer
-from ..utils.renderable import Renderable
+from .renderable import Renderable
 
 
 class IntroScr(Renderable):
