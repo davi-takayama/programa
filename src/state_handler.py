@@ -8,19 +8,17 @@ from .render.renderable import Renderable
 
 
 class StateHandler(Renderable):
-    def __init__(self, main_path, screen: Surface) -> None:
+    def __init__(self, screen: Surface) -> None:
         super().__init__()
         self.screen: Surface = screen
-        self.main_path: str = main_path
-        if not self.__check_save(main_path):
-            self.state: Renderable = IntroScr(
-                self.screen, self.main_path, pygame.font.Font(None, 32)
-            )
+        if not self.__check_save():
+            self.state: Renderable = IntroScr(self.screen, pygame.font.Font(None, 32))
         else:
             self.state: Renderable = self.PlaceholderState(self.screen)
 
-    def __check_save(self, main_path) -> bool:
-        save_path = os.path.join(main_path + "/savestate", "save.json")
+    def __check_save(self) -> bool:
+        _dir = os.path.dirname(__file__)[: __file__.index("src")]
+        save_path = os.path.join(_dir + "/savestate", "save.json")
         return os.path.isfile(save_path)
 
     def render(self) -> None:

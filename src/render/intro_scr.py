@@ -1,3 +1,4 @@
+import os
 import pygame
 from pygame import Surface
 
@@ -7,11 +8,10 @@ from .renderable import Renderable
 
 
 class IntroScr(Renderable):
-    def __init__(self, screen: Surface, main_path: str, font: pygame.font.Font) -> None:
+    def __init__(self, screen: Surface, font: pygame.font.Font) -> None:
         super().__init__()
         self.screen = screen
-        self.main_path = main_path
-        self.staff = Staff(screen, main_path, time_signature=(4, 4))
+        self.staff = Staff(screen, time_signature=(4, 4))
         self.note_drawer = NoteRenderer(screen)
         self.font = font
 

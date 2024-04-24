@@ -1,3 +1,4 @@
+import os
 import pygame
 
 from ..utils.image_rescaler import ImageRescaler
@@ -15,12 +16,11 @@ class Staff(Renderable):
     def __init__(
         self,
         screen: pygame.Surface,
-        main_path: str,
         y_pos: int | None = None,
         time_signature: tuple[int, int] | None = None,
     ):
         self.screen = screen
-        self.main_path = main_path
+        _dir = os.path.dirname(__file__)[: __file__.index("src")]
         self.y_pos = (screen.get_height() // 2) if y_pos is None else y_pos
         for i in range(self.NUM_LINES):
             self.line_positions.append(
@@ -30,7 +30,7 @@ class Staff(Renderable):
             )
         self.c3_position = self.line_positions[-1] + self.line_spacing
         self.trebble_cleff_asset = ImageRescaler.rescale_from_height(
-            pygame.image.load(self.main_path + "assets/images/trebble_cleff.png"),
+            pygame.image.load(_dir + "assets/images/trebble_cleff.png"),
             self.line_spacing * 6,
         )
         self.time_signature = time_signature

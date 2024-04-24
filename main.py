@@ -29,11 +29,10 @@ pygame.init()
 screen = pygame.display.set_mode((800, 450))
 clock = pygame.time.Clock()
 running_pygame = True
-root_dir_path = os.path.dirname(os.path.realpath(__file__)) + "\\"
 
 last_note = None
 
-state_handler = StateHandler(root_dir_path, screen)
+state_handler = StateHandler(screen)
 
 while running_pygame:
     clock.tick(60)
