@@ -37,7 +37,7 @@ class Staff(Renderable):
         self.note_drawer = NoteRenderer(screen)
         self.font = pygame.font.Font(None, 64)
 
-    def render(self, render_cleff=True):
+    def render(self, render_cleff=True, render_time_signature=True):
         line_width = 2
         for i in range(self.NUM_LINES):
             pygame.draw.line(
@@ -50,7 +50,7 @@ class Staff(Renderable):
 
         if render_cleff:
             self.__render_cleff()
-            if self.time_signature is not None:
+            if self.time_signature is not None and render_time_signature:
                 self.__render_time_signature(self.time_signature)
 
     def __render_cleff(self):

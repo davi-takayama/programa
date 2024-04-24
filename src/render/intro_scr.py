@@ -20,7 +20,7 @@ class IntroScr(Renderable):
 
     def __st1(self):
         self.screen.fill("white")
-        self.staff.render(render_cleff=True)
+        self.staff.render(render_cleff=False)
         self.note_drawer.quarter(
             x_pos=(self.screen.get_width() // 2) - 10,
             y_pos=(self.screen.get_height() // 2),
