@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
 
-from .staff import Pentagram
+from .staff import Staff
 from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
 
@@ -11,7 +11,7 @@ class IntroScr(Renderable):
         super().__init__()
         self.screen = screen
         self.main_path = main_path
-        self.pentagram = Pentagram(screen, main_path)
+        self.staff = Staff(screen, main_path, time_signature=(4, 4))
         self.note_drawer = NoteRenderer(screen)
         self.font = font
 
@@ -20,7 +20,7 @@ class IntroScr(Renderable):
 
     def __st1(self):
         self.screen.fill("white")
-        self.pentagram.render(render_cleff=False)
+        self.staff.render(render_cleff=True)
         self.note_drawer.quarter(
             x_pos=(self.screen.get_width() // 2) - 10,
             y_pos=(self.screen.get_height() // 2),

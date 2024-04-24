@@ -18,7 +18,6 @@ class StateHandler(Renderable):
             )
         else:
             self.state: Renderable = self.PlaceholderState(self.screen)
-        print(self.__check_save(main_path))
 
     def __check_save(self, main_path) -> bool:
         save_path = os.path.join(main_path + "/savestate", "save.json")
