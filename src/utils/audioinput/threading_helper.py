@@ -2,8 +2,8 @@ from threading import Lock
 
 
 class ProtectedList(object):
-    """ Simple queue to share data between Threads with lock protection.
-        Standard buffer length is only 8! """
+    """Simple queue to share data between Threads with lock protection.
+    Standard buffer length is only 8!"""
 
     def __init__(self, buffer_size=8):
         self.elements = []
