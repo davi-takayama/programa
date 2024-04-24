@@ -5,7 +5,7 @@ from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
 
 
-class Pentagram(Renderable):
+class Staff(Renderable):
     NUM_LINES = 5
     line_positions = []
     line_spacing = 16
@@ -13,7 +13,11 @@ class Pentagram(Renderable):
     c3_position = 0
 
     def __init__(
-        self, screen: pygame.Surface, main_path: str, y_pos: int | None = None
+        self,
+        screen: pygame.Surface,
+        main_path: str,
+        y_pos: int | None = None,
+        time_signature: tuple[int, int] | None = None,
     ):
         self.screen = screen
         self.main_path = main_path
@@ -29,7 +33,9 @@ class Pentagram(Renderable):
             pygame.image.load(self.main_path + "assets/images/trebble_cleff.png"),
             self.line_spacing * 6,
         )
+        self.time_signature = time_signature
         self.note_drawer = NoteRenderer(screen)
+        self.font = pygame.font.Font(None, 64)
 
     def render(self, render_cleff=True):
         line_width = 2
@@ -43,15 +49,29 @@ class Pentagram(Renderable):
             )
 
         if render_cleff:
-            cleff_y_position = (
-                self.line_positions[2] - self.trebble_cleff_asset.get_height() // 2
-                if self.trebble_cleff_asset is not None
-                else 0
-            )
-            cleff_x_position = 0
-            self.screen.blit(
-                self.trebble_cleff_asset, (cleff_x_position, cleff_y_position)
-            )
+            self.__render_cleff()
+            if self.time_signature is not None:
+                self.__render_time_signature(self.time_signature)
+
+    def __render_cleff(self):
+        cleff_y_position = (
+            self.line_positions[2] - self.trebble_cleff_asset.get_height() // 2
+            if self.trebble_cleff_asset is not None
+            else 0
+        )
+        cleff_x_position = -20
+        self.screen.blit(self.trebble_cleff_asset, (cleff_x_position, cleff_y_position))
+
+    def __render_time_signature(self, time_signature: tuple[int, int]):
+        n_1, n_2 = time_signature
+        self.screen.blit(
+            self.font.render(str(n_1), True, "black"),
+            (self.trebble_cleff_asset.get_width() - 40, self.line_positions[0] - 4),
+        )
+        self.screen.blit(
+            self.font.render(str(n_2), True, "black"),
+            (self.trebble_cleff_asset.get_width() - 40, self.line_positions[2] - 4),
+        )
 
     def event_check(self, event):
-        return super().event_check()
+        return super().event_check(event)
