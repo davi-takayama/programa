@@ -1,9 +1,15 @@
 import pygame as pg
+import os
+
+from .image_rescaler import ImageRescaler
 
 
 class NoteRenderer:
     def __init__(self, screen: pg.Surface) -> None:
         self.screen = screen
+        _dir = os.path.dirname(__file__)[:__file__.index("src")]
+        self.eigth_stem = pg.image.load(_dir + "assets/images/eigth_stem.png")
+        self.eigth_stem = ImageRescaler.rescale_from_height(self.eigth_stem, 35)
 
     def __draw_sharp_or_flat(self, x_pos: int, y_pos: int, sharp: bool = True):
         font = pg.font.Font(None, 32)
@@ -32,3 +38,7 @@ class NoteRenderer:
         self.__note_base(x_pos, y_pos, has_sharp)
         pg.draw.ellipse(self.screen, "black", (x_pos + 3, y_pos - 5, 14, 8), 3)
         self.__draw_stem(x_pos, y_pos)
+
+    def single_eighth(self, x_pos: int, y_pos: int, has_sharp: bool = False) -> None:
+        self.quarter(x_pos, y_pos, has_sharp)
+        self.screen.blit(self.eigth_stem, (x_pos + 20, y_pos - 40))
