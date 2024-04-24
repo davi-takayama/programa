@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
 
-from ..render.pentagram import Pentagram
+from .staff import Pentagram
 from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
 
@@ -25,9 +25,15 @@ class IntroScr(Renderable):
             x_pos=(self.screen.get_width() // 2) - 10,
             y_pos=(self.screen.get_height() // 2),
         )
+
+        text = "Clique na nota para iniciar"
+        width, _ = self.font.size(text)
         self.screen.blit(
-            self.font.render("Clique na nota para iniciar", True, "black"),
-            (self.screen.get_width() // 2 - 100, self.screen.get_height() // 2 - 50),
+            self.font.render(text, True, "black"),
+            (
+                (self.screen.get_width() // 2) - (width // 2),
+                (self.screen.get_height() // 4),
+            ),
         )
 
     def __on_click_note(self, event):

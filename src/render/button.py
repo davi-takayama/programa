@@ -1,5 +1,4 @@
 import pygame
-from .renderable import Renderable
 
 
 class Button():
