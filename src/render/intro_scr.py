@@ -1,10 +1,14 @@
 import os
+
 import pygame
 from pygame import Surface
+from pygame.font import Font
+from pyparsing import alphanums
 
-from .staff import Staff
+from ..utils.button import Button
 from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
+from .staff import Staff
 
 
 class IntroScr(Renderable):
@@ -14,9 +18,11 @@ class IntroScr(Renderable):
         self.staff = Staff(screen, time_signature=(4, 4))
         self.note_drawer = NoteRenderer(screen)
         self.font = font
+        self.rendered_state = self.__st1
+        self.event_check_state = self.__on_click_note
 
     def render(self) -> None:
-        self.__st1()
+        self.rendered_state()
 
     def __st1(self):
         self.screen.fill("white")
@@ -36,6 +42,43 @@ class IntroScr(Renderable):
             ),
         )
 
+    def st_02(self):
+        self.screen.fill("white")
+        button_text = "Continuar"
+        button_font = Font(None, 48)
+        text_width, text_height = button_font.size(button_text)
+        screen_width, screen_height = self.screen.get_size()
+        button_padding = 11
+
+        button_x = screen_width - (text_width) - (button_padding * 2) - 10
+        button_y = screen_height - (text_height) - button_padding - 10
+        button = Button(
+            screen=self.screen,
+            text=button_text,
+            pos=(button_x, button_y),
+            font=button_font,
+            on_click=lambda: None,
+        )
+        button.render()
+
+        lines = "Bem vindo ao tutorial\nEste tutorial vai te ensinar os básicos da partitura".split(
+            "\n"
+        )
+        font = pygame.font.Font(None, 40)
+
+        for i, line in enumerate(lines):
+            text = font.render(line, True, "black")
+            text_rect = text.get_rect()
+
+            # Centralize o texto
+            screen_width, screen_height = self.screen.get_size()
+            text_rect.center = (
+                screen_width // 2,
+                screen_height // 2 + (i - len(lines) // 2) * font.get_linesize(),
+            )
+
+            self.screen.blit(text, text_rect)
+
     def __on_click_note(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
@@ -49,9 +92,7 @@ class IntroScr(Renderable):
                 screen_middle_x - 10 <= col <= screen_middle_x + 10
                 and screen_middle_y - 5 <= row <= screen_middle_y + 5
             ):
-                return True
-            else:
-                return False
+                self.rendered_state = self.st_02
 
     def event_check(self, event):
-        self.__on_click_note(event)
+        self.event_check_state(event)

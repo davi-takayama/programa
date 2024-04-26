@@ -5,15 +5,14 @@ class Button():
     def __init__(
         self,
         screen: pygame.Surface,
-        x: int,
-        y: int,
+        pos: tuple[int, int],
         text: str,
         font: pygame.font.Font,
         on_click,
     ):
         self.screen = screen
-        self.x = x
-        self.y = y
+        self.x = pos[0]
+        self.y = pos[1]
         self.text = text
         self.font = font
         self.on_click = on_click
