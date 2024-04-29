@@ -2,3 +2,4 @@
 /venv_name
 *.pyc
 __pycache__/
+/savestate/*

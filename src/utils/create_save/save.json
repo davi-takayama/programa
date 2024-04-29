@@ -1,0 +1,97 @@
+{
+    "md1": {
+        "unlocked": true,
+        "chapters": [
+            {
+                "unlocked": true,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            }
+        ]
+    },
+    "md2": {
+        "unlocked": false,
+        "perfected": false,
+        "chapters": [
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            }
+        ]
+    },
+    "md3": {
+        "unlocked": false,
+        "perfected": false,
+        "chapters": [
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            }
+        ]
+    },
+    "md4": {
+        "unlocked": false,
+        "perfected": false,
+        "chapters": [
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
+            }
+        ]
+    }
+}

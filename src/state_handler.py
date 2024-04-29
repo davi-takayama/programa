@@ -29,7 +29,7 @@ class StateHandler(Renderable):
 
     class PlaceholderState(Renderable):
         def __init__(self, screen: Surface) -> None:
-            super().__init__()
+            super().__init__(screen)
             self.screen = screen
 
         def render(self) -> None:

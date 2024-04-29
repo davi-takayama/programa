@@ -11,11 +11,12 @@ from ..utils.check_save import check_save
 from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
 from .staff import Staff
+from ..utils.create_save.create_save import create_save
 
 
 class Explanation1(Renderable):
 
-    def __init__(self, screen: Surface, change_state) -> None:
+    def __init__(self, screen: Surface, change_state: classmethod) -> None:
         super().__init__(screen=screen)
         self.screen: Surface = screen
         self.change_state = change_state
@@ -57,7 +58,8 @@ class Explanation1(Renderable):
         if self.pg_count < 6:
             self.button.render()
             self.staff.render(
-                render_cleff=self.pg_count > 1, render_time_signature=self.pg_count > 2
+                render_cleff=self.pg_count >= 1,
+                render_time_signature=self.pg_count >= 2,
             )
             top_text = (
                 self.top_text[self.pg_count]
@@ -69,7 +71,7 @@ class Explanation1(Renderable):
                 if self.pg_count < len(self.bottom_text)
                 else ""
             )
-            font = pygame.font.Font(None, 36)
+            font = pygame.font.Font(None, 38)
 
             for index, text in enumerate(textwrap.wrap(top_text, width=50)):
                 text_surface = font.render(text, True, "black")
@@ -158,9 +160,7 @@ class Explanation1(Renderable):
             font=font,
             screen=self.screen,
             text="Não",
-            on_click=lambda: print(
-                "'nao' clicado"
-            ),  # TODO: mudar para menu principal quando implementado
+            on_click=self.__continue,
             pos=(width // 2 + 200 - (font.size("Não")[0] // 2), height // 2),
         )
 
@@ -172,6 +172,12 @@ class Explanation1(Renderable):
     def __see_again(self):
         self.events = [self.button.event_check]
         self.pg_count = 0
+
+    def __continue(self):
+        if not check_save():
+            create_save()
+
+        # TODO: mudar para menu principal quando implementado
 
     def event_check(self, event) -> None:
         for item in self.events:
