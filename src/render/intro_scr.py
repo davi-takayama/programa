@@ -1,25 +1,31 @@
-import os
-
 import pygame
 from pygame import Surface
-from pygame.font import Font
-from pyparsing import alphanums
 
-from ..utils.button import Button
+from ..utils.bottom_screen_button import bottom_screen_button
 from ..utils.note_renderer import NoteRenderer
+from .explanation_1 import Explanation1
 from .renderable import Renderable
 from .staff import Staff
 
 
 class IntroScr(Renderable):
-    def __init__(self, screen: Surface, font: pygame.font.Font) -> None:
-        super().__init__()
+    def __init__(self, screen: Surface, change_state, font: pygame.font.Font) -> None:
+        super().__init__(screen=screen)
         self.screen = screen
+        self.change_state = change_state
         self.staff = Staff(screen, time_signature=(4, 4))
         self.note_drawer = NoteRenderer(screen)
         self.font = font
         self.rendered_state = self.__st1
         self.event_check_state = self.__on_click_note
+
+        def on_click():
+            self.change_state(Explanation1(self.screen, self.change_state))
+
+        self.button = bottom_screen_button(
+            screen=screen,
+            on_click=on_click,
+        )
 
     def render(self) -> None:
         self.rendered_state()
@@ -44,22 +50,8 @@ class IntroScr(Renderable):
 
     def st_02(self):
         self.screen.fill("white")
-        button_text = "Continuar"
-        button_font = Font(None, 48)
-        text_width, text_height = button_font.size(button_text)
-        screen_width, screen_height = self.screen.get_size()
-        button_padding = 11
 
-        button_x = screen_width - (text_width) - (button_padding * 2) - 10
-        button_y = screen_height - (text_height) - button_padding - 10
-        button = Button(
-            screen=self.screen,
-            text=button_text,
-            pos=(button_x, button_y),
-            font=button_font,
-            on_click=lambda: None,
-        )
-        button.render()
+        self.button.render()
 
         lines = "Bem vindo ao tutorial\nEste tutorial vai te ensinar os básicos da partitura".split(
             "\n"
@@ -96,3 +88,4 @@ class IntroScr(Renderable):
 
     def event_check(self, event):
         self.event_check_state(event)
+        self.button.event_check(event)

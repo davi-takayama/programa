@@ -5,7 +5,6 @@ from pygame import Surface
 from pygame.font import Font
 
 from ..utils.image_rescaler import ImageRescaler
-from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
 
 
@@ -37,7 +36,6 @@ class Staff(Renderable):
             self.line_spacing * 6,
         )
         self.time_signature = time_signature
-        self.note_drawer = NoteRenderer(screen)
         self.font = Font(None, 64)
 
     def render(self, render_cleff=True, render_time_signature=True):

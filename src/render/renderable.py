@@ -1,13 +1,18 @@
-import functools
 from abc import ABC, abstractmethod
 
-import pygame
+from pygame import Surface
+from pygame.event import Event
+
 
 class Renderable(ABC):
+    def __init__(self, screen: Surface) -> None:
+        self.screen = screen
+        super().__init__()
+
     @abstractmethod
     def render(self):
         pass
 
     @abstractmethod
-    def event_check(self, event_arg: pygame.event.Event | None = None):
+    def event_check(self, event_arg: Event | None = None):
         pass

@@ -17,7 +17,7 @@ class NoteRenderer:
         self.screen.blit(text_surface, (x_pos - 20, y_pos))
 
     def __note_base(self, x_pos: int, y_pos: int, has_sharp: bool = False) -> None:
-        pg.draw.ellipse(self.screen, "black", (x_pos, y_pos - 8, 20, 16))
+        pg.draw.ellipse(self.screen, "black", (x_pos, y_pos - 7, 20, 16))
         if has_sharp:
             self.__draw_sharp_or_flat(x_pos - 12, y_pos - 10)
 

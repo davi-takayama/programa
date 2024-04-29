@@ -9,10 +9,12 @@ from .utils.check_save import check_save
 
 class StateHandler(Renderable):
     def __init__(self, screen: Surface) -> None:
-        super().__init__()
+        super().__init__(screen=screen)
         self.screen: Surface = screen
         if not check_save():
-            self.state: Renderable = IntroScr(self.screen, Font(None, 32))
+            self.state: Renderable = IntroScr(
+                self.screen, self.change_state, Font(None, 32)
+            )
         else:
             self.state: Renderable = self.PlaceholderState(self.screen)
 
@@ -21,6 +23,9 @@ class StateHandler(Renderable):
 
     def event_check(self, event: Event | None) -> None:
         self.state.event_check(event)
+
+    def change_state(self, new_state: Renderable) -> None:
+        self.state = new_state
 
     class PlaceholderState(Renderable):
         def __init__(self, screen: Surface) -> None:

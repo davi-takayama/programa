@@ -32,7 +32,7 @@ running_pygame = True
 
 last_note = None
 
-state_handler = StateHandler(screen)
+state_handler = StateHandler(screen=screen)
 
 while running_pygame:
     clock.tick(60)
