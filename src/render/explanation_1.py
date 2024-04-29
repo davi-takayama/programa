@@ -43,7 +43,6 @@ class Explanation1(Renderable):
         def __on_click_continue(self):
             if self.pg_count < self.bottom_text.__len__():
                 self.pg_count += 1
-                print(self.pg_count)
             else:
                 self.__see_again()
 
@@ -56,7 +55,6 @@ class Explanation1(Renderable):
     def render(self) -> None:
         self.screen.fill("white")
         if self.pg_count < 6:
-            print(self.pg_count)
             self.button.render()
             self.staff.render(
                 render_cleff=self.pg_count > 1, render_time_signature=self.pg_count > 2
