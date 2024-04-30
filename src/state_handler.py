@@ -6,7 +6,7 @@ from .render.intro_scr import IntroScr
 from .render.renderable import Renderable
 from .utils.save_operations.check_save import save_exists
 
-from .render.menu import Menu
+from .render.menu.main_menu import Menu
 
 
 class StateHandler(Renderable):
