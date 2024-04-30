@@ -1,12 +1,11 @@
-from calendar import c
-import json
-from ..renderable import Renderable
-from ..staff import Staff
-import pygame
+import concurrent.futures
+
 from pygame import Surface
-from pygame.font import Font
+
 from ...utils.note_renderer import NoteRenderer
 from ...utils.save_operations.read_save import Save
+from ..renderable import Renderable
+from ..staff import Staff
 from .top_menu import TopMenu
 
 
@@ -68,11 +67,21 @@ class Menu(Renderable):
         chapter_count = 0
         completed = 0
         perfected = 0
-        for module in self.save.__dict__.values():
+
+        def count_chapters(module):
+            nonlocal chapter_count, completed, perfected
             for chapter in module.chapters:
                 chapter_count += 1
                 if chapter["completed"]:
                     completed += 1
                 if chapter["perfected"]:
                     perfected += 1
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [
+                executor.submit(count_chapters, module)
+                for module in self.save.__dict__.values()
+            ]
+            concurrent.futures.wait(futures)
+
         return chapter_count, completed, perfected
