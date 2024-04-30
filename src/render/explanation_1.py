@@ -1,5 +1,3 @@
-from cgitb import text
-import os
 import textwrap
 
 import pygame
@@ -7,11 +5,13 @@ from pygame import Surface
 
 from ..utils.bottom_screen_button import bottom_screen_button
 from ..utils.button import Button
-from ..utils.check_save import check_save
+from ..utils.save_operations.check_save import save_exists
+from ..utils.save_operations.create_save import create_save
 from ..utils.note_renderer import NoteRenderer
 from .renderable import Renderable
 from .staff import Staff
-from ..utils.create_save.create_save import create_save
+
+from .menu import Menu
 
 
 class Explanation1(Renderable):
@@ -39,7 +39,7 @@ class Explanation1(Renderable):
             "Note que a nota de cada espaço é seguinte à nota da linha anterior.",
             "",
         ]
-        self.has_save = check_save()
+        self.has_save = save_exists()
 
         def __on_click_continue(self):
             if self.pg_count < self.bottom_text.__len__():
@@ -174,10 +174,10 @@ class Explanation1(Renderable):
         self.pg_count = 0
 
     def __continue(self):
-        if not check_save():
+        if not save_exists():
             create_save()
 
-        # TODO: mudar para menu principal quando implementado
+        self.change_state(Menu(self.screen, self.change_state))
 
     def event_check(self, event) -> None:
         for item in self.events:
