@@ -3,20 +3,19 @@ import textwrap
 import pygame
 from pygame import Surface
 
-from ..utils.bottom_screen_button import bottom_screen_button
-from ..utils.button import Button
-from ..utils.note_renderer import NoteRenderer
-from ..utils.save_operations.check_save import save_exists
-from ..utils.save_operations.create_save import create_save
-from .menu.main_menu import Menu
-from .renderable import Renderable
-from .staff import Staff
+from ....utils.bottom_screen_button import bottom_screen_button
+from ....utils.button import Button
+from ....utils.note_renderer import NoteRenderer
+from ....utils.save_operations.check_save import save_exists
+from ....utils.save_operations.create_save import create_save
+from ...renderable import Renderable
+from ...staff import Staff
 
 
 class Explanation1(Renderable):
 
     def __init__(self, screen: Surface, change_state: classmethod) -> None:
-        super().__init__(screen=screen)
+        super().__init__(screen, change_state)
         self.screen: Surface = screen
         self.change_state = change_state
         self.note_renderer = NoteRenderer(screen)
@@ -175,6 +174,7 @@ class Explanation1(Renderable):
     def __continue(self):
         if not save_exists():
             create_save()
+        from ..main_menu import Menu
 
         self.change_state(Menu(self.screen, self.change_state))
 

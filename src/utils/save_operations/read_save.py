@@ -3,9 +3,18 @@ import os
 from dataclasses import dataclass
 from typing import List
 
+from .check_save import save_exists
+
 _dir = os.path.dirname(__file__)[: __file__.index("src")]
 save_path = os.path.join(_dir + "/savestate", "save.json")
-data = json.load(open(save_path, "r"))
+
+if save_exists():
+    data = json.load(open(save_path, "r"))
+else:
+    this_path = os.path.dirname(__file__)
+    with open(this_path + "/save.json", "r") as file:
+        data = json.load(file)
+
 
 @dataclass
 class Chapter:
@@ -48,5 +57,3 @@ class Save:
             },
             open(save_path, "w"),
         )
-
-
