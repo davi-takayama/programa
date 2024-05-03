@@ -22,10 +22,10 @@ class Module1(Renderable):
     ) -> None:
         super().__init__(screen, change_state)
         self.staff = staff
-        self.surface = Surface((width, screen.get_height()))
+        self.__surface = Surface((width, screen.get_height()))
         self.change_state = change_state
         self.c3 = staff.c3_position
-        self.note_renderer = NoteRenderer(self.surface, c3_pos=self.c3)
+        self.note_renderer = NoteRenderer(self.__surface, c3_pos=self.c3)
         self.x_pos = x_pos
         self.notes = [
             self.staff.c3_position - (i * self.staff.line_spacing) for i in range(3)
@@ -33,7 +33,8 @@ class Module1(Renderable):
         self.note_placements = self.__calculate_note_placements(width)
         self.chord_rect = self.__calculate_chord_rect()
         self.text = self.__generate_text(module)
-        self.star_asset = self.__load_star_asset(module)
+        self.full_star = pygame.image.load(root_dir + "/assets/images/filled_star.png")
+        self.blank_star = pygame.image.load(root_dir + "/assets/images/blank_star.png")
         self.__module = module
 
     def __calculate_note_placements(self, width):
@@ -71,17 +72,8 @@ class Module1(Renderable):
         )
         return f"Clave e notas ({self.completed_chapters}/{self.total_chapters})"
 
-    def __load_star_asset(self, module):
-        star_image = (
-            "filled_star.png"
-            if sum(chapter["perfected"] for chapter in module.chapters)
-            == len(module.chapters)
-            else "blank_star.png"
-        )
-        return pygame.image.load(root_dir + f"/assets/images/{star_image}")
-
     def render(self):
-        self.surface.fill("white")
+        self.__surface.fill("white")
         self.render_chord()
         for i in range(3):
             self.note_renderer.quarter(
@@ -89,19 +81,34 @@ class Module1(Renderable):
                 y_pos=self.notes[i],
                 color=("black" if self.__module.chapters[i]["unlocked"] else "gray"),
             )
+            star_asset = (
+                self.full_star
+                if self.__module.chapters[i]["perfected"]
+                else self.blank_star
+            )
+            if self.__module.chapters[i]["completed"]:
+                star_asset = ImageRescaler.rescale_from_height(star_asset, 16)
+                self.__surface.blit(
+                    star_asset,
+                    (
+                        self.note_placements[i + 1] + star_asset.get_width() // 4,
+                        self.notes[i] + 20,
+                    ),
+                )
+
         pygame.draw.line(
-            self.surface,
+            self.__surface,
             "black",
-            (self.surface.get_width() - 1, self.staff.line_positions[0]),
-            (self.surface.get_width() - 1, self.staff.line_positions[-1]),
+            (self.__surface.get_width() - 1, self.staff.line_positions[0]),
+            (self.__surface.get_width() - 1, self.staff.line_positions[-1]),
             5,
         )
         text = pygame.font.Font(size=32).render(self.text, True, "black")
-        text_x = (self.surface.get_width() - text.get_width()) // 2
+        text_x = (self.__surface.get_width() - text.get_width()) // 2
         text_y = self.screen.get_height() // 4
-        self.surface.blit(text, (text_x, text_y))
+        self.__surface.blit(text, (text_x, text_y))
 
-        self.screen.blit(self.surface, (50, 0))
+        self.screen.blit(self.__surface, (50, 0))
 
     def event_check(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -120,12 +127,17 @@ class Module1(Renderable):
                 x_pos=self.note_placements[0],
                 y_pos=self.c3 - (self.staff.line_spacing * i),
             )
+        star_asset = (
+            self.blank_star
+            if self.perfected_chapters != self.total_chapters
+            else self.full_star
+        )
         star_height = 30
-        star_asset = ImageRescaler.rescale_from_height(self.star_asset, star_height)
+        star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
         star_x = self.note_placements[0] - star_asset.get_width() // 4
         star_y = self.chord_rect.bottom + self.staff.line_spacing
         perfected_completed_text = f"{self.perfected_chapters}/{self.total_chapters}"
         text = pygame.font.Font(size=24).render(perfected_completed_text, True, "black")
         text_y = star_y + star_height + 5
-        self.surface.blit(text, (star_x + 5, text_y))
-        self.surface.blit(star_asset, (star_x, star_y))
+        self.__surface.blit(text, (star_x + 5, text_y))
+        self.__surface.blit(star_asset, (star_x, star_y))
