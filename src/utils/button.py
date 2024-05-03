@@ -1,7 +1,7 @@
 import pygame
 
 
-class Button():
+class Button:
     def __init__(
         self,
         screen: pygame.Surface,
@@ -11,8 +11,7 @@ class Button():
         on_click,
     ):
         self.screen = screen
-        self.x = pos[0]
-        self.y = pos[1]
+        self.pos = pos
         self.text = text
         self.font = font
         self.on_click = on_click
@@ -23,20 +22,30 @@ class Button():
         pygame.draw.rect(
             self.screen,
             "white",
-            (self.x, self.y, self.width + 2 * self.padding, self.height + self.padding),
+            (
+                self.pos[0],
+                self.pos[1],
+                self.width + 2 * self.padding,
+                self.height + self.padding,
+            ),
             0,
             10,
         )
         pygame.draw.rect(
             self.screen,
             "black",
-            (self.x, self.y, self.width + 2 * self.padding, self.height + self.padding),
+            (
+                self.pos[0],
+                self.pos[1],
+                self.width + 2 * self.padding,
+                self.height + self.padding,
+            ),
             1,
             10,
         )
         self.screen.blit(
             self.font.render(self.text, True, "black"),
-            (self.x + self.padding, self.y + self.padding // 2),
+            (self.pos[0] + self.padding, self.pos[1] + self.padding // 2),
         )
 
     def event_check(self, event):
@@ -45,9 +54,9 @@ class Button():
             col = pos[0]
             row = pos[1]
             if (
-                col >= self.x
-                and col <= self.x + self.width + 2 * self.padding
-                and row >= self.y
-                and row <= self.y + self.height + self.padding
+                col >= self.pos[0]
+                and col <= self.pos[0] + self.width + 2 * self.padding
+                and row >= self.pos[1]
+                and row <= self.pos[1] + self.height + self.padding
             ):
                 self.on_click()

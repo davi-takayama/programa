@@ -1,8 +1,8 @@
 import os
-
+from ..root_dir import root_dir
 
 def create_save():
-    root_path = os.path.dirname(__file__)[: __file__.index("src")]
+    root_path = root_dir
     this_path = os.path.dirname(__file__)
     if not os.path.exists(root_path + "savestate"):
         os.makedirs(root_path + "savestate")

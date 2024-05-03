@@ -1,14 +1,13 @@
 import concurrent.futures
 
-from pygame import Rect, Surface
-import pygame
+from pygame import Surface
 
 from ...utils.note_renderer import NoteRenderer
 from ...utils.save_operations.read_save import Save
 from ..renderable import Renderable
 from ..staff import Staff
-from .top_menu import TopMenu
 from .mod_1.layout import Module1
+from .top_menu import TopMenu
 
 
 class Menu(Renderable):
@@ -23,7 +22,7 @@ class Menu(Renderable):
         self.total_chapters, self.completed_chapters, self.perfected_chapters = (
             self.__get_modules_data()
         )
-        self.cleff_width = self.staff.trebble_cleff_asset.get_width() // 2
+        self.cleff_width = self.staff.trebble_cleff_asset.get_width()
         self.modules = [
             Module1(
                 screen,
@@ -31,6 +30,7 @@ class Menu(Renderable):
                 change_state,
                 self.cleff_width,
                 (self.screen.get_width() // 2) - self.cleff_width,
+                self.save.md1,
             ),
         ]
 

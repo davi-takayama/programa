@@ -5,12 +5,11 @@ from pygame import Surface
 from pygame.font import Font
 
 from ..utils.image_rescaler import ImageRescaler
-from .renderable import Renderable
+from ..utils.root_dir import root_dir
 
 
-class Staff(Renderable):
+class Staff:
     NUM_LINES = 5
-    line_positions = []
     line_spacing = 16
     note_spacing = line_spacing // 2
     c3_position = 0
@@ -18,12 +17,13 @@ class Staff(Renderable):
     def __init__(
         self,
         screen: Surface,
-        y_pos: int | None = None,
+        y_pos: int = None,
         time_signature: tuple[int, int] | None = None,
     ):
         self.screen = screen
-        _dir = os.path.dirname(__file__)[: __file__.index("src")]
+        _dir = root_dir
         self.y_pos = (screen.get_height() // 2) if y_pos is None else y_pos
+        self.line_positions = []
         for i in range(self.NUM_LINES):
             self.line_positions.append(
                 (self.y_pos)
@@ -40,19 +40,20 @@ class Staff(Renderable):
 
     def render(self, render_cleff=True, render_time_signature=True):
         line_width = 2
-        for i in range(self.NUM_LINES):
+        for line_position in self.line_positions:
             pygame.draw.line(
                 self.screen,
                 "black",
-                (0, self.line_positions[i]),
-                (self.screen.get_width(), self.line_positions[i]),
+                (0, line_position),
+                (self.screen.get_width(), line_position),
                 line_width,
             )
 
         if render_cleff:
             self.__render_cleff()
-            if self.time_signature is not None and render_time_signature:
-                self.__render_time_signature(self.time_signature)
+
+        if self.time_signature is not None and render_time_signature:
+            self.__render_time_signature(self.time_signature)
 
     def __render_cleff(self):
         cleff_y_position = (
@@ -60,19 +61,15 @@ class Staff(Renderable):
             if self.trebble_cleff_asset is not None
             else 0
         )
-        cleff_x_position = -20
-        self.screen.blit(self.trebble_cleff_asset, (cleff_x_position, cleff_y_position))
+        self.screen.blit(self.trebble_cleff_asset, (0, cleff_y_position))
 
     def __render_time_signature(self, time_signature: tuple[int, int]):
         def render_num(x: int, n: int):
             self.screen.blit(
                 self.font.render(str(n), True, "black"),
-                (self.trebble_cleff_asset.get_width() - 40, self.line_positions[x] - 4),
+                (self.trebble_cleff_asset.get_width() + 10, self.line_positions[x] - 4),
             )
 
         n_1, n_2 = time_signature
         render_num(0, n_1)
         render_num(2, n_2)
-
-    def event_check(self, event):
-        return super().event_check(event)
