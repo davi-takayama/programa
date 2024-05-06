@@ -42,6 +42,12 @@
                 "completed": false,
                 "perfected": false,
                 "score": 0
+            },
+            {
+                "unlocked": false,
+                "completed": false,
+                "perfected": false,
+                "score": 0
             }
         ]
     },

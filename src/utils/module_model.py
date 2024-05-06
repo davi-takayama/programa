@@ -27,7 +27,7 @@ class ModuleClass(Renderable):
         self.c3 = staff.c3_position
         self.change_state = change_state
         self.x_pos = x_pos
-        self.module = module
+        self.module: Module= module
         self.full_star = pygame.image.load(root_dir + "/assets/images/filled_star.png")
         self.blank_star = pygame.image.load(root_dir + "/assets/images/blank_star.png")
         self.note_renderer = NoteRenderer(self.surface, c3_pos=self.c3)
@@ -40,7 +40,7 @@ class ModuleClass(Renderable):
 
         self.note_rects = [
             Rect(
-                notes_list[index + 1] + self.x_pos + 10,
+                notes_list[index] + self.x_pos + 10,
                 note - 10,
                 20,
                 20,
@@ -50,7 +50,7 @@ class ModuleClass(Renderable):
 
         return notes_list
 
-    def generate_text(self, module, title: str):
+    def generate_text(self, module: Module, title: str):
         self.total_chapters = len(module.chapters)
         self.completed_chapters = sum(
             chapter["completed"] for chapter in module.chapters
@@ -59,3 +59,12 @@ class ModuleClass(Renderable):
             chapter["perfected"] for chapter in module.chapters
         )
         return f"{title} ({self.completed_chapters}/{self.total_chapters})"
+
+    def calculate_chord_rect(self, num_notes: int, x_placement: int, y_placement: int):
+        chord_height = self.staff.line_spacing * num_notes
+        return Rect(
+            self.x_pos + x_placement + 20,
+            y_placement - (chord_height + self.staff.note_spacing),
+            20,
+            chord_height,
+        )

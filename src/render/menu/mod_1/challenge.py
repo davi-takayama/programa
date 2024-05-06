@@ -229,8 +229,7 @@ class Challenge(Renderable):
                     next_chapter = save.md1.chapters[self.__chapter_index + 1]
                     next_chapter["unlocked"] = True
                 else:
-                    save.md1["completed"] = True
-                    save.md2["unlocked"] = True
+                    save.md2.unlocked = True
             chapter["score"] = (
                 self.__score if self.__score > chapter["score"] else chapter["score"]
             )

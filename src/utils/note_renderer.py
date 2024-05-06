@@ -102,31 +102,31 @@ class NoteRenderer:
         """
         positions: list of tuples with the x and y position of the notes
         has_sharp: list with the sharp or flat of each note
-        color: color of the notes"""
+        color: color of the notes
+        """
         rects = []
         index = 0
-        print(len(positions))
         if isinstance(color, str):
             color = [color] * len(positions)
+        if isinstance(has_sharp, int):
+            has_sharp = [has_sharp] * len(positions)
 
-        for pos, sharp, color in zip(positions, has_sharp, color):
-            # if it's the last one, draw the single eighth note, else, draw a quarter
-            if index == len(positions) - 1:
-                rect = self.single_eighth(pos[0], pos[1], sharp, color)
+        for pos, sharp in zip(positions, has_sharp):
+            if index == len(positions) - 1 and len(positions) % 2 != 0:
+                rect = self.single_eighth(pos[0], pos[1], sharp, color[index])
             else:
-                rect = self.quarter(pos[0], pos[1], sharp, color)
+                rect = self.quarter(pos[0], pos[1], sharp, color[index])
 
                 if index % 2 == 1:
                     pg.draw.line(
                         self.screen,
-                        color,
+                        color[(index - 1) if index > 1 else 0],
                         (positions[index - 1][0] + 18, positions[index - 1][1] - 40),
                         (pos[0] + 18, pos[1] - 40),
-                        3,
+                        6,
                     )
 
             rects.append(rect)
-
             index += 1
 
         return rects
