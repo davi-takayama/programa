@@ -1,11 +1,13 @@
 import os
+import re
+from typing import List
 
 import pygame as pg
 from pygame import Rect, Surface
 from pygame.font import Font
 
-from .image_rescaler import ImageRescaler
 from ..utils.root_dir import root_dir
+from .image_rescaler import ImageRescaler
 
 
 class NoteRenderer:
@@ -90,3 +92,41 @@ class NoteRenderer:
         rect = self.quarter(x_pos, y_pos, has_sharp, color)
         self.screen.blit(self.eigth_stem, (x_pos + 20, y_pos - 40))
         return rect
+
+    def eigth(
+        self,
+        positions: List[tuple[int, int]],
+        has_sharp: int | List[int] = 0,
+        color: str | List[str] = "black",
+    ) -> List[Rect]:
+        """
+        positions: list of tuples with the x and y position of the notes
+        has_sharp: list with the sharp or flat of each note
+        color: color of the notes"""
+        rects = []
+        index = 0
+        print(len(positions))
+        if isinstance(color, str):
+            color = [color] * len(positions)
+
+        for pos, sharp, color in zip(positions, has_sharp, color):
+            # if it's the last one, draw the single eighth note, else, draw a quarter
+            if index == len(positions) - 1:
+                rect = self.single_eighth(pos[0], pos[1], sharp, color)
+            else:
+                rect = self.quarter(pos[0], pos[1], sharp, color)
+
+                if index % 2 == 1:
+                    pg.draw.line(
+                        self.screen,
+                        color,
+                        (positions[index - 1][0] + 18, positions[index - 1][1] - 40),
+                        (pos[0] + 18, pos[1] - 40),
+                        3,
+                    )
+
+            rects.append(rect)
+
+            index += 1
+
+        return rects
