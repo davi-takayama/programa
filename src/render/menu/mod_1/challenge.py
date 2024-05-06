@@ -168,7 +168,6 @@ class Challenge(Renderable):
 
     def __init_continue_button(self):
         def click_continue():
-            print("click continue")
             self.__current_note = self.__pick_random_note()
             self.__continue = False
             self.__completed_challenges += 1

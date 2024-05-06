@@ -13,7 +13,6 @@ class StateHandler(Renderable):
     def __init__(self, screen: Surface) -> None:
         super().__init__(screen, self.change_state)
         self.screen: Surface = screen
-        print(save_exists())
         if not save_exists():
             self.state: Renderable = IntroScr(
                 self.screen, self.change_state, Font(None, 32)
