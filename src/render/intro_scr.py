@@ -3,7 +3,7 @@ from pygame import Surface
 
 from ..utils.bottom_screen_button import bottom_screen_button
 from ..utils.note_renderer import NoteRenderer
-from .renderable import Renderable
+from ..utils.renderable import Renderable
 from .staff import Staff
 
 

@@ -17,7 +17,7 @@ from src.utils.audioinput.threading_helper import ProtectedList
 from ....utils.button import Button
 from ....utils.note_renderer import NoteRenderer
 from ....utils.save_operations.read_save import Save
-from ...renderable import Renderable
+from ....utils.renderable import Renderable
 from ...staff import Staff
 
 vol = 0

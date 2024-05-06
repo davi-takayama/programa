@@ -137,19 +137,3 @@ class AudioAnalyzer(Thread):
 
     def stop(self):
         self.running = False
-
-
-if __name__ == "__main__":
-    # Only for testing:
-    import time
-
-    from audioinput.threading_helper import ProtectedList
-
-    q = ProtectedList()
-    a = AudioAnalyzer(q)
-    a.start()
-
-    while True:
-        q_data = q.get()
-        if q_data is not None:
-            time.sleep(0.02)

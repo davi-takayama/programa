@@ -4,7 +4,7 @@ from pygame import Surface
 
 from ...utils.note_renderer import NoteRenderer
 from ...utils.save_operations.read_save import Save
-from ..renderable import Renderable
+from ...utils.renderable import Renderable
 from ..staff import Staff
 from .mod_1.layout import Module1
 from .top_menu import TopMenu

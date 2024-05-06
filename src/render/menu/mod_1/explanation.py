@@ -8,7 +8,7 @@ from ....utils.button import Button
 from ....utils.note_renderer import NoteRenderer
 from ....utils.save_operations.check_save import save_exists
 from ....utils.save_operations.create_save import create_save
-from ...renderable import Renderable
+from ....utils.renderable import Renderable
 from ...staff import Staff
 
 

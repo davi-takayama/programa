@@ -16,8 +16,8 @@ class TopMenu:
         self.completed_chapters = completed_chapters
         self.perfected_chapters = perfected_chapters
         self.total_chapters = total_chapters
-        self.progress_value = (self.completed_chapters * 2) / (
-            self.total_chapters + self.perfected_chapters
+        self.progress_value = (self.completed_chapters + self.perfected_chapters) / (
+            self.total_chapters * 2
         )
         self.progress_percent = int(self.progress_value * 100)
 
