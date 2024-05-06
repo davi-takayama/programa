@@ -18,16 +18,10 @@ class NoteRenderer:
 
     def __draw_sharp_or_flat(self, x_pos: int, y_pos: int, sharp: bool, color: str):
         font = Font(None, 32)
-        text_surface = font.render("#" if sharp else "♭", True, (0, 0, 0), color)
-        self.screen.blit(text_surface, (x_pos - 20, y_pos))
+        text_surface = font.render("#" if sharp else "♭", True, color)
+        self.screen.blit(text_surface, (x_pos - 3, y_pos))
 
     def __note_base(self, x_pos: int, y_pos: int, has_sharp: int, color: str) -> Rect:
-        """
-        x_pos: x position of the note
-        y_pos: y position of the note
-        has_sharp: if the note has a sharp or flat (0 for none, 1 for sharp, 2 for flat)
-        color: color of the note
-        """
         note_rect = pg.draw.ellipse(self.screen, color, (x_pos, y_pos - 7, 20, 16))
         if has_sharp == 1:
             self.__draw_sharp_or_flat(x_pos - 12, y_pos - 10, True, color)

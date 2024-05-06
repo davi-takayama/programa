@@ -116,10 +116,18 @@ class Module1(Renderable):
                 from .explanation import Explanation1
 
                 self.change_state(Explanation1(self.screen, self.change_state))
-            if self.note_rects[0].collidepoint(event.pos):
-                from .challenge_1 import Challenge1
 
-                self.change_state(Challenge1(self.screen, self.change_state, 0))
+            from .challenge import Challenge
+
+            if self.note_rects[0].collidepoint(event.pos):
+                self.change_state(Challenge(self.screen, self.change_state, 0))
+
+            elif self.note_rects[1].collidepoint(event.pos):
+
+                self.change_state(Challenge(self.screen, self.change_state, 1, True))
+                
+            elif self.note_rects[2].collidepoint(event.pos):
+                self.change_state(Challenge(self.screen, self.change_state, 2, True, 15))
 
     def render_chord(self):
         for i in range(3):
