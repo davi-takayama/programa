@@ -119,7 +119,6 @@ class Module1(ModuleClass):
                     self.calculate_rect(self.__note_x_placements[5] + 16, self.__note_y_placement[3], 3).collidepoint(event_arg.pos)
                     and self.module.chapters[2]["completed"]
             ):
-
                 save = Save.load()
                 chapter = save.md1.chapters[3]
                 chapter["unlocked"] = True
