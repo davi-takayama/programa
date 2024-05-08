@@ -2,51 +2,47 @@ import pygame
 from pygame import Rect, Surface
 from pygame.event import Event
 
-from ....utils.save_operations.read_save import Module
 from ...staff import Staff
 from ....utils.image_rescaler import ImageRescaler
 from ....utils.module_model import ModuleClass
+from ....utils.save_operations.read_save import Module
 
 
 class Module2(ModuleClass):
 
     def __init__(
-        self,
-        screen: Surface,
-        staff: Staff,
-        change_state: classmethod,
-        x_pos: int,
-        width: int,
-        module: Module,
+            self,
+            screen: Surface,
+            staff: Staff,
+            change_state: classmethod,
+            x_pos: int,
+            width: int,
+            module: Module,
     ) -> None:
         super().__init__(screen, staff, change_state, x_pos, width, module)
         self.text = self.generate_text(module, "Métricas de tempo")
-        self.__note_y_placement = [
+        self.note_y_placement = [
             self.staff.c3_position
             - (i * self.staff.line_spacing)
             - self.staff.line_spacing
             for i in range(5)
         ]
-        self.__note_x_placement = self.calculate_note_placements(
-            width, 5, self.__note_y_placement
-        )
-        self.first_chord_rect: Rect = self.calculate_chord_rect(
-            3, self.__note_x_placement[0], self.__note_y_placement[0]
-        )
+        self.note_x_placement = self.calculate_note_x_placements(width, 5)
+        self.first_chord_rect: Rect = self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3)
 
     def render(self):
         self.surface.fill("white")
         self.__render_first_chord()
         self.note_renderer.quarter(
-            x_pos=self.__note_x_placement[1],
-            y_pos=self.__note_y_placement[0],
+            x_pos=self.note_x_placement[1],
+            y_pos=self.note_y_placement[0],
             color=("black" if self.module.chapters[0]["unlocked"] else "gray"),
         )
         self.__render_second_chord()
-        self.note_renderer.eigth(
+        self.note_renderer.eighth(
             [
-                (self.__note_x_placement[3], self.__note_y_placement[1]),
-                (self.__note_x_placement[4], self.__note_y_placement[2]),
+                (self.note_x_placement[3], self.note_y_placement[1]),
+                (self.note_x_placement[4], self.note_y_placement[2]),
             ],
             0,
             [
@@ -54,17 +50,38 @@ class Module2(ModuleClass):
                 ("black" if self.module.chapters[3]["unlocked"] else "gray"),
             ],
         )
+        text = pygame.font.Font(size=32).render(self.text, True, "black")
+        text_x = (self.surface.get_width() - text.get_width()) // 2
+        text_y = self.screen.get_height() // 4
+        self.surface.blit(text, (text_x, text_y))
 
         self.screen.blit(self.surface, (self.x_pos, 0))
 
     def event_check(self, event_arg: Event | None = None):
-        return super().event_check(event_arg)
+        if event_arg.type == pygame.MOUSEBUTTONDOWN:
+            if self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3).collidepoint(
+                    event_arg.pos) and self.module.unlocked:
+                from .explanation import Explanation2
+
+                self.change_state(Explanation2(self.screen, self.change_state))
+            elif self.calculate_rect(self.note_x_placement[1], self.note_y_placement[0], 1).collidepoint(
+                    event_arg.pos) and self.module.chapters[0]["unlocked"]:
+                print("first note clicked")  # TODO: mudar para primeiro desafio quando implementado
+            elif self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
+                    event_arg.pos) and self.module.chapters[1]["unlocked"]:
+                print("second note clicked")  # TODO: mudar para segunda explicacao quando implementado
+            elif self.calculate_rect(self.note_x_placement[3], self.note_y_placement[1], 1).collidepoint(
+                    event_arg.pos) and self.module.chapters[2]["unlocked"]:
+                print("third note clicked")  # TODO: mudar para terceiro desafio quando implementado
+            elif self.calculate_rect(self.note_x_placement[4], self.note_y_placement[2], 1).collidepoint(
+                    event_arg.pos) and self.module.chapters[3]["unlocked"]:
+                print("fourth note clicked")  # TODO: mudar para quarto desafio quando implementado
 
     def __render_first_chord(self):
         for i in range(3):
             self.note_renderer.quarter(
-                x_pos=self.__note_x_placement[0],
-                y_pos=self.__note_y_placement[i],
+                x_pos=self.note_x_placement[0],
+                y_pos=self.note_y_placement[i],
                 color=("black" if self.module.unlocked else "gray"),
             )
         star_asset = (
@@ -74,8 +91,8 @@ class Module2(ModuleClass):
         )
         star_height = 30
         star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
-        star_x = self.__note_x_placement[0] - star_asset.get_width() // 4
-        star_y = self.first_chord_rect.bottom + self.staff.line_spacing
+        star_x = self.note_x_placement[0] - star_asset.get_width() // 4
+        star_y = self.note_y_placement[0] + self.staff.line_spacing * 1.5
         perfected_completed_text = f"{self.perfected_chapters}/{self.total_chapters}"
         text = pygame.font.Font(size=24).render(perfected_completed_text, True, "black")
         text_y = star_y + star_height + 5
@@ -85,7 +102,7 @@ class Module2(ModuleClass):
     def __render_second_chord(self):
         for i in range(2):
             self.note_renderer.quarter(
-                x_pos=self.__note_x_placement[2],
-                y_pos=self.__note_y_placement[i + 1],
+                x_pos=self.note_x_placement[2],
+                y_pos=self.note_y_placement[i + 1],
                 color=("black" if self.module.chapters[1]["unlocked"] else "gray"),
             )

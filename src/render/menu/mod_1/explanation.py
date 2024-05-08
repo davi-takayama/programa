@@ -2,6 +2,7 @@ import textwrap
 
 import pygame
 from pygame import Surface
+from pygame.event import Event
 
 from ....utils.bottom_screen_button import bottom_screen_button
 from ....utils.button import Button
@@ -16,8 +17,6 @@ class Explanation1(Renderable):
 
     def __init__(self, screen: Surface, change_state: classmethod) -> None:
         super().__init__(screen, change_state)
-        self.screen: Surface = screen
-        self.change_state = change_state
         self.note_renderer = NoteRenderer(screen)
         self.staff = Staff(screen, time_signature=(4, 4))
         self.pg_count = 0
@@ -25,7 +24,8 @@ class Explanation1(Renderable):
             "Para entender como ler uma partitura é necessário primeiro entender seus elementos.",
             "Cada linha e espaço no PAUTA representa uma nota diferente.",
             "Além da clave, existem outros elementos que ficam no inicio da pauta, como a assinatura de tempo.",
-            "As notas possiveis dentro da partitura são 'C', 'D', 'E', 'F', 'G', 'A', 'B', sempre sendo lidas de baixo para cima.",
+            "As notas possiveis dentro da partitura são 'C', 'D', 'E', 'F', 'G', 'A', 'B', sempre sendo lidas de "
+            "baixo para cima.",
             "Colocando as notas em seus respectivos lugares, cada linha e espaço são:",
             "Para memorizar as notas de cada grupo podemos usar algumas frases, como:",
         ]
@@ -39,7 +39,7 @@ class Explanation1(Renderable):
         ]
         self.has_save = save_exists()
 
-        def __on_click_continue(self):
+        def __on_click_continue():
             if self.pg_count < self.bottom_text.__len__():
                 self.pg_count += 1
             else:
@@ -47,9 +47,8 @@ class Explanation1(Renderable):
 
         self.button: Button = bottom_screen_button(
             screen=screen,
-            on_click=lambda: __on_click_continue(self),
+            on_click=__on_click_continue,
         )
-        self.events = [self.button.event_check]
 
     def render(self) -> None:
         self.screen.fill("white")
@@ -106,7 +105,7 @@ class Explanation1(Renderable):
     def __show_notes_in_cleff(self, show_letter_only=False):
         horizontal_spacing = 40
         for index, word in enumerate(
-            ["Elefantes", "Grandes", "Brincam", "Durante", "Festas"]
+                ["Elefantes", "Grandes", "Brincam", "Durante", "Festas"]
         ):
             x_pos = 100 + index * horizontal_spacing
             y_pos = self.staff.c3_position - self.staff.line_spacing * (index + 1)
@@ -116,9 +115,9 @@ class Explanation1(Renderable):
         for index, word in enumerate(["Fadas", "Adoram", "Cantar", "Encantos"]):
             x_pos = (self.screen.get_width() // 2) + index * horizontal_spacing
             y_pos = (
-                self.staff.c3_position
-                - (self.staff.line_spacing * (index + 1))
-                - self.staff.note_spacing
+                    self.staff.c3_position
+                    - (self.staff.line_spacing * (index + 1))
+                    - self.staff.note_spacing
             )
 
             self.note_renderer.quarter(x_pos=x_pos, y_pos=y_pos)
@@ -178,6 +177,6 @@ class Explanation1(Renderable):
 
         self.change_state(Menu(self.screen, self.change_state))
 
-    def event_check(self, event) -> None:
+    def event_check(self, event_arg: Event | None = None) -> None:
         for item in self.events:
-            item(event)
+            item(event_arg)

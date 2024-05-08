@@ -1,13 +1,11 @@
-import os
-import re
 from typing import List
 
 import pygame as pg
 from pygame import Rect, Surface
 from pygame.font import Font
 
-from ..utils.root_dir import root_dir
 from .image_rescaler import ImageRescaler
+from ..utils.root_dir import root_dir
 
 
 class NoteRenderer:
@@ -41,7 +39,7 @@ class NoteRenderer:
         return stem_rect
 
     def whole(
-        self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
+            self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
     ) -> Rect:
         """
         x_pos: x position of the note
@@ -54,7 +52,7 @@ class NoteRenderer:
         return rect
 
     def half(
-        self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
+            self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
     ) -> Rect:
         """
         x_pos: x position of the note
@@ -67,7 +65,7 @@ class NoteRenderer:
         return rect.union(stem_rect)
 
     def quarter(
-        self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
+            self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
     ) -> Rect:
         """
         x_pos: x position of the note
@@ -81,7 +79,7 @@ class NoteRenderer:
         return rect.union(stem)
 
     def single_eighth(
-        self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
+            self, x_pos: int, y_pos: int, has_sharp: int = 0, color: str = "black"
     ) -> Rect:
         """
         x_pos: x position of the note
@@ -93,11 +91,12 @@ class NoteRenderer:
         self.screen.blit(self.eigth_stem, (x_pos + 20, y_pos - 40))
         return rect
 
-    def eigth(
-        self,
-        positions: List[tuple[int, int]],
-        has_sharp: int | List[int] = 0,
-        color: str | List[str] = "black",
+    def eighth(
+            self,
+            positions: List[tuple[int, int]],
+            has_sharp: int | List[int] = 0,
+            color: str | List[str] = "black",
+            sixteenth: bool = False,
     ) -> List[Rect]:
         """
         positions: list of tuples with the x and y position of the notes
@@ -118,6 +117,7 @@ class NoteRenderer:
                 rect = self.quarter(pos[0], pos[1], sharp, color[index])
 
                 if index % 2 == 1:
+
                     pg.draw.line(
                         self.screen,
                         color[(index - 1) if index > 1 else 0],
@@ -125,6 +125,14 @@ class NoteRenderer:
                         (pos[0] + 18, pos[1] - 40),
                         6,
                     )
+                    if sixteenth:
+                        pg.draw.line(
+                            self.screen,
+                            color[(index - 1) if index > 1 else 0],
+                            (positions[index - 1][0] + 18, positions[index - 1][1] - 32),
+                            (pos[0] + 18, pos[1] - 32),
+                            6,
+                        )
 
             rects.append(rect)
             index += 1

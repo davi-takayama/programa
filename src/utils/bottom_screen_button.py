@@ -1,6 +1,8 @@
-from pygame.font import Font
-from ..utils.button import Button
 from pygame import Surface
+from pygame.font import Font
+
+from ..utils.button import Button
+
 
 def bottom_screen_button(screen: Surface, on_click) -> Button:
     button_text = "Continuar"
@@ -9,8 +11,8 @@ def bottom_screen_button(screen: Surface, on_click) -> Button:
     screen_width, screen_height = screen.get_size()
     button_padding = 11
 
-    button_x = screen_width - (text_width) - (button_padding * 2) - 10
-    button_y = screen_height - (text_height) - button_padding - 10
+    button_x = screen_width - text_width - (button_padding * 2) - 10
+    button_y = screen_height - text_height - button_padding - 10
     return Button(
         screen=screen,
         text=button_text,

@@ -2,9 +2,9 @@ import json
 import os
 from dataclasses import dataclass
 from typing import List
-from ..root_dir import root_dir
 
 from .check_save import save_exists
+from ..root_dir import root_dir
 
 _dir = root_dir
 save_path = os.path.join(_dir + "/savestate", "save.json")
@@ -40,7 +40,7 @@ class Save:
 
     @classmethod
     def load(cls):
-        data = json.load(open(save_path, "r"))
+        data: object = json.load(open(save_path, "r"))
         return cls(
             Module(**data["md1"]),
             Module(**data["md2"]),

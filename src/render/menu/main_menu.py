@@ -2,19 +2,20 @@ import concurrent.futures
 from typing import List
 
 from pygame import Surface
+from pygame.event import Event
 
+from .mod_1.layout import Module1
+from .mod_2.layout import Module2
+from .top_menu import TopMenu
+from ..staff import Staff
 from ...utils.module_model import ModuleClass
 from ...utils.note_renderer import NoteRenderer
 from ...utils.renderable import Renderable
 from ...utils.save_operations.read_save import Save
-from ..staff import Staff
-from .mod_1.layout import Module1
-from .mod_2.layout import Module2
-from .top_menu import TopMenu
 
 
 class Menu(Renderable):
-    def __init__(self, screen: Surface, change_state: classmethod) -> None:
+    def __init__(self, screen: Surface, change_state) -> None:
         super().__init__(screen, change_state)
         self.screen = screen
         self.staff = Staff(screen)
@@ -59,10 +60,10 @@ class Menu(Renderable):
             total_chapters=self.total_chapters,
         ).render()
 
-    def event_check(self, event):
+    def event_check(self, event_arg: Event | None = None):
         for module in self.modules:
-            module.event_check(event)
-        return super().event_check(event)
+            module.event_check(event_arg)
+        return super().event_check(event_arg)
 
     def __get_modules_data(self):
         chapter_count = 0

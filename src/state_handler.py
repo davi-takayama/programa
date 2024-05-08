@@ -3,10 +3,9 @@ from pygame.event import Event
 from pygame.font import Font
 
 from .render.intro_scr import IntroScr
+from .render.menu.main_menu import Menu
 from .utils.renderable import Renderable
 from .utils.save_operations.check_save import save_exists
-
-from .render.menu.main_menu import Menu
 
 
 class StateHandler(Renderable):
@@ -23,8 +22,8 @@ class StateHandler(Renderable):
     def render(self) -> None:
         self.state.render()
 
-    def event_check(self, event: Event | None) -> None:
-        self.state.event_check(event)
+    def event_check(self, event_arg: Event | None = None):
+        self.state.event_check(event_arg)
 
     def change_state(self, new_state: Renderable) -> None:
         self.state = new_state

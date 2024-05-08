@@ -6,7 +6,7 @@ from pygame.event import Event
 
 class Renderable(ABC):
 
-    def __init__(self, screen: Surface, change_state: classmethod) -> None:
+    def __init__(self, screen: Surface, change_state) -> None:
         self.screen = screen
         self.change_state = change_state
         super().__init__()

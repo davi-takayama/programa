@@ -3,12 +3,12 @@ import pygame
 
 class Button:
     def __init__(
-        self,
-        screen: pygame.Surface,
-        pos: tuple[int, int],
-        text: str,
-        font: pygame.font.Font,
-        on_click,
+            self,
+            screen: pygame.Surface,
+            pos: tuple[int, int],
+            text: str,
+            font: pygame.font.Font,
+            on_click,
     ):
         self.screen = screen
         self.pos = pos
@@ -54,9 +54,7 @@ class Button:
             col = pos[0]
             row = pos[1]
             if (
-                col >= self.pos[0]
-                and col <= self.pos[0] + self.width + 2 * self.padding
-                and row >= self.pos[1]
-                and row <= self.pos[1] + self.height + self.padding
+                    self.pos[0] <= col <= self.pos[0] + self.width + 2 * self.padding
+                    and self.pos[1] <= row <= self.pos[1] + self.height + self.padding
             ):
                 self.on_click()

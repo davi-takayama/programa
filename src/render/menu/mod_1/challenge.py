@@ -8,17 +8,16 @@ import numpy as np
 import pygame
 import sounddevice as sd
 from pygame import Surface
-from pygame.font import Font
 from pygame.event import Event
+from pygame.font import Font
 
 from src.utils.audioinput.audio_analyzer import AudioAnalyzer
 from src.utils.audioinput.threading_helper import ProtectedList
-
+from ...staff import Staff
 from ....utils.button import Button
 from ....utils.note_renderer import NoteRenderer
-from ....utils.save_operations.read_save import Save
 from ....utils.renderable import Renderable
-from ...staff import Staff
+from ....utils.save_operations.read_save import Save
 
 vol = 0
 prev_vol = 0
@@ -26,12 +25,12 @@ prev_vol = 0
 
 class Challenge(Renderable):
     def __init__(
-        self,
-        screen: Surface,
-        change_state: classmethod,
-        chapter_index: int,
-        use_audio: bool = False,
-        num_challenges: int = 10,
+            self,
+            screen: Surface,
+            change_state: classmethod,
+            chapter_index: int,
+            use_audio: bool = False,
+            num_challenges: int = 10,
     ) -> None:
         super().__init__(screen, change_state)
         self.screen = screen
@@ -71,14 +70,14 @@ class Challenge(Renderable):
             self.__level()
             self.__go_back_button.render()
 
-    def event_check(self, event: Event):
+    def event_check(self, event_arg: Event | None = None):
         if self.__completed_challenges == self.__num_challenges:
-            self.__end_button.event_check(event)
+            self.__end_button.event_check(event_arg)
         else:
-            self.__event(event)
-            self.__go_back_button.event_check(event)
+            self.__event(event_arg)
+            self.__go_back_button.event_check(event_arg)
 
-        if event.type == pygame.QUIT:
+        if event_arg.type == pygame.QUIT:
             try:
                 self.__close_threads()
             except AttributeError:
@@ -103,8 +102,7 @@ class Challenge(Renderable):
 
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
-            y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2)
-            - self.__current_note[1] * self.__staff.note_spacing,
+            y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2) - (self.__current_note[1] * self.__staff.note_spacing),
             has_sharp=0,
         )
 
@@ -138,8 +136,7 @@ class Challenge(Renderable):
 
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
-            y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2)
-            - self.__current_note[1] * self.__staff.note_spacing,
+            y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2) - self.__current_note[1] * self.__staff.note_spacing,
             has_sharp=0,
         )
 
@@ -195,7 +192,7 @@ class Challenge(Renderable):
                 self.__continue_text = "Correto!"
             else:
                 self.__continue_text = (
-                    "Incorreto! A resposta correta era: " + self.__current_note[0]
+                        "Incorreto! A resposta correta era: " + self.__current_note[0]
                 )
             self.__continue = True
 
@@ -269,7 +266,7 @@ class Challenge(Renderable):
 
     def __pick_random_note(self):
         num = randint(0, len(self.__staff_notes) - 1)
-        return (self.__staff_notes[num], num)
+        return self.__staff_notes[num], num
 
     def final_screen(self):
         self.screen.fill("white")
@@ -287,7 +284,7 @@ class Challenge(Renderable):
         )
 
         text = (
-            "Sua pontuação foi: " + str(self.__score) + "/" + str(self.__num_challenges)
+                "Sua pontuação foi: " + str(self.__score) + "/" + str(self.__num_challenges)
         )
         width, _ = self.__font.size(text)
         self.screen.blit(
@@ -305,9 +302,9 @@ class Challenge(Renderable):
         notes = ["E", "F", "G", "A", "B", "C", "D"]
         note_index = notes.index(note_name)
         pos = (
-            self.__staff.c3_position
-            - (self.__staff.note_spacing * note_index)
-            - (self.__staff.note_spacing * 2)
+                self.__staff.c3_position
+                - (self.__staff.note_spacing * note_index)
+                - (self.__staff.note_spacing * 2)
         )
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 3 + 10,
@@ -349,10 +346,10 @@ class Challenge(Renderable):
             self.__continue_text = "Correto!"
         else:
             self.__continue_text = (
-                "Incorreto! A nota correta era: "
-                + self.__current_note[0]
-                + ". Você tocou: "
-                + self.__note_played
+                    "Incorreto! A nota correta era: "
+                    + self.__current_note[0]
+                    + ". Você tocou: "
+                    + self.__note_played
             )
 
     @staticmethod

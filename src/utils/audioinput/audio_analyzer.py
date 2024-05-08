@@ -86,8 +86,8 @@ class AudioAnalyzer(Thread):
                 data = np.frombuffer(data, dtype=np.int16)
 
                 # append data to audio buffer
-                self.buffer[: -self.CHUNK_SIZE] = self.buffer[self.CHUNK_SIZE :]
-                self.buffer[-self.CHUNK_SIZE :] = data
+                self.buffer[: -self.CHUNK_SIZE] = self.buffer[self.CHUNK_SIZE:]
+                self.buffer[-self.CHUNK_SIZE:] = data
 
                 # apply the fourier transformation on the whole buffer (with zero-padding + hanning window)
                 magnitude_data = abs(
@@ -107,8 +107,8 @@ class AudioAnalyzer(Thread):
                 for i in range(2, self.NUM_HPS + 1, 1):
                     hps_len = int(np.ceil(len(magnitude_data) / i))
                     magnitude_data[:hps_len] *= magnitude_data_orig[
-                        ::i
-                    ]  # multiply every i element
+                                                ::i
+                                                ]  # multiply every i element
 
                 # get the corresponding frequency array
                 frequencies = np.fft.fftfreq(

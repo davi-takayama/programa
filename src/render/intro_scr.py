@@ -1,5 +1,6 @@
 import pygame
 from pygame import Surface
+from pygame.event import Event
 
 from ..utils.bottom_screen_button import bottom_screen_button
 from ..utils.note_renderer import NoteRenderer
@@ -9,7 +10,7 @@ from .staff import Staff
 
 class IntroScr(Renderable):
     def __init__(
-        self, screen: Surface, change_state: classmethod, font: pygame.font.Font
+            self, screen: Surface, change_state, font: pygame.font.Font
     ) -> None:
         super().__init__(screen, change_state)
         self.screen = screen
@@ -84,11 +85,11 @@ class IntroScr(Renderable):
             screen_middle_y = self.screen.get_height() // 2
 
             if (
-                screen_middle_x - 10 <= col <= screen_middle_x + 10
-                and screen_middle_y - 5 <= row <= screen_middle_y + 5
+                    screen_middle_x - 10 <= col <= screen_middle_x + 10
+                    and screen_middle_y - 5 <= row <= screen_middle_y + 5
             ):
                 self.rendered_state = self.st_02
 
-    def event_check(self, event):
-        self.event_check_state(event)
-        self.button.event_check(event)
+    def event_check(self, event_arg: Event | None = None):
+        self.event_check_state(event_arg)
+        self.button.event_check(event_arg)
