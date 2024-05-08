@@ -1,7 +1,7 @@
 from pygame import Surface
 from pygame.font import Font
 
-from ..utils.button import Button
+from .button import Button
 
 
 def bottom_screen_button(screen: Surface, on_click) -> Button:

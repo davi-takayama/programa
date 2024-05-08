@@ -27,7 +27,7 @@ class Menu(Renderable):
             self.__get_modules_data()
         )
         self.cleff_width = self.staff.trebble_cleff_asset.get_width()
-        mod_width = self.screen.get_width() // 2 - self.cleff_width
+        mod_width = (self.screen.get_width() // 2 - self.cleff_width) * 2
         self.modules: List[ModuleClass] = [
             Module1(
                 screen,
@@ -41,7 +41,7 @@ class Menu(Renderable):
                 screen,
                 self.staff,
                 change_state,
-                self.screen.get_width() // 2,
+                mod_width + self.cleff_width * 2,
                 mod_width,
                 self.save.md2,
             ),

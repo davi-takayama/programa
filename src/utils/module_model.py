@@ -35,9 +35,9 @@ class ModuleClass(Renderable):
 
     @staticmethod
     def calculate_note_x_placements(
-            width: int, number_of_notes: int
+            width: int, number_of_elements: int
     ):
-        num_notes = number_of_notes
+        num_notes = number_of_elements
         notes_list = [width // (num_notes + 1) * i for i in range(1, num_notes + 1)]
 
         return notes_list

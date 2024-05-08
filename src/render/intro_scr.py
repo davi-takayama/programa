@@ -22,7 +22,7 @@ class IntroScr(Renderable):
         self.event_check_state = self.__on_click_note
 
         def on_click():
-            from .menu.mod_1.explanation import Explanation1
+            from .menu.mod_1.explanation_1 import Explanation1
 
             self.change_state(Explanation1(self.screen, self.change_state))
 

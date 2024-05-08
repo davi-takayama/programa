@@ -4,18 +4,18 @@ import pygame
 from pygame import Surface
 from pygame.event import Event
 
+from ...staff import Staff
 from ....utils.bottom_screen_button import bottom_screen_button
 from ....utils.button import Button
 from ....utils.note_renderer import NoteRenderer
+from ....utils.renderable import Renderable
 from ....utils.save_operations.check_save import save_exists
 from ....utils.save_operations.create_save import create_save
-from ....utils.renderable import Renderable
-from ...staff import Staff
 
 
 class Explanation1(Renderable):
 
-    def __init__(self, screen: Surface, change_state: classmethod) -> None:
+    def __init__(self, screen: Surface, change_state) -> None:
         super().__init__(screen, change_state)
         self.note_renderer = NoteRenderer(screen)
         self.staff = Staff(screen, time_signature=(4, 4))
@@ -49,6 +49,8 @@ class Explanation1(Renderable):
             screen=screen,
             on_click=__on_click_continue,
         )
+
+        self.events = [self.button.event_check]
 
     def render(self) -> None:
         self.screen.fill("white")
@@ -88,19 +90,19 @@ class Explanation1(Renderable):
                 )
                 self.screen.blit(text_surface, text_rect.topleft)
 
+                if self.pg_count == 3:
+                    self.note_renderer.quarter(
+                        x_pos=100, y_pos=self.staff.c3_position - self.staff.note_spacing * 4
+                    )
+
+                if self.pg_count == 4:
+                    self.__show_notes_in_cleff()
+
+                if self.pg_count == 5:
+                    self.__show_notes_in_cleff(show_letter_only=True)
+
         else:
             self.__end_explanation()
-
-        if self.pg_count == 3:
-            self.note_renderer.quarter(
-                x_pos=100, y_pos=self.staff.c3_position - self.staff.note_spacing * 4
-            )
-
-        if self.pg_count == 4:
-            self.__show_notes_in_cleff()
-
-        if self.pg_count == 5:
-            self.__show_notes_in_cleff(show_letter_only=True)
 
     def __show_notes_in_cleff(self, show_letter_only=False):
         horizontal_spacing = 40

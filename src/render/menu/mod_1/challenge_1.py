@@ -27,7 +27,7 @@ class Challenge(Renderable):
     def __init__(
             self,
             screen: Surface,
-            change_state: classmethod,
+            change_state,
             chapter_index: int,
             use_audio: bool = False,
             num_challenges: int = 10,
@@ -103,7 +103,7 @@ class Challenge(Renderable):
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
             y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2) - (self.__current_note[1] * self.__staff.note_spacing),
-            has_sharp=0,
+            has_sharp='none',
         )
 
         text = "Qual nota está sendo exibida?"
@@ -137,7 +137,7 @@ class Challenge(Renderable):
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
             y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2) - self.__current_note[1] * self.__staff.note_spacing,
-            has_sharp=0,
+            has_sharp='none',
         )
 
         if self.__note_played is None:
@@ -309,7 +309,7 @@ class Challenge(Renderable):
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 3 + 10,
             y_pos=pos,
-            has_sharp=has_sharp,
+            has_sharp='sharp' if has_sharp else 'none',
             color="gray",
         )
 
