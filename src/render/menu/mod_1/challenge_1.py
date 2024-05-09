@@ -382,7 +382,8 @@ class Challenge(Renderable):
                     + self.__note_played
             )
 
-    def __swap_note_if_invalid(self, checked_value):
+    @staticmethod
+    def __swap_note_if_invalid(checked_value):
         if checked_value == 'E#':
             checked_value = 'F'
         elif checked_value == 'B#':
