@@ -2,7 +2,7 @@ import re
 import statistics
 import time
 from random import randint
-from typing import List
+from typing import List, Literal
 
 import numpy as np
 import pygame
@@ -31,12 +31,14 @@ class Challenge(Renderable):
             chapter_index: int,
             use_audio: bool = False,
             num_challenges: int = 10,
+            chromatic: bool = False
     ) -> None:
         super().__init__(screen, change_state)
         self.screen = screen
         self.change_state = change_state
         self.__staff = Staff(screen, self.screen.get_height() // 3, (4, 4))
         self.__staff_notes = ["E", "F", "G", "A", "B", "C", "D", "E", "F"]
+        self.__chromatic = chromatic
         self.__num_challenges = num_challenges
         self.__completed_challenges = 0
         self.__score = 0
@@ -53,7 +55,7 @@ class Challenge(Renderable):
         self.__played_notes = []
         if use_audio:
             self.__start_audio_devices()
-        self.__level = self.__challenges if not use_audio else self.__audio_challenges
+        self.__level = self.__regular_challenges if not use_audio else self.__audio_challenges
         self.__start_time = 0
         self.__note_played = None
         self.__event = (
@@ -96,14 +98,16 @@ class Challenge(Renderable):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.__continue_button.on_click()
 
-    def __challenges(self):
+    def __regular_challenges(self):
         self.screen.fill("white")
         self.__staff.render()
+
+        sharp: Literal['none', 'sharp'] = 'none' if self.__current_note[0].find("#") == -1 else 'sharp'
 
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
             y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2) - (self.__current_note[1] * self.__staff.note_spacing),
-            has_sharp='none',
+            has_sharp=sharp
         )
 
         text = "Qual nota está sendo exibida?"
@@ -185,26 +189,33 @@ class Challenge(Renderable):
         )
 
     def __init_note_buttons(self):
+        def check_answer(text: str):
+            checked_value = self.__current_note[0]
+            if checked_value == 'E#':
+                checked_value = 'F'
+            elif checked_value == 'B#':
+                checked_value = 'C'
 
-        def __check_answer(text: str):
-            if text == self.__current_note[0]:
+            if text == checked_value:
                 self.__score += 1
                 self.__continue_text = "Correto!"
             else:
                 self.__continue_text = (
-                        "Incorreto! A resposta correta era: " + self.__current_note[0]
+                        "Incorreto! A resposta correta era: " + checked_value
                 )
             self.__continue = True
 
         buttons = []
+        notes = ["C", "D", "E", "F", "G", "A", "B"] if not self.__chromatic else ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A",
+                                                                                  "A#", "B"]
 
-        for index, letter in enumerate(["C", "D", "E", "F", "G", "A", "B"]):
+        for index, letter in enumerate(notes):
             button = Button(
                 font=self.__font,
                 text=letter,
-                on_click=lambda letter=letter: __check_answer(letter),
+                on_click=lambda x=letter: check_answer(x),
                 pos=(
-                    (self.screen.get_width() // 8 * (index + 1)) - 25,
+                    (self.screen.get_width() // (len(notes) + 1) * (index + 1)) - 25,
                     self.screen.get_height() // 4 * 3,
                 ),
                 screen=self.screen,
@@ -266,6 +277,11 @@ class Challenge(Renderable):
 
     def __pick_random_note(self):
         num = randint(0, len(self.__staff_notes) - 1)
+        if self.__chromatic:
+            hassharp = randint(0, 1)
+            return_value = self.__staff_notes[num] + "#" if hassharp else self.__staff_notes[num], num
+            print(return_value)
+            return return_value
         return self.__staff_notes[num], num
 
     def final_screen(self):
