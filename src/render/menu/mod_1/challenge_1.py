@@ -102,7 +102,7 @@ class Challenge(Renderable):
         self.screen.fill("white")
         self.__staff.render()
 
-        sharp: Literal['none', 'sharp'] = 'none' if self.__current_note[0].find("#") == -1 else 'sharp'
+        sharp = self.__get_sharp_or_flat()
 
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
@@ -138,10 +138,12 @@ class Challenge(Renderable):
         self.screen.fill("white")
         self.__staff.render()
 
+        sharp = self.__get_sharp_or_flat()
+
         self.__note_renderer.quarter(
             x_pos=self.__staff.trebble_cleff_asset.get_width() * 2 + 10,
             y_pos=(self.__staff.c3_position - self.__staff.note_spacing * 2) - self.__current_note[1] * self.__staff.note_spacing,
-            has_sharp='none',
+            has_sharp=sharp,
         )
 
         if self.__note_played is None:
@@ -167,6 +169,16 @@ class Challenge(Renderable):
             )
             self.__continue_button.render()
 
+    def __get_sharp_or_flat(self):
+        sharp: Literal['none', 'sharp', 'flat']
+        if self.__current_note[0].find("#") != -1:
+            sharp = 'sharp'
+        elif self.__current_note[0].find("b") != -1:
+            sharp = 'flat'
+        else:
+            sharp = 'none'
+        return sharp
+
     def __init_continue_button(self):
         def click_continue():
             self.__current_note = self.__pick_random_note()
@@ -191,10 +203,7 @@ class Challenge(Renderable):
     def __init_note_buttons(self):
         def check_answer(text: str):
             checked_value = self.__current_note[0]
-            if checked_value == 'E#':
-                checked_value = 'F'
-            elif checked_value == 'B#':
-                checked_value = 'C'
+            checked_value = self.__swap_note_if_invalid(checked_value)
 
             if text == checked_value:
                 self.__score += 1
@@ -206,8 +215,8 @@ class Challenge(Renderable):
             self.__continue = True
 
         buttons = []
-        notes = ["C", "D", "E", "F", "G", "A", "B"] if not self.__chromatic else ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A",
-                                                                                  "A#", "B"]
+        notes = ["C", "D", "E", "F", "G", "A", "B"] if not self.__chromatic else ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G",
+                                                                                  "G#/Ab", "A", "A#/Bb", "B"]
 
         for index, letter in enumerate(notes):
             button = Button(
@@ -278,11 +287,11 @@ class Challenge(Renderable):
     def __pick_random_note(self):
         num = randint(0, len(self.__staff_notes) - 1)
         if self.__chromatic:
-            hassharp = randint(0, 1)
-            return_value = self.__staff_notes[num] + "#" if hassharp else self.__staff_notes[num], num
-            print(return_value)
-            return return_value
-        return self.__staff_notes[num], num
+            hassharp = randint(0, 2)
+            return_char = ['', 'b', '#']
+            return self.__staff_notes[num] + return_char[hassharp], num
+        else:
+            return self.__staff_notes[num], num
 
     def final_screen(self):
         self.screen.fill("white")
@@ -332,6 +341,7 @@ class Challenge(Renderable):
     def __get_note(self):
         end_time = time.time()
         global vol
+
         if self.__note_played is None and vol > 5 and not self.__continue:
             (
                 self.__calc_note_position(self.__played_notes[-1])
@@ -357,16 +367,34 @@ class Challenge(Renderable):
     def __process_note_played(self):
         self.__note_played = statistics.mode(self.__played_notes)
         self.__continue = True
-        if self.__note_played == self.__current_note[0]:
+        checked_value = self.__current_note[0]
+
+        checked_value = self.__swap_note_if_invalid(checked_value)
+        note_equivalents: dict[str, str] = {"Cb": "B", "Db": "C#", "Eb": "D#", "Fb": "E", "Gb": "F#", "Ab": "G#", "Bb": "A#"}
+        if checked_value in note_equivalents:
+            checked_value = note_equivalents[checked_value]
+
+        if self.__note_played == checked_value:
             self.__score += 1
             self.__continue_text = "Correto!"
         else:
             self.__continue_text = (
                     "Incorreto! A nota correta era: "
-                    + self.__current_note[0]
+                    + checked_value
                     + ". Você tocou: "
                     + self.__note_played
             )
+
+    def __swap_note_if_invalid(self, checked_value):
+        if checked_value == 'E#':
+            checked_value = 'F'
+        elif checked_value == 'B#':
+            checked_value = 'C'
+        elif checked_value == 'Cb':
+            checked_value = 'B'
+        elif checked_value == 'Fb':
+            checked_value = 'E'
+        return checked_value
 
     @staticmethod
     def __get_volume(indata, frames, time, status):
