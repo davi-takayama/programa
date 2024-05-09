@@ -36,6 +36,7 @@ class Save:
     md2: Module
     md3: Module
     md4: Module
+    lastOpened: int
 
     @classmethod
     def load(cls):
@@ -45,6 +46,7 @@ class Save:
             Module(**save_data["md2"]),
             Module(**save_data["md3"]),
             Module(**save_data["md4"]),
+            save_data["lastOpened"],
         )
 
     def save(self):
@@ -54,6 +56,7 @@ class Save:
                 "md2": self.md2.__dict__,
                 "md3": self.md3.__dict__,
                 "md4": self.md4.__dict__,
+                "lastOpened": self.lastOpened,
             },
             open(save_path, "w"),
         )

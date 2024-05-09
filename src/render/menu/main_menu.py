@@ -25,7 +25,7 @@ class Menu(Renderable):
         self.change_state = change_state
         self.__c3_position = self.__staff.c3_position
         self.__note_renderer = NoteRenderer(screen)
-        self.__save = Save.load()
+        self.save = Save.load()
         self.__total_chapters, self.__completed_chapters, self.__perfected_chapters = (
             self.__get_modules_data()
         )
@@ -40,10 +40,11 @@ class Menu(Renderable):
         self.__arrow_left_x = self.__cleff_width
         self.__arrow_right_x = self.screen.get_width() - self.__arrow_right.get_width() - self.__cleff_width
 
-        self.current_module = 0
+        self.current_module = self.save.lastOpened
+
         self.modules: List[ModuleClass] = [
-            Module1(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.__save.md1),
-            Module2(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.__save.md2),
+            Module1(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md1),
+            Module2(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md2),
         ]
 
     def render(self):
@@ -69,9 +70,15 @@ class Menu(Renderable):
             if self.__arrow_left.get_rect(topleft=(self.__arrow_left_x, self.__arrow_y)).collidepoint(
                     event_arg.pos) and self.current_module > 0:
                 self.current_module = (self.current_module - 1) % len(self.modules)
+                save = Save.load()
+                save.lastOpened = self.current_module
+                save.save()
             elif self.__arrow_right.get_rect(topleft=(self.__arrow_right_x, self.__arrow_y)).collidepoint(
                     event_arg.pos) and self.current_module < len(self.modules) - 1:
                 self.current_module = (self.current_module + 1) % len(self.modules)
+                save = Save.load()
+                save.lastOpened = self.current_module
+                save.save()
         return super().event_check(event_arg)
 
     def __get_modules_data(self):
@@ -91,7 +98,7 @@ class Menu(Renderable):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(count_chapters, module)
-                for module in self.__save.__dict__.values()
+                for module in self.save.__dict__.values()
             ]
             concurrent.futures.wait(futures)
 
