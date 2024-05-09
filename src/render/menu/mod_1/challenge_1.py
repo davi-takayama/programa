@@ -1,5 +1,6 @@
 import re
 import statistics
+import textwrap
 import time
 from random import randint
 from typing import List, Literal
@@ -186,6 +187,7 @@ class Challenge(Renderable):
             self.__completed_challenges += 1
             if self.__note_played is not None:
                 self.__note_played = None
+                self.__played_notes = []
 
         return Button(
             font=self.__font,
@@ -248,7 +250,7 @@ class Challenge(Renderable):
                 else:
                     save.md2.unlocked = True
             save.md1.chapters[self.__chapter_index] = chapter
-            save.__save()
+            save.save()
             from ..main_menu import Menu
 
             try:
@@ -297,13 +299,17 @@ class Challenge(Renderable):
         else:
             text = "Você não conseguiu a pontuação para completar o capítulo. Tente novamente!"
         width, _ = self.__font.size(text)
-        self.screen.blit(
-            self.__font.render(text, True, "black"),
-            (
-                (self.screen.get_width() // 2) - (width // 2),
-                (self.screen.get_height() // 3),
-            ),
-        )
+
+        for index, text in enumerate(textwrap.wrap(text, width=60)):
+            text_surface = self.__font.render(text, True, "black")
+            text_rect = text_surface.get_rect()
+            text_rect.centerx = self.screen.get_width() // 2
+            text_rect.topleft = (
+                text_rect.centerx - text_rect.width // 2,
+                (self.screen.get_height() // 4)
+                + (index * (self.__font.size(text)[1] + 10)),
+            )
+            self.screen.blit(text_surface, text_rect.topleft)
 
         text = (
                 "Sua pontuação foi: " + str(self.__score) + "/" + str(self.__num_challenges)
@@ -381,6 +387,7 @@ class Challenge(Renderable):
                     + ". Você tocou: "
                     + self.__note_played
             )
+        self.__played_notes = []
 
     @staticmethod
     def __swap_note_if_invalid(checked_value):
