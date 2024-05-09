@@ -247,11 +247,8 @@ class Challenge(Renderable):
                     next_chapter["unlocked"] = True
                 else:
                     save.md2.unlocked = True
-            chapter["score"] = (
-                self.__score if self.__score > chapter["score"] else chapter["score"]
-            )
             save.md1.chapters[self.__chapter_index] = chapter
-            save.save()
+            save.__save()
             from ..main_menu import Menu
 
             try:

@@ -123,7 +123,7 @@ class Module1(ModuleClass):
                 chapter = save.md1.chapters[3]
                 chapter["unlocked"] = True
                 save.md1.chapters[3] = chapter
-                save.save()
+                save.__save()
                 from .explanation_2 import Explanation2
 
                 self.change_state(Explanation2(self.screen, self.change_state))

@@ -234,7 +234,7 @@ class Explanation2(Renderable):
         chapter = save.md2.chapters[0]
         chapter["unlocked"] = True
         save.md2.chapters[0] = chapter
-        save.save()
+        save.__save()
         from ..main_menu import Menu
 
         self.change_state(Menu(self.screen, self.change_state))

@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from typing import List
 
-from .check_save import save_exists
+from .check_save_exists import save_exists
 from ..root_dir import root_dir
 
 _dir = root_dir
@@ -22,7 +22,6 @@ class Chapter:
     unlocked: bool
     completed: bool
     perfected: bool
-    score: int
 
 
 @dataclass
@@ -40,12 +39,12 @@ class Save:
 
     @classmethod
     def load(cls):
-        data: object = json.load(open(save_path, "r"))
+        save_data: object = json.load(open(save_path, "r"))
         return cls(
-            Module(**data["md1"]),
-            Module(**data["md2"]),
-            Module(**data["md3"]),
-            Module(**data["md4"]),
+            Module(**save_data["md1"]),
+            Module(**save_data["md2"]),
+            Module(**save_data["md3"]),
+            Module(**save_data["md4"]),
         )
 
     def save(self):
