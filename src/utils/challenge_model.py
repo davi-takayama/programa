@@ -1,3 +1,4 @@
+import textwrap
 from abc import abstractmethod
 
 from pygame import Surface
@@ -8,7 +9,6 @@ from src.render.staff import Staff
 from src.utils.button import Button
 from src.utils.note_renderer import NoteRenderer
 from src.utils.renderable import Renderable
-from src.utils.save_operations.read_save import Save
 
 
 class ChallengeBase(Renderable):
@@ -29,7 +29,6 @@ class ChallengeBase(Renderable):
         self.score = 0
         self.font = Font(None, size=32)
         self.note_renderer = NoteRenderer(screen, self.staff.c3_position)
-        self.end_button = self.init_end_button()
         self.go_back_button = self.init_back_button()
 
     @abstractmethod
@@ -40,8 +39,10 @@ class ChallengeBase(Renderable):
     def event_check(self, event_arg: Event | None = None):
         pass
 
-    def init_back_button(self):
+    def init_back_button(self, extra_arguments: callable = None):
         def click_back():
+            if extra_arguments:
+                extra_arguments()
             from ..render.menu.main_menu import Menu
 
             self.change_state(Menu(self.screen, self.change_state))
@@ -64,30 +65,46 @@ class ChallengeBase(Renderable):
             screen=self.screen,
         )
 
-    def init_end_button(self):
-        def click_end():
-            save = Save.load()
-            chapter = save.md1.chapters[self.chapter_index]
-
-            if self.score >= int(self.num_challenges * 0.7):
-                chapter["completed"] = True
-                if self.score == self.num_challenges:
-                    chapter["perfected"] = True
-                if self.chapter_index + 1 < len(save.md1.chapters):
-                    next_chapter = save.md1.chapters[self.chapter_index + 1]
-                    next_chapter["unlocked"] = True
-                else:
-                    save.md2.unlocked = True
-            save.md1.chapters[self.chapter_index] = chapter
-            save.save()
-            from ..render.menu.main_menu import Menu
-
-            self.change_state(Menu(self.screen, self.change_state))
-
+    def init_end_button(self, click_end: callable):
         button_text = "Voltar ao menu"
         button_x = self.screen.get_width() // 2 - self.font.size(button_text)[0] // 2
         button_y = (self.screen.get_height() // 4) * 3
 
         return Button(
-            self.screen, (button_x, button_y), button_text, self.font, click_end
+            self.screen,
+            (button_x, button_y),
+            button_text,
+            self.font,
+            click_end
+        )
+
+    def final_screen(self):
+        self.screen.fill("white")
+        if self.score >= int(self.num_challenges * 0.7):
+            text = "Parabéns! Você completou o capítulo!"
+        else:
+            text = "Você não conseguiu a pontuação para completar o capítulo. Tente novamente!"
+        width, _ = self.font.size(text)
+
+        for index, text in enumerate(textwrap.wrap(text, width=60)):
+            text_surface = self.font.render(text, True, "black")
+            text_rect = text_surface.get_rect()
+            text_rect.centerx = self.screen.get_width() // 2
+            text_rect.topleft = (
+                text_rect.centerx - text_rect.width // 2,
+                (self.screen.get_height() // 4)
+                + (index * (self.font.size(text)[1] + 10)),
+            )
+            self.screen.blit(text_surface, text_rect.topleft)
+
+        text = (
+                "Sua pontuação foi: " + str(self.score) + "/" + str(self.num_challenges)
+        )
+        width, _ = self.font.size(text)
+        self.screen.blit(
+            self.font.render(text, True, "black"),
+            (
+                (self.screen.get_width() // 2) - (width // 2),
+                (self.screen.get_height() // 2),
+            ),
         )
