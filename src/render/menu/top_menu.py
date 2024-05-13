@@ -1,6 +1,5 @@
-from tkinter import font
-from pygame import Surface
 import pygame
+from pygame import Surface
 from pygame.font import Font
 
 

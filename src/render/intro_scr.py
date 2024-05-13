@@ -2,10 +2,10 @@ import pygame
 from pygame import Surface
 from pygame.event import Event
 
+from .staff import Staff
 from ..utils.bottom_screen_button import bottom_screen_button
 from ..utils.note_renderer import NoteRenderer
 from ..utils.renderable import Renderable
-from .staff import Staff
 
 
 class IntroScr(Renderable):

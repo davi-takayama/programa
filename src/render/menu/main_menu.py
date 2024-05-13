@@ -11,7 +11,6 @@ from .top_menu import TopMenu
 from ..staff import Staff
 from ...utils.image_rescaler import ImageRescaler
 from ...utils.module_model import ModuleClass
-from ...utils.note_renderer import NoteRenderer
 from ...utils.renderable import Renderable
 from ...utils.root_dir import root_dir
 from ...utils.save_operations.read_save import Save
