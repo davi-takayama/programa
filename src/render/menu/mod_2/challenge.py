@@ -19,6 +19,7 @@ class Challenge(ChallengeBase):
             chapter_index: int,
             use_audio: bool = False,
             num_challenges: int = 10,
+            unlock_next: bool = True,
     ):
         super().__init__(screen, change_state, chapter_index, use_audio, num_challenges)
         self.notes_dict: dict[float, callable] = {
@@ -33,10 +34,10 @@ class Challenge(ChallengeBase):
         self.__note_buttons = self.__init_note_buttons()
         self.__delete_button = self.__init_delete_button()
         self.__continue_button = self.init_continue_button(self.__click_continue)
-        self.current_time = 0
         self.__pick_notes()
         self.__note_pos_area = abs(self.staff.trebble_cleff_asset.get_width() * 2.2 - self.screen.get_width() // 2)
-        self.end_button = self.init_end_button(self.__click_end)
+        self.__end_button = self.init_end_button(self.__click_end)
+        self.__unlock_next = unlock_next
 
     def render(self):
         self.screen.fill("white")
@@ -47,7 +48,7 @@ class Challenge(ChallengeBase):
                 self.__continue_render()
         else:
             self.end_render()
-            self.end_button.render()
+            self.__end_button.render()
 
     def event_check(self, event_arg: Event | None = None):
         if self.num_challenges != self.current_challenge:
@@ -59,7 +60,7 @@ class Challenge(ChallengeBase):
             else:
                 self.__continue_button.event_check(event_arg)
         else:
-            self.end_button.event_check(event_arg)
+            self.__end_button.event_check(event_arg)
 
     def __challenge_render(self):
         self.staff.render()
@@ -173,7 +174,7 @@ class Challenge(ChallengeBase):
                 for _ in range(num_of_notes)
             ]
 
-        max_iter = 100
+        max_iter = 500
         iters = 0
         while sum(chosen_notes) != sum(nums):
             values_list = list(self.notes_dict.keys())
@@ -222,7 +223,7 @@ class Challenge(ChallengeBase):
             chapter["completed"] = True
             if self.score == self.num_challenges:
                 chapter["perfected"] = True
-            if self.chapter_index + 1 < len(save.md2.chapters):
+            if self.chapter_index + 1 < len(save.md2.chapters) and self.__unlock_next:
                 next_chapter = save.md2.chapters[self.chapter_index + 1]
                 next_chapter["unlocked"] = True
             else:

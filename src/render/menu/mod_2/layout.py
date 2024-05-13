@@ -30,6 +30,15 @@ class Module2(ModuleClass):
         self.note_x_placement = self.calculate_note_x_placements(width, 5)
         self.first_chord_rect: Rect = self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3)
 
+    def __draw_star(self, x: int, y: int, chapter_index: int):
+        if self.module.chapters[chapter_index]["unlocked"]:
+            star_asset = self.full_star if self.module.chapters[chapter_index]["perfected"] else self.blank_star
+            star_height = 16
+            star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
+            star_x = x + star_asset.get_width() // 10
+            star_y = y + self.staff.line_spacing
+            self.surface.blit(star_asset, (star_x, star_y))
+
     def render(self):
         self.surface.fill("white")
         self.__render_first_chord()
@@ -38,6 +47,8 @@ class Module2(ModuleClass):
             y_pos=self.note_y_placement[0],
             color=("black" if self.module.chapters[0]["unlocked"] else "gray"),
         )
+        self.__draw_star(self.note_x_placement[1], self.note_y_placement[0], 0)
+
         self.__render_second_chord()
         self.note_renderer.eighth(
             [
@@ -46,10 +57,13 @@ class Module2(ModuleClass):
             ],
             0,
             [
+                ("black" if self.module.chapters[1]["unlocked"] else "gray"),
                 ("black" if self.module.chapters[2]["unlocked"] else "gray"),
-                ("black" if self.module.chapters[3]["unlocked"] else "gray"),
             ],
         )
+        self.__draw_star(self.note_x_placement[3], self.note_y_placement[1], 1)
+        self.__draw_star(self.note_x_placement[4], self.note_y_placement[2], 2)
+
         text = pygame.font.Font(None, size=32).render(self.text, True, "black")
         text_x = (self.surface.get_width() - text.get_width()) // 2
         text_y = self.screen.get_height() // 4
@@ -68,7 +82,7 @@ class Module2(ModuleClass):
                     event_arg.pos) and self.module.chapters[0]["unlocked"]:
                 from .challenge import Challenge
 
-                self.change_state(Challenge(self.screen, self.change_state, 0))
+                self.change_state(Challenge(self.screen, self.change_state, 0, unlock_next=False))
 
             elif self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
                     event_arg.pos) and self.module.chapters[1]["unlocked"]:
@@ -97,7 +111,7 @@ class Module2(ModuleClass):
         star_x = self.note_x_placement[0] - star_asset.get_width() // 4
         star_y = self.note_y_placement[0] + self.staff.line_spacing * 1.5
         perfected_completed_text = f"{self.perfected_chapters}/{self.total_chapters}"
-        text = pygame.font.Font(size=24).render(perfected_completed_text, True, "black")
+        text = pygame.font.Font(None, size=24).render(perfected_completed_text, True, "black")
         text_y = star_y + star_height + 5
         self.surface.blit(text, (star_x + 5, text_y))
         self.surface.blit(star_asset, (star_x, star_y))
