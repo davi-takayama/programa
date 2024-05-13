@@ -13,7 +13,7 @@ from ....utils.save_operations.read_save import Save
 
 
 class Explanation2(Renderable):
-    def __init__(self, screen: Surface, change_state: classmethod) -> None:
+    def __init__(self, screen: Surface, change_state) -> None:
         super().__init__(screen, change_state)
         self.staff = Staff(screen=screen, time_signature=(4, 4))
         self.pg_count = 0

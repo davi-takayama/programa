@@ -108,3 +108,33 @@ class ChallengeBase(Renderable):
                 (self.screen.get_height() // 2),
             ),
         )
+
+    def end_render(self):
+        if self.score >= int(self.num_challenges * 0.7):
+            text = "Parabéns! Você completou o capítulo!"
+        else:
+            text = "Você não conseguiu a pontuação para completar o capítulo. Tente novamente!"
+        width, _ = self.font.size(text)
+
+        for index, text in enumerate(textwrap.wrap(text, width=60)):
+            text_surface = self.font.render(text, True, "black")
+            text_rect = text_surface.get_rect()
+            text_rect.centerx = self.screen.get_width() // 2
+            text_rect.topleft = (
+                text_rect.centerx - text_rect.width // 2,
+                (self.screen.get_height() // 4)
+                + (index * (self.font.size(text)[1] + 10)),
+            )
+            self.screen.blit(text_surface, text_rect.topleft)
+
+        text = (
+                "Sua pontuação foi: " + str(self.score) + "/" + str(self.num_challenges)
+        )
+        width, _ = self.font.size(text)
+        self.screen.blit(
+            self.font.render(text, True, "black"),
+            (
+                (self.screen.get_width() // 2) - (width // 2),
+                (self.screen.get_height() // 2),
+            ),
+        )

@@ -131,32 +131,31 @@ class NoteRenderer:
         if isinstance(has_sharp, int):
             has_sharp = [has_sharp] * len(positions)
 
-        for pos, sharp in zip(positions, has_sharp):
+        def draw_note(pos, sharp, color):
             if index == len(positions) - 1 and len(positions) % 2 != 0:
-                rect = self.single_eighth(pos[0], pos[1], sharp, color[index])
+                return self.single_eighth(pos[0], pos[1], sharp, color)
             else:
-                rect = self.quarter(pos[0], pos[1], sharp, color[index])
+                return self.quarter(pos[0], pos[1], sharp, color)
 
-                if index % 2 == 1:
+        for pos, sharp in zip(positions, has_sharp):
+            rect = draw_note(pos, sharp, color[index])
 
+            if index % 2 == 1:
+                pg.draw.line(
+                    self.screen,
+                    color[(index - 1) if index > 1 else 0],
+                    (positions[index - 1][0] + 18, positions[index - 1][1] - 40),
+                    (pos[0] + 18, pos[1] - 40),
+                    6,
+                )
+                if sixteenth:
                     pg.draw.line(
                         self.screen,
                         color[(index - 1) if index > 1 else 0],
-                        (positions[index - 1][0] + 18, positions[index - 1][1] - 40),
-                        (pos[0] + 18, pos[1] - 40),
+                        (positions[index - 1][0] + 18, positions[index - 1][1] - 32),
+                        (pos[0] + 18, pos[1] - 32),
                         6,
                     )
-                    if sixteenth:
-                        pg.draw.line(
-                            self.screen,
-                            color[(index - 1) if index > 1 else 0],
-                            (
-                                positions[index - 1][0] + 18,
-                                positions[index - 1][1] - 32,
-                            ),
-                            (pos[0] + 18, pos[1] - 32),
-                            6,
-                        )
 
             rects.append(rect)
             index += 1

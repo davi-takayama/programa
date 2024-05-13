@@ -23,8 +23,6 @@ class Menu(Renderable):
         self.screen = screen
         self.__staff = Staff(screen)
         self.change_state = change_state
-        self.__c3_position = self.__staff.c3_position
-        self.__note_renderer = NoteRenderer(screen)
         self.save = Save.load()
         self.__total_chapters, self.__completed_chapters, self.__perfected_chapters = (
             self.__get_modules_data()

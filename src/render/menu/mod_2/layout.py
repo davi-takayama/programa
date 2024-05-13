@@ -50,7 +50,7 @@ class Module2(ModuleClass):
                 ("black" if self.module.chapters[3]["unlocked"] else "gray"),
             ],
         )
-        text = pygame.font.Font(size=32).render(self.text, True, "black")
+        text = pygame.font.Font(None, size=32).render(self.text, True, "black")
         text_x = (self.surface.get_width() - text.get_width()) // 2
         text_y = self.screen.get_height() // 4
         self.surface.blit(text, (text_x, text_y))
@@ -66,7 +66,10 @@ class Module2(ModuleClass):
                 self.change_state(Explanation2(self.screen, self.change_state))
             elif self.calculate_rect(self.note_x_placement[1], self.note_y_placement[0], 1).collidepoint(
                     event_arg.pos) and self.module.chapters[0]["unlocked"]:
-                print("first note clicked")  # TODO: mudar para primeiro desafio quando implementado
+                from .challenge import Challenge
+
+                self.change_state(Challenge(self.screen, self.change_state, 0))
+
             elif self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
                     event_arg.pos) and self.module.chapters[1]["unlocked"]:
                 print("second note clicked")  # TODO: mudar para segunda explicacao quando implementado

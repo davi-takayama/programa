@@ -94,7 +94,7 @@ class Module1(ModuleClass):
 
                 self.change_state(Explanation1(self.screen, self.change_state))
 
-            from .challenge_1 import Challenge
+            from .challenge import Challenge
 
             if (
                     self.calculate_rect(self.__note_x_placements[1], self.__note_y_placement[0], 1).collidepoint(event_arg.pos)
