@@ -146,7 +146,6 @@ class Module1(ModuleClass):
             ):
                 self.change_state(Challenge(self.screen, self.change_state, 5, True, 10, True))
 
-
     def __render_chord(self):
         for i in range(3):
             self.note_renderer.quarter(

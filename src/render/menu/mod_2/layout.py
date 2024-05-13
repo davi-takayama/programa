@@ -75,21 +75,23 @@ class Module2(ModuleClass):
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3).collidepoint(
                     event_arg.pos) and self.module.unlocked:
-                from .explanation import Explanation2
+                from .explanation import Explanation
+                self.change_state(Explanation(self.screen, self.change_state))
 
-                self.change_state(Explanation2(self.screen, self.change_state))
             elif self.calculate_rect(self.note_x_placement[1], self.note_y_placement[0], 1).collidepoint(
                     event_arg.pos) and self.module.chapters[0]["unlocked"]:
                 from .challenge import Challenge
-
                 self.change_state(Challenge(self.screen, self.change_state, 0, unlock_next=False))
 
-            elif self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
-                    event_arg.pos) and self.module.chapters[1]["unlocked"]:
-                print("second note clicked")  # TODO: mudar para segunda explicacao quando implementado
+            if self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
+                    event_arg.pos) and self.module.chapters[0]["completed"]:
+                from .explanation_2 import Explanation
+                self.change_state(Explanation(self.screen, self.change_state))
+
             elif self.calculate_rect(self.note_x_placement[3], self.note_y_placement[1], 1).collidepoint(
                     event_arg.pos) and self.module.chapters[2]["unlocked"]:
                 print("third note clicked")  # TODO: mudar para terceiro desafio quando implementado
+
             elif self.calculate_rect(self.note_x_placement[4], self.note_y_placement[2], 1).collidepoint(
                     event_arg.pos) and self.module.chapters[3]["unlocked"]:
                 print("fourth note clicked")  # TODO: mudar para quarto desafio quando implementado
@@ -121,5 +123,5 @@ class Module2(ModuleClass):
             self.note_renderer.quarter(
                 x_pos=self.note_x_placement[2],
                 y_pos=self.note_y_placement[i + 1],
-                color=("black" if self.module.chapters[1]["unlocked"] else "gray"),
+                color=("black" if self.module.chapters[0]["completed"] else "gray"),
             )

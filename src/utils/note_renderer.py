@@ -1,7 +1,7 @@
 from typing import List, Literal
 
 import pygame as pg
-from pygame import Rect, Surface
+from pygame import Surface
 from pygame.font import Font
 
 from .image_rescaler import ImageRescaler
@@ -9,51 +9,55 @@ from ..utils.root_dir import root_dir
 
 
 class NoteRenderer:
-    def __init__(self, screen: Surface, c3_pos: int = None) -> None:
+    def __init__(self, screen: Surface, c3_pos: int = None, draw_lines: bool = True) -> None:
         self.screen = screen
         _dir = root_dir
         self.eigth_stem = pg.image.load(_dir + "assets/images/eigth_stem.png")
         self.eigth_stem = ImageRescaler.rescale_from_height(self.eigth_stem, 35)
-        self.c3_pos = c3_pos if c3_pos is not None else screen.get_height() // 2
+        self.c3_pos = c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
+        self.__draw_lines = draw_lines
+        self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\whole_pause.png"), 10)
+        self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\half_pause.png"), 10)
+        self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 64)
+        self.__eighth_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\eighth_pause.png"), 32)
 
-    def __draw_sharp_or_flat(
-        self, x_pos: int, y_pos: int, symbol: Literal["#", "b", "♮"], color: str
+    def __draw_accident(
+            self, x_pos: int, y_pos: int, symbol: Literal["#", "b", "♮"], color: str
     ):
         font = Font(None, 32)
         text_surface = font.render(symbol, True, color)
         self.screen.blit(text_surface, (x_pos - 3, y_pos))
 
     def __note_base(
-        self,
-        x_pos: int,
-        y_pos: int,
-        has_sharp: Literal["none", "sharp", "flat", "natural"],
-        color: str,
-    ) -> Rect:
-        note_rect = pg.draw.ellipse(self.screen, color, (x_pos, y_pos - 7, 20, 16))
+            self,
+            x_pos: int,
+            y_pos: int,
+            has_sharp: Literal["none", "sharp", "flat", "natural"],
+            color: str,
+    ):
+        pg.draw.ellipse(self.screen, color, (x_pos, y_pos - 7, 20, 16))
         if has_sharp == "sharp":
-            self.__draw_sharp_or_flat(x_pos - 12, y_pos - 10, "#", color)
+            self.__draw_accident(x_pos - 12, y_pos - 10, "#", color)
         elif has_sharp == "flat":
-            self.__draw_sharp_or_flat(x_pos - 12, y_pos - 10, "b", color)
+            self.__draw_accident(x_pos - 12, y_pos - 10, "b", color)
         elif has_sharp == "natural":
-            self.__draw_sharp_or_flat(x_pos - 12, y_pos - 10, "♮", color)
-        if y_pos >= self.c3_pos:
+            self.__draw_accident(x_pos - 12, y_pos - 10, "♮", color)
+        if y_pos >= self.c3_pos and self.__draw_lines:
             for i in range(self.c3_pos, y_pos + 1, 16):
                 pg.draw.line(self.screen, color, (x_pos - 5, i), (x_pos + 25, i), 2)
-        return note_rect
 
-    def __draw_stem(self, x_pos: int, y_pos: int, color: str) -> Rect:
+    def __draw_stem(self, x_pos: int, y_pos: int, color: str):
         pg.draw.line(
             self.screen, color, (x_pos + 18, y_pos), (x_pos + 18, y_pos - 40), 3
         )
 
     def whole(
-        self,
-        x_pos: int,
-        y_pos: int,
-        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-        color: str = "black",
-    ) -> Rect:
+            self,
+            x_pos: int,
+            y_pos: int,
+            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+            color: str = "black",
+    ):
         """
         x_pos: x position of the note
         y_pos: y position of the note
@@ -64,12 +68,12 @@ class NoteRenderer:
         pg.draw.ellipse(self.screen, "white", (x_pos + 3, y_pos - 4, 14, 8))
 
     def half(
-        self,
-        x_pos: int,
-        y_pos: int,
-        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-        color: str = "black",
-    ) -> Rect:
+            self,
+            x_pos: int,
+            y_pos: int,
+            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+            color: str = "black",
+    ):
         """
         x_pos: x position of the note
         y_pos: y position of the note
@@ -80,12 +84,12 @@ class NoteRenderer:
         self.__draw_stem(x_pos, y_pos, color)
 
     def quarter(
-        self,
-        x_pos: int,
-        y_pos: int,
-        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-        color: str = "black",
-    ) -> Rect:
+            self,
+            x_pos: int,
+            y_pos: int,
+            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+            color: str = "black",
+    ):
         """
         x_pos: x position of the note
         y_pos: y position of the note
@@ -97,12 +101,12 @@ class NoteRenderer:
         self.__draw_stem(x_pos, y_pos, color)
 
     def single_eighth(
-        self,
-        x_pos: int,
-        y_pos: int,
-        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-        color: str = "black",
-    ) -> Rect:
+            self,
+            x_pos: int,
+            y_pos: int,
+            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+            color: str = "black",
+    ):
         """
         x_pos: x position of the note
         y_pos: y position of the note
@@ -113,32 +117,31 @@ class NoteRenderer:
         self.screen.blit(self.eigth_stem, (x_pos + 20, y_pos - 40))
 
     def eighth(
-        self,
-        positions: List[tuple[int, int]],
-        has_sharp: List[Literal["none", "sharp", "flat", "natural"]] | int = 0,
-        color: str | List[str] = "black",
-        sixteenth: bool = False,
-    ) -> List[Rect]:
+            self,
+            positions: List[tuple[int, int]],
+            has_sharp: List[Literal["none", "sharp", "flat", "natural"]] | int = 0,
+            color: str | List[str] = "black",
+            sixteenth: bool = False,
+    ):
         """
         positions: list of tuples with the x and y position of the notes
         has_sharp: list with the sharp or flat of each note
         color: color of the notes
         """
-        rects = []
         index = 0
         if isinstance(color, str):
             color = [color] * len(positions)
         if isinstance(has_sharp, int):
             has_sharp = [has_sharp] * len(positions)
 
-        def draw_note(pos, sharp, color):
+        def draw_note(note_pos, note_has_sharp, note_color):
             if index == len(positions) - 1 and len(positions) % 2 != 0:
-                return self.single_eighth(pos[0], pos[1], sharp, color)
+                return self.single_eighth(note_pos[0], note_pos[1], note_has_sharp, note_color)
             else:
-                return self.quarter(pos[0], pos[1], sharp, color)
+                return self.quarter(note_pos[0], note_pos[1], note_has_sharp, note_color)
 
         for pos, sharp in zip(positions, has_sharp):
-            rect = draw_note(pos, sharp, color[index])
+            draw_note(pos, sharp, color[index])
 
             if index % 2 == 1:
                 pg.draw.line(
@@ -157,5 +160,34 @@ class NoteRenderer:
                         6,
                     )
 
-            rects.append(rect)
             index += 1
+
+    def pause(self, pos: tuple[int, int], pause_length: int):
+        """
+        pos: x and y position of the pause
+        pause_length: [
+          - 0 for whole
+          - 1 for half
+          - 2 for quarter
+          - 3 for eighth
+        ]
+        """
+        match pause_length:
+            case 0:
+                x = pos[0] - self.__whole_pause.get_width() // 2
+                y = pos[1] - self.__whole_pause.get_height() // 2
+                self.screen.blit(self.__whole_pause, (x, y))
+            case 1:
+                x = pos[0] - self.__half_pause.get_width() // 2
+                y = pos[1] - self.__half_pause.get_height() // 2
+                self.screen.blit(self.__half_pause, (x, y))
+            case 2:
+                x = pos[0] - self.__quarter_pause.get_width() // 2
+                y = pos[1] - self.__quarter_pause.get_height() // 2
+                self.screen.blit(self.__quarter_pause, (x, y))
+            case 3:
+                x = pos[0] - self.__eighth_pause.get_width() // 2
+                y = pos[1] - self.__eighth_pause.get_height() // 2
+                self.screen.blit(self.__eighth_pause, (x, y))
+            case _:
+                raise ValueError("Invalid pause length")
