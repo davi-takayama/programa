@@ -5,6 +5,7 @@ from pygame import Surface
 from pygame.font import Font
 
 from .image_rescaler import ImageRescaler
+from ..render.staff import Staff
 from ..utils.root_dir import root_dir
 
 
@@ -14,8 +15,10 @@ class NoteRenderer:
         _dir = root_dir
         self.eigth_stem = pg.image.load(_dir + "assets/images/eigth_stem.png")
         self.eigth_stem = ImageRescaler.rescale_from_height(self.eigth_stem, 35)
-        self.c3_pos = c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
+        self.__c3_pos = c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
+        self.__line_spacing = Staff.line_spacing
         self.__draw_lines = draw_lines
+        print(self.__c3_pos, self.__line_spacing)
         self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\whole_pause.png"), 10)
         self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\half_pause.png"), 10)
         self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 48)
@@ -42,8 +45,8 @@ class NoteRenderer:
             self.__draw_accident(x_pos - 12, y_pos - 10, "b", color)
         elif has_sharp == "natural":
             self.__draw_accident(x_pos - 12, y_pos - 10, "♮", color)
-        if y_pos >= self.c3_pos and self.__draw_lines:
-            for i in range(self.c3_pos, y_pos + 1, 16):
+        if y_pos >= self.__c3_pos and self.__draw_lines:
+            for i in range(self.__c3_pos, y_pos + 1, 16):
                 pg.draw.line(self.screen, color, (x_pos - 5, i), (x_pos + 25, i), 2)
 
     def __draw_stem(self, x_pos: int, y_pos: int, color: str):
@@ -162,7 +165,7 @@ class NoteRenderer:
 
             index += 1
 
-    def pause(self, pos: tuple[int, int], pause_length: int):
+    def pause(self, pos: int, pause_length: int):
         """
         pos: x and y position of the pause
         pause_length: [
@@ -174,20 +177,20 @@ class NoteRenderer:
         """
         match pause_length:
             case 0:
-                x = pos[0] - self.__whole_pause.get_width() // 2
-                y = pos[1] - self.__whole_pause.get_height() // 2
-                self.screen.blit(self.__whole_pause, (x, y))
+                x = pos - self.__whole_pause.get_width() // 2
+                height = self.__whole_pause.get_height()
+                self.screen.blit(self.__whole_pause, (x, self.__c3_pos - (self.__line_spacing * 2.6) - height // 2))
             case 1:
-                x = pos[0] - self.__half_pause.get_width() // 2
-                y = pos[1] - self.__half_pause.get_height() // 2
-                self.screen.blit(self.__half_pause, (x, y))
+                x = pos - self.__half_pause.get_width() // 2
+                height = self.__half_pause.get_height()
+                self.screen.blit(self.__half_pause, (x, self.__c3_pos - (self.__line_spacing * 2.3) - height // 2))
             case 2:
-                x = pos[0] - self.__quarter_pause.get_width() // 2
-                y = pos[1] - self.__quarter_pause.get_height() // 2
-                self.screen.blit(self.__quarter_pause, (x, y))
+                x = pos - self.__quarter_pause.get_width() // 2
+                height = self.__quarter_pause.get_height()
+                self.screen.blit(self.__quarter_pause, (x, self.__c3_pos - (self.__line_spacing * 3) - height // 2))
             case 3:
-                x = pos[0] - self.__eighth_pause.get_width() // 2
-                y = pos[1] - self.__eighth_pause.get_height() // 2
-                self.screen.blit(self.__eighth_pause, (x, y))
+                x = pos - self.__eighth_pause.get_width() // 2
+                height = self.__eighth_pause.get_height()
+                self.screen.blit(self.__eighth_pause, (x, self.__c3_pos - (self.__line_spacing * 3) - height // 2))
             case _:
                 raise ValueError("Invalid pause length")
