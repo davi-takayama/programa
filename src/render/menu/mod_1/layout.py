@@ -94,18 +94,18 @@ class Module1(ModuleClass):
 
                 self.change_state(Explanation1(self.screen, self.change_state))
 
-            from .challenge import Challenge
-
             if (
                     self.calculate_rect(self.__note_x_placements[1], self.__note_y_placement[0], 1).collidepoint(event_arg.pos)
                     and self.module.chapters[0]["unlocked"]
             ):
+                from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 0))
 
             elif (
                     self.calculate_rect(self.__note_x_placements[2], self.__note_y_placement[1], 1).collidepoint(event_arg.pos)
                     and self.module.chapters[1]["unlocked"]
             ):
+                from .challenge import Challenge
 
                 self.change_state(Challenge(self.screen, self.change_state, 1, True))
 
@@ -113,6 +113,7 @@ class Module1(ModuleClass):
                     self.calculate_rect(self.__note_x_placements[3], self.__note_y_placement[2], 2).collidepoint(event_arg.pos)
                     and self.module.chapters[2]["unlocked"]
             ):
+                from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 2, True, 15))
 
             elif (
@@ -132,18 +133,21 @@ class Module1(ModuleClass):
                     self.calculate_rect(self.__note_x_placements[6] + 16, self.__note_y_placement[1], 1).collidepoint(event_arg.pos)
                     and self.module.chapters[3]["unlocked"]
             ):
+                from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 3, False, 10, True))
 
             elif (
                     self.calculate_rect(self.__note_x_placements[7] + 16, self.__note_y_placement[2], 1).collidepoint(event_arg.pos)
                     and self.module.chapters[4]["unlocked"]
             ):
+                from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 4, True, 10, True))
 
             elif (
                     self.calculate_rect(self.__note_x_placements[8] + 16, self.__note_y_placement[3], 1).collidepoint(event_arg.pos)
                     and self.module.chapters[5]["unlocked"]
             ):
+                from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 5, True, 10, True))
 
     def __render_chord(self):
