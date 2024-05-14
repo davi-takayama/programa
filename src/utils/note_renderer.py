@@ -18,7 +18,7 @@ class NoteRenderer:
         self.__draw_lines = draw_lines
         self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\whole_pause.png"), 10)
         self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\half_pause.png"), 10)
-        self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 64)
+        self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 48)
         self.__eighth_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\eighth_pause.png"), 32)
 
     def __draw_accident(
