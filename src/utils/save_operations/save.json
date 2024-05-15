@@ -79,25 +79,5 @@
       }
     ]
   },
-  "md4": {
-    "unlocked": false,
-    "chapters": [
-      {
-        "unlocked": false,
-        "completed": false,
-        "perfected": false
-      },
-      {
-        "unlocked": false,
-        "completed": false,
-        "perfected": false
-      },
-      {
-        "unlocked": false,
-        "completed": false,
-        "perfected": false
-      }
-    ]
-  },
   "lastOpened": 0
 }

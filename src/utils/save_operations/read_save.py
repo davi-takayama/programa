@@ -35,7 +35,6 @@ class Save:
     md1: Module
     md2: Module
     md3: Module
-    md4: Module
     lastOpened: int
 
     @classmethod
@@ -45,7 +44,6 @@ class Save:
             Module(**save_data["md1"]),
             Module(**save_data["md2"]),
             Module(**save_data["md3"]),
-            Module(**save_data["md4"]),
             save_data["lastOpened"],
         )
 
@@ -55,7 +53,6 @@ class Save:
                 "md1": self.md1.__dict__,
                 "md2": self.md2.__dict__,
                 "md3": self.md3.__dict__,
-                "md4": self.md4.__dict__,
                 "lastOpened": self.lastOpened,
             },
             open(save_path, "w"),
