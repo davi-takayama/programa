@@ -18,7 +18,6 @@ class NoteRenderer:
         self.__c3_pos = c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
         self.__line_spacing = Staff.line_spacing
         self.__draw_lines = draw_lines
-        print(self.__c3_pos, self.__line_spacing)
         self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\whole_pause.png"), 10)
         self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\half_pause.png"), 10)
         self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 48)

@@ -90,13 +90,13 @@ class Module2(ModuleClass):
 
             elif self.calculate_rect(self.note_x_placement[3], self.note_y_placement[1], 1).collidepoint(
                     event_arg.pos) and self.module.chapters[1]["unlocked"]:
-                print("third note clicked")
                 from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 1, unlock_next=True, use_pauses=True))
 
             elif self.calculate_rect(self.note_x_placement[4], self.note_y_placement[2], 1).collidepoint(
                     event_arg.pos) and self.module.chapters[2]["unlocked"]:
-                print("fourth note clicked")  # TODO: mudar para quarto desafio quando implementado
+                from .challenge_2 import Challenge2
+                self.change_state(Challenge2(self.screen, self.change_state, 2))
 
     def __render_first_chord(self):
         for i in range(3):

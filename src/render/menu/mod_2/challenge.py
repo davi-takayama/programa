@@ -17,12 +17,11 @@ class Challenge(ChallengeBase):
             screen: Surface,
             change_state,
             chapter_index: int,
-            use_audio: bool = False,
             num_challenges: int = 10,
             unlock_next: bool = True,
             use_pauses: bool = False,
     ):
-        super().__init__(screen, change_state, chapter_index, use_audio, num_challenges)
+        super().__init__(screen, change_state, chapter_index, False, num_challenges)
         self.__use_pauses = use_pauses
         self.__unlock_next = unlock_next
         self.__notes_dict: dict[float, callable] = {
@@ -50,7 +49,6 @@ class Challenge(ChallengeBase):
     def render(self):
         self.screen.fill("white")
         if self.current_challenge < self.num_challenges:
-            # self.staff.c3_position = self.staff.line_positions[-1] - self.staff.line_spacing
             if len(self.__pushed_notes) < self.__num_notes_selected():
                 self.__challenge_render()
             else:
