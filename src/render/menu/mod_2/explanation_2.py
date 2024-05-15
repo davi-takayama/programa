@@ -73,8 +73,6 @@ class Explanation(Renderable):
                 case 3:
                     self.note_renderer.single_eighth(rect_arg.centerx - 32, rect_arg.centery)
                     self.note_renderer.pause(rect_arg.centerx + 32, note, rect_arg.centery)
-                case _:
-                    pass
 
         for index, rect in enumerate(rects):
             draw_on_rect(rect, index)

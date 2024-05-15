@@ -90,19 +90,23 @@ class Explanation1(Renderable):
                 )
                 self.screen.blit(text_surface, text_rect.topleft)
 
-                if self.pg_count == 3:
-                    self.note_renderer.quarter(
-                        x_pos=100, y_pos=self.staff.c3_position - self.staff.note_spacing * 4
-                    )
+            if self.pg_count == 3:
+                self.__render_notes()
 
-                if self.pg_count == 4:
-                    self.__show_notes_in_cleff()
+            if self.pg_count == 4:
+                self.__show_notes_in_cleff()
 
-                if self.pg_count == 5:
-                    self.__show_notes_in_cleff(show_letter_only=True)
+            if self.pg_count == 5:
+                self.__show_notes_in_cleff(show_letter_only=True)
 
         else:
             self.__end_explanation()
+
+    def __render_notes(self):
+        self.note_renderer.quarter(
+            x_pos=100, y_pos=self.staff.c3_position - self.staff.note_spacing * 4
+        )
+
 
     def __show_notes_in_cleff(self, show_letter_only=False):
         horizontal_spacing = 40

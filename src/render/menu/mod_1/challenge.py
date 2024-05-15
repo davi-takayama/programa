@@ -200,7 +200,7 @@ class Challenge(ChallengeBase):
                 text=letter,
                 on_click=lambda x=letter: check_answer(x),
                 pos=(
-                    (self.screen.get_width() // (len(notes) + 1) * (index + 1)) - 25,
+                    (self.screen.get_width() // (len(notes) + 1) * (index + 1)) - self.font.size(letter)[0] // 2,
                     self.screen.get_height() // 4 * 3,
                 ),
                 screen=self.screen,
@@ -299,7 +299,7 @@ class Challenge(ChallengeBase):
 
             freq = self.__queue.get()
             if freq is not None:
-                note = self.__analyzer.frequency_to_note_name(freq, 440)
+                note = self.analyzer.frequency_to_note_name(freq, 440)
                 note_letter = re.sub(r"\d", "", note)
                 self.__played_notes.append(re.sub(r"\d", "", note_letter))
                 self.__calc_note_position(note)
@@ -353,14 +353,17 @@ class Challenge(ChallengeBase):
         vol = round(volume_norm, 2)
 
     def __close_threads(self):
-        self.__stream.stop()
-        self.__stream.close()
-        self.__analyzer.stop()
-        self.__analyzer.join()
+        try:
+            self.stream.stop()
+            self.stream.close()
+            self.analyzer.stop()
+            self.analyzer.join()
+        except AttributeError:
+            pass
 
     def __start_audio_devices(self):
         self.__queue = ProtectedList()
-        self.__analyzer = AudioAnalyzer(self.__queue)
-        self.__analyzer.start()
-        self.__stream = sd.InputStream(callback=self.__get_volume)
-        self.__stream.start()
+        self.analyzer = AudioAnalyzer(self.__queue)
+        self.analyzer.start()
+        self.stream = sd.InputStream(callback=self.__get_volume)
+        self.stream.start()

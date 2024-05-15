@@ -22,8 +22,8 @@ class Explanation2(Renderable):
         self.top_text = [
             "Anteriormente foi explicado que existiam 7 notas distribuidas nas linhas e espaços da pauta.",
             "Na escala cromática (que tem todas as notas), existem 12 notas, sendo 7 naturais e 5 acidentadas.",
-            "Percebe-se que as notas E e B não possuem sustenidos (meio tom acima), e as notas F e C não possuem bemóis (meio tom abaixo)",
-
+            "Percebe-se que as notas E e B não possuem sustenidos (meio tom acima), e as notas F e C não possuem bemóis (meio tom "
+            "abaixo)"
         ]
         self.bottom_text = [
             "No entanto, estas 7 notas são as notas naturais.",
@@ -71,63 +71,73 @@ class Explanation2(Renderable):
                 self.screen.blit(text_surface, text_rect.topleft)
 
             if self.pg_count == 0:
-                for i, letter in enumerate(["C", "D", "E", "F", "G", "A", "B"]):
-                    x = 100 + 50 * i
-                    y = self.staff.c3_position - (i * self.staff.note_spacing)
-                    self.note_renderer.quarter(x_pos=x, y_pos=y, color="black")
-                    self.__text_under_note(letter, x, y)
+                self.__render_pg_count_0()
 
             elif self.pg_count == 1:
-                index = -1
-                for i, letter in enumerate(["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]):
-                    index += 1 if letter.find("#") == -1 else 0
-                    x = 100 + 50 * i
-                    y = self.staff.c3_position - (index * self.staff.note_spacing)
-                    has_sharp: Literal['sharp', 'none'] = 'sharp' if letter.find("#") != -1 else 'none'
-                    color = 'forestgreen' if letter.find("#") != -1 else 'black'
-                    self.note_renderer.quarter(x_pos=x, y_pos=y, color=color, has_sharp=has_sharp)
-                    self.__text_under_note(letter, x, y, color)
+                self.__render_pg_count_1()
 
             elif self.pg_count == 2:
-                wid = self.screen.get_width() // 2
-                x_pos = [
-                    (wid // 2) + (wid // 15 * i) for i in range(15)
-                ]
-                y_pos = self.staff.c3_position
-
-                def draw_vertical_line(x_position):
-                    pygame.draw.line(
-                        self.screen,
-                        "black",
-                        (x_position, self.staff.line_positions[0]),
-                        (x_position, self.staff.line_positions[-1]),
-                        3,
-                    )
-
-                def draw_equals(x_position, y_position):
-                    eq = pygame.font.Font(None, 24).render("=", True, "black", "white")
-                    eq_rect = eq.get_rect()
-                    eq_rect.topleft = (x_position + 2, y_position + 2)
-                    self.screen.blit(eq, eq_rect.topleft)
-
-                self.note_renderer.quarter(x_pos=x_pos[0], y_pos=y_pos - self.staff.note_spacing * 2, color="black", has_sharp="sharp")
-                draw_equals(x_pos[1], y_pos - self.staff.note_spacing * 4)
-                self.note_renderer.quarter(x_pos=x_pos[2], y_pos=y_pos - self.staff.note_spacing * 3, color="black")
-                draw_vertical_line(x_pos[3])
-                self.note_renderer.quarter(x_pos=x_pos[4], y_pos=y_pos - self.staff.note_spacing * 6, color="black", has_sharp="sharp")
-                draw_equals(x_pos[5], y_pos - self.staff.note_spacing * 8)
-                self.note_renderer.quarter(x_pos=x_pos[6], y_pos=y_pos - self.staff.note_spacing * 7, color="black")
-                draw_vertical_line(x_pos[7])
-                self.note_renderer.quarter(x_pos=x_pos[8], y_pos=y_pos - self.staff.note_spacing * 3, color="black", has_sharp="flat")
-                draw_equals(x_pos[9], y_pos - self.staff.note_spacing * (3 + 1))
-                self.note_renderer.quarter(x_pos=x_pos[10], y_pos=y_pos - self.staff.note_spacing * 2, color="black")
-                draw_vertical_line(x_pos[11])
-                self.note_renderer.quarter(x_pos=x_pos[12], y_pos=y_pos - self.staff.note_spacing * 7, color="black", has_sharp="flat")
-                draw_equals(x_pos[13], y_pos - self.staff.note_spacing * (7 + 1))
-                self.note_renderer.quarter(x_pos=x_pos[14], y_pos=y_pos - self.staff.note_spacing * 6, color="black")
+                self.__render_pg_count_2()
 
         else:
             self.__end_explanation()
+
+    def __render_pg_count_0(self):
+        for i, letter in enumerate(["C", "D", "E", "F", "G", "A", "B"]):
+            x = 100 + 50 * i
+            y = self.staff.c3_position - (i * self.staff.note_spacing)
+            self.note_renderer.quarter(x_pos=x, y_pos=y, color="black")
+            self.__text_under_note(letter, x, y)
+
+    def __render_pg_count_1(self):
+        index = -1
+        for i, letter in enumerate(["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]):
+            index += 1 if letter.find("#") == -1 else 0
+            x = 100 + 50 * i
+            y = self.staff.c3_position - (index * self.staff.note_spacing)
+            has_sharp: Literal['sharp', 'none'] = 'sharp' if letter.find("#") != -1 else 'none'
+            color = 'forestgreen' if letter.find("#") != -1 else 'black'
+            self.note_renderer.quarter(x_pos=x, y_pos=y, color=color, has_sharp=has_sharp)
+            self.__text_under_note(letter, x, y, color)
+
+    def __render_pg_count_2(self):
+        wid = self.screen.get_width() // 2
+        x_pos = [
+            (wid // 2) + (wid // 15 * i) for i in range(15)
+        ]
+        y_pos = self.staff.c3_position
+
+        def draw_vertical_line(x_position):
+            pygame.draw.line(
+                self.screen,
+                "black",
+                (x_position, self.staff.line_positions[0]),
+                (x_position, self.staff.line_positions[-1]),
+                3,
+            )
+
+        def draw_equals(x_position, y_position):
+            eq = pygame.font.Font(None, 24).render("=", True, "black", "white")
+            eq_rect = eq.get_rect()
+            eq_rect.topleft = (x_position + 2, y_position + 2)
+            self.screen.blit(eq, eq_rect.topleft)
+
+        self.note_renderer.quarter(x_pos=x_pos[0], y_pos=y_pos - self.staff.note_spacing * 2, color="black", has_sharp="sharp")
+        draw_equals(x_pos[1], y_pos - self.staff.note_spacing * 4)
+        self.note_renderer.quarter(x_pos=x_pos[2], y_pos=y_pos - self.staff.note_spacing * 3, color="black")
+        draw_vertical_line(x_pos[3])
+        self.note_renderer.quarter(x_pos=x_pos[4], y_pos=y_pos - self.staff.note_spacing * 6, color="black", has_sharp="sharp")
+        draw_equals(x_pos[5], y_pos - self.staff.note_spacing * 8)
+        self.note_renderer.quarter(x_pos=x_pos[6], y_pos=y_pos - self.staff.note_spacing * 7, color="black")
+        draw_vertical_line(x_pos[7])
+        self.note_renderer.quarter(x_pos=x_pos[8], y_pos=y_pos - self.staff.note_spacing * 3, color="black", has_sharp="flat")
+        draw_equals(x_pos[9], y_pos - self.staff.note_spacing * (3 + 1))
+        self.note_renderer.quarter(x_pos=x_pos[10], y_pos=y_pos - self.staff.note_spacing * 2, color="black")
+        draw_vertical_line(x_pos[11])
+        self.note_renderer.quarter(x_pos=x_pos[12], y_pos=y_pos - self.staff.note_spacing * 7, color="black", has_sharp="flat")
+        draw_equals(x_pos[13], y_pos - self.staff.note_spacing * (7 + 1))
+        self.note_renderer.quarter(x_pos=x_pos[14], y_pos=y_pos - self.staff.note_spacing * 6, color="black")
+
 
     def __text_under_note(self, word_param, x_pos_param, y_pos_param, color_param="black"):
         text = pygame.font.Font(None, 24).render(word_param, True, color_param)
