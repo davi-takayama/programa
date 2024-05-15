@@ -63,16 +63,16 @@ class Explanation(Renderable):
             match note:
                 case 0:
                     self.note_renderer.whole(rect_arg.centerx - 32, rect_arg.centery)
-                    self.note_renderer.pause((rect_arg.centerx + 32, rect_arg.centery), note)
+                    self.note_renderer.pause(rect_arg.centerx + 32, note, rect_arg.centery)
                 case 1:
                     self.note_renderer.half(rect_arg.centerx - 32, rect_arg.centery)
-                    self.note_renderer.pause((rect_arg.centerx + 32, rect_arg.centery), note)
+                    self.note_renderer.pause(rect_arg.centerx + 32, note, rect_arg.centery)
                 case 2:
                     self.note_renderer.quarter(rect_arg.centerx - 32, rect_arg.centery)
-                    self.note_renderer.pause((rect_arg.centerx + 32, rect_arg.centery), note)
+                    self.note_renderer.pause(rect_arg.centerx + 32, note, rect_arg.centery)
                 case 3:
                     self.note_renderer.single_eighth(rect_arg.centerx - 32, rect_arg.centery)
-                    self.note_renderer.pause((rect_arg.centerx + 32, rect_arg.centery), note)
+                    self.note_renderer.pause(rect_arg.centerx + 32, note, rect_arg.centery)
                 case _:
                     pass
 

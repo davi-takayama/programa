@@ -164,7 +164,7 @@ class NoteRenderer:
 
             index += 1
 
-    def pause(self, pos: int, pause_length: int):
+    def pause(self, pos: int, pause_length: int, y_pos: int = None):
         """
         pos: x and y position of the pause
         pause_length: [
@@ -177,19 +177,23 @@ class NoteRenderer:
         match pause_length:
             case 0:
                 x = pos - self.__whole_pause.get_width() // 2
+                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 2.6)
                 height = self.__whole_pause.get_height()
-                self.screen.blit(self.__whole_pause, (x, self.__c3_pos - (self.__line_spacing * 2.6) - height // 2))
+                self.screen.blit(self.__whole_pause, (x, y - height // 2))
             case 1:
                 x = pos - self.__half_pause.get_width() // 2
+                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 2.3)
                 height = self.__half_pause.get_height()
-                self.screen.blit(self.__half_pause, (x, self.__c3_pos - (self.__line_spacing * 2.3) - height // 2))
+                self.screen.blit(self.__half_pause, (x, y - height // 2))
             case 2:
                 x = pos - self.__quarter_pause.get_width() // 2
+                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 3)
                 height = self.__quarter_pause.get_height()
-                self.screen.blit(self.__quarter_pause, (x, self.__c3_pos - (self.__line_spacing * 3) - height // 2))
+                self.screen.blit(self.__quarter_pause, (x, y - height // 2))
             case 3:
                 x = pos - self.__eighth_pause.get_width() // 2
+                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 3)
                 height = self.__eighth_pause.get_height()
-                self.screen.blit(self.__eighth_pause, (x, self.__c3_pos - (self.__line_spacing * 3) - height // 2))
+                self.screen.blit(self.__eighth_pause, (x, y - height // 2))
             case _:
                 raise ValueError("Invalid pause length")
