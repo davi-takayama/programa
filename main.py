@@ -18,9 +18,15 @@ while running_pygame:
     state_handler.render()
 
     for event in pygame.event.get():
+        state_handler.event_check(event)
         if event.type == pygame.QUIT:
             running_pygame = False
             pygame.quit()
-        state_handler.event_check(event)
+            pygame.mixer.quit()
+            pygame.font.quit()
+            try:
+                pygame.threads.quit()
+            except AttributeError:
+                pass
 
 exit()
