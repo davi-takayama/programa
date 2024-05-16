@@ -344,14 +344,6 @@ class Challenge(ChallengeBase):
             checked_value = 'E'
         return checked_value
 
-    @staticmethod
-    def __get_volume(indata, frames, time, status):
-        volume_norm = np.linalg.norm(indata) * 10
-        global prev_vol
-        global vol
-        prev_vol = vol
-        vol = round(volume_norm, 2)
-
     def __close_threads(self):
         try:
             self.stream.stop()
@@ -362,8 +354,15 @@ class Challenge(ChallengeBase):
             pass
 
     def __start_audio_devices(self):
+        def get_volume(indata, frames, time, status):
+            volume_norm = np.linalg.norm(indata) * 10
+            global prev_vol
+            global vol
+            prev_vol = vol
+            vol = round(volume_norm, 2)
+
         self.__queue = ProtectedList()
         self.analyzer = AudioAnalyzer(self.__queue)
         self.analyzer.start()
-        self.stream = sd.InputStream(callback=self.__get_volume)
+        self.stream = sd.InputStream(callback=get_volume)
         self.stream.start()
