@@ -148,18 +148,20 @@ class Explanation(Renderable):
     def __handle_metronome_controls(self, event_arg):
         mouse_pos = pygame.mouse.get_pos()
         if self.bpm_arrows and self.time_arrows:
-            if self.bpm_arrows[0].collidepoint(mouse_pos):
-                if event_arg.type == pygame.MOUSEBUTTONDOWN:
-                    self.__metronome.increase_bpm(5)
-            elif self.bpm_arrows[1].collidepoint(mouse_pos):
-                if event_arg.type == pygame.MOUSEBUTTONDOWN:
-                    self.__metronome.decrease_bpm(5)
-            elif self.time_arrows[0].collidepoint(mouse_pos):
-                if event_arg.type == pygame.MOUSEBUTTONDOWN:
-                    self.__metronome.change_time_signature((self.__metronome.time_signature[0] + 1, 4))
-            elif self.time_arrows[1].collidepoint(mouse_pos):
-                if event_arg.type == pygame.MOUSEBUTTONDOWN:
-                    self.__metronome.change_time_signature((self.__metronome.time_signature[0] - 1, 4))
+            self.__handle_bpm_controls(event_arg, mouse_pos)
+            self.__handle_time_controls(event_arg, mouse_pos)
+
+    def __handle_bpm_controls(self, event_arg, mouse_pos):
+        if self.bpm_arrows[0].collidepoint(mouse_pos) and event_arg.type == pygame.MOUSEBUTTONDOWN:
+            self.__metronome.increase_bpm(5)
+        elif self.bpm_arrows[1].collidepoint(mouse_pos) and event_arg.type == pygame.MOUSEBUTTONDOWN:
+            self.__metronome.decrease_bpm(5)
+
+    def __handle_time_controls(self, event_arg, mouse_pos):
+        if self.time_arrows[0].collidepoint(mouse_pos) and event_arg.type == pygame.MOUSEBUTTONDOWN:
+            self.__metronome.change_time_signature((self.__metronome.time_signature[0] + 1, 4))
+        elif self.time_arrows[1].collidepoint(mouse_pos) and event_arg.type == pygame.MOUSEBUTTONDOWN:
+            self.__metronome.change_time_signature((self.__metronome.time_signature[0] - 1, 4))
 
     def __render_text(self, bottom_text, font, top_text):
         for index, text in enumerate(textwrap.wrap(top_text, width=50)):
