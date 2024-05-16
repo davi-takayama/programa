@@ -13,7 +13,7 @@ class Challenge2(ChallengeBase):
     def __init__(self, screen: Surface, change_state, chapter_index: int, num_challenges: int = 10) -> None:
         super().__init__(screen, change_state, chapter_index, num_challenges=num_challenges)
         self.__get_random_time_signature()
-        self.staff.__time_signature = self.__time_signature
+        self.staff.time_signature = self.__time_signature
         self.notes = []
         self.__notes_and_pauses = []
         self.get_random_notes()
@@ -147,7 +147,7 @@ class Challenge2(ChallengeBase):
         self.current_challenge += 1
         self.__continue = False
         self.__get_random_time_signature()
-        self.staff.__time_signature = self.__time_signature
+        self.staff.time_signature = self.__time_signature
         self.notes = []
         self.get_random_notes()
 
