@@ -27,7 +27,7 @@ class Module2(ModuleClass):
             - self.staff.line_spacing
             for i in range(5)
         ]
-        self.note_x_placement = self.calculate_note_x_placements(width, 5)
+        self.note_x_placement = self.calculate_note_x_placements(width, 9)
         self.first_chord_rect: Rect = self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3)
 
     def __draw_star(self, x: int, y: int, chapter_index: int):
@@ -47,7 +47,6 @@ class Module2(ModuleClass):
             y_pos=self.note_y_placement[0],
             color=("black" if self.module.chapters[0]["unlocked"] else "gray"),
         )
-        self.__draw_star(self.note_x_placement[1], self.note_y_placement[0], 0)
 
         self.__render_second_chord()
         self.note_renderer.eighth(
@@ -61,6 +60,22 @@ class Module2(ModuleClass):
                 ("black" if self.module.chapters[2]["unlocked"] else "gray"),
             ],
         )
+
+        pygame.draw.line(self.surface, "black",
+                         (self.note_x_placement[5], self.staff.line_positions[0]),
+                         (self.note_x_placement[5], self.staff.line_positions[-1]),
+                         5
+                         )
+
+        self.__render_third_chord()
+
+        self.note_renderer.quarter(self.note_x_placement[7], self.note_y_placement[-2],
+                                   color="black" if self.module.chapters[3]["unlocked"] else "gray")
+
+        self.note_renderer.quarter(self.note_x_placement[8], self.note_y_placement[-3],
+                                   color="black" if self.module.chapters[4]["unlocked"] else "gray")
+
+        self.__draw_star(self.note_x_placement[1], self.note_y_placement[0], 0)
         self.__draw_star(self.note_x_placement[3], self.note_y_placement[1], 1)
         self.__draw_star(self.note_x_placement[4], self.note_y_placement[2], 2)
 
@@ -98,6 +113,11 @@ class Module2(ModuleClass):
                 from .challenge_2 import Challenge2
                 self.change_state(Challenge2(self.screen, self.change_state, 2))
 
+            elif self.calculate_rect(self.note_x_placement[6], self.note_y_placement[3], 2).collidepoint(
+                    event_arg.pos) and self.module.chapters[2]["completed"]:
+                from .explanation_3 import Explanation
+                self.change_state(Explanation(self.screen, self.change_state))
+
     def __render_first_chord(self):
         for i in range(3):
             self.note_renderer.quarter(
@@ -126,4 +146,12 @@ class Module2(ModuleClass):
                 x_pos=self.note_x_placement[2],
                 y_pos=self.note_y_placement[i + 1],
                 color=("black" if self.module.chapters[0]["completed"] else "gray"),
+            )
+
+    def __render_third_chord(self):
+        for i in range(2):
+            self.note_renderer.quarter(
+                x_pos=self.note_x_placement[6],
+                y_pos=self.note_y_placement[i + 2],
+                color=("black" if self.module.chapters[2]["completed"] else "gray"),
             )

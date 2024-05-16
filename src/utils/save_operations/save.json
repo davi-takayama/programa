@@ -56,6 +56,11 @@
         "unlocked": false,
         "completed": false,
         "perfected": false
+      },
+      {
+        "unlocked": false,
+        "completed": false,
+        "perfected": false
       }
     ]
   },
