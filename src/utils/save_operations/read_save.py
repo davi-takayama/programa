@@ -39,7 +39,7 @@ class Save:
 
     @classmethod
     def load(cls):
-        save_data: object = json.load(open(save_path, "r"))
+        save_data: dict = json.load(open(save_path, "r"))
         return cls(
             Module(**save_data["md1"]),
             Module(**save_data["md2"]),
