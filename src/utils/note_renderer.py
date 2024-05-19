@@ -4,10 +4,9 @@ import pygame as pg
 from pygame import Surface
 from pygame.font import Font
 
-from .image_rescaler import ImageRescaler
-from ..render.staff import Staff
-from ..utils.root_dir import root_dir
-
+from src.utils.image_rescaler import ImageRescaler
+from src.render.staff import Staff
+from src.utils.root_dir import root_dir
 
 class NoteRenderer:
     def __init__(self, screen: Surface, c3_pos: int = None, draw_lines: bool = True) -> None:
@@ -18,10 +17,10 @@ class NoteRenderer:
         self.__c3_pos = c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
         self.__line_spacing = Staff.line_spacing
         self.__draw_lines = draw_lines
-        self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\whole_pause.png"), 10)
-        self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\half_pause.png"), 10)
-        self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 48)
-        self.__eighth_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets\\images\\pauses\\eighth_pause.png"), 32)
+        self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/whole_pause.png"), 10)
+        self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/half_pause.png"), 10)
+        self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/quarter_pause.png"), 48)
+        self.__eighth_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/eighth_pause.png"), 32)
 
     def __draw_accident(
             self, x_pos: int, y_pos: int, symbol: Literal["#", "b", "♮"], color: str
@@ -47,6 +46,7 @@ class NoteRenderer:
         if y_pos >= self.__c3_pos and self.__draw_lines:
             for i in range(self.__c3_pos, y_pos + 1, 16):
                 pg.draw.line(self.screen, color, (x_pos - 5, i), (x_pos + 25, i), 2)
+
     def __draw_stem(self, x_pos: int, y_pos: int, color: str):
         pg.draw.line(
             self.screen, color, (x_pos + 18, y_pos), (x_pos + 18, y_pos - 40), 3
