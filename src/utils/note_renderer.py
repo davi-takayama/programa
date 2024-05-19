@@ -1,40 +1,54 @@
+from itertools import repeat
 from typing import List, Literal
 
 import pygame as pg
 from pygame import Surface
 from pygame.font import Font
 
-from src.utils.image_rescaler import ImageRescaler
 from src.render.staff import Staff
+from src.utils.image_rescaler import ImageRescaler
 from src.utils.root_dir import root_dir
 
+
 class NoteRenderer:
-    def __init__(self, screen: Surface, c3_pos: int = None, draw_lines: bool = True) -> None:
+    def __init__(
+        self, screen: Surface, c3_pos: int | None = None, draw_lines: bool = True
+    ) -> None:
         self.screen = screen
         _dir = root_dir
         self.eigth_stem = pg.image.load(_dir + "assets/images/eigth_stem.png")
         self.eigth_stem = ImageRescaler.rescale_from_height(self.eigth_stem, 35)
-        self.__c3_pos = c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
+        self.__c3_pos = (
+            c3_pos if c3_pos is not None and draw_lines else screen.get_height() // 2
+        )
         self.__line_spacing = Staff.line_spacing
         self.__draw_lines = draw_lines
-        self.__whole_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/whole_pause.png"), 10)
-        self.__half_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/half_pause.png"), 10)
-        self.__quarter_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/quarter_pause.png"), 48)
-        self.__eighth_pause = ImageRescaler.rescale_from_height(pg.image.load(_dir + "assets/images/pauses/eighth_pause.png"), 32)
+        self.__whole_pause = ImageRescaler.rescale_from_height(
+            pg.image.load(_dir + "assets/images/pauses/whole_pause.png"), 10
+        )
+        self.__half_pause = ImageRescaler.rescale_from_height(
+            pg.image.load(_dir + "assets/images/pauses/half_pause.png"), 10
+        )
+        self.__quarter_pause = ImageRescaler.rescale_from_height(
+            pg.image.load(_dir + "assets/images/pauses/quarter_pause.png"), 48
+        )
+        self.__eighth_pause = ImageRescaler.rescale_from_height(
+            pg.image.load(_dir + "assets/images/pauses/eighth_pause.png"), 32
+        )
 
     def __draw_accident(
-            self, x_pos: int, y_pos: int, symbol: Literal["#", "b", "♮"], color: str
+        self, x_pos: int, y_pos: int, symbol: Literal["#", "b", "♮"], color: str
     ):
         font = Font(None, 32)
         text_surface = font.render(symbol, True, color)
         self.screen.blit(text_surface, (x_pos - 3, y_pos))
 
     def __note_base(
-            self,
-            x_pos: int,
-            y_pos: int,
-            has_sharp: Literal["none", "sharp", "flat", "natural"],
-            color: str,
+        self,
+        x_pos: int,
+        y_pos: int,
+        has_sharp: Literal["none", "sharp", "flat", "natural"],
+        color: str,
     ):
         pg.draw.ellipse(self.screen, color, (x_pos, y_pos - 7, 20, 16))
         if has_sharp == "sharp":
@@ -53,11 +67,11 @@ class NoteRenderer:
         )
 
     def whole(
-            self,
-            x_pos: int,
-            y_pos: int,
-            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-            color: str = "black",
+        self,
+        x_pos: int,
+        y_pos: int,
+        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+        color: str = "black",
     ):
         """
         x_pos: x position of the note
@@ -69,11 +83,11 @@ class NoteRenderer:
         pg.draw.ellipse(self.screen, "white", (x_pos + 3, y_pos - 4, 14, 8))
 
     def half(
-            self,
-            x_pos: int,
-            y_pos: int,
-            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-            color: str = "black",
+        self,
+        x_pos: int,
+        y_pos: int,
+        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+        color: str = "black",
     ):
         """
         x_pos: x position of the note
@@ -85,11 +99,11 @@ class NoteRenderer:
         self.__draw_stem(x_pos, y_pos, color)
 
     def quarter(
-            self,
-            x_pos: int,
-            y_pos: int,
-            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-            color: str = "black",
+        self,
+        x_pos: int,
+        y_pos: int,
+        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+        color: str = "black",
     ):
         """
         x_pos: x position of the note
@@ -102,11 +116,11 @@ class NoteRenderer:
         self.__draw_stem(x_pos, y_pos, color)
 
     def single_eighth(
-            self,
-            x_pos: int,
-            y_pos: int,
-            has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
-            color: str = "black",
+        self,
+        x_pos: int,
+        y_pos: int,
+        has_sharp: Literal["none", "sharp", "flat", "natural"] = "none",
+        color: str = "black",
     ):
         """
         x_pos: x position of the note
@@ -120,49 +134,26 @@ class NoteRenderer:
     def eighth(
             self,
             positions: List[tuple[int, int]],
-            has_sharp: List[Literal["none", "sharp", "flat", "natural"]] | int = 0,
+            has_sharp: List[Literal["none", "sharp", "flat", "natural"]] | None = None,
             color: str | List[str] = "black",
             sixteenth: bool = False,
     ):
-        """
-        positions: list of tuples with the x and y position of the notes
-        has_sharp: list with the sharp or flat of each note
-        color: color of the notes
-        """
-        index = 0
-        if isinstance(color, str):
-            color = [color] * len(positions)
-        if isinstance(has_sharp, int):
-            has_sharp = [has_sharp] * len(positions)
+        color = list(repeat(color, len(positions))) if isinstance(color, str) else color
+        has_sharp = list(repeat("none", len(positions))) if has_sharp is None else has_sharp
 
-        def draw_note(note_pos, note_has_sharp, note_color):
-            if index == len(positions) - 1 and len(positions) % 2 != 0:
-                return self.single_eighth(note_pos[0], note_pos[1], note_has_sharp, note_color)
-            else:
-                return self.quarter(note_pos[0], note_pos[1], note_has_sharp, note_color)
+        for index, (pos, sharp) in enumerate(zip(positions, has_sharp)):
+            self.single_eighth(pos[0], pos[1], sharp, color[index]) if index == len(positions) - 1 and len(
+                positions) % 2 != 0 else self.quarter(pos[0], pos[1], sharp, color[index])
 
-        for pos, sharp in zip(positions, has_sharp):
-            draw_note(pos, sharp, color[index])
             if index % 2 == 1:
-                pg.draw.line(
-                    self.screen,
-                    color[(index - 1) if index > 1 else 0],
-                    (positions[index - 1][0] + 18, positions[index - 1][1] - 40),
-                    (pos[0] + 18, pos[1] - 40),
-                    6,
-                )
+                color_index = (index - 1) if index > 1 else 0
+                pg.draw.line(self.screen, color[color_index], (positions[index - 1][0] + 18, positions[index - 1][1] - 40),
+                             (pos[0] + 18, pos[1] - 40), 6)
                 if sixteenth:
-                    pg.draw.line(
-                        self.screen,
-                        color[(index - 1) if index > 1 else 0],
-                        (positions[index - 1][0] + 18, positions[index - 1][1] - 32),
-                        (pos[0] + 18, pos[1] - 32),
-                        6,
-                    )
+                    pg.draw.line(self.screen, color[color_index], (positions[index - 1][0] + 18, positions[index - 1][1] - 32),
+                                 (pos[0] + 18, pos[1] - 32), 6)
 
-            index += 1
-
-    def pause(self, pos: int, pause_length: int, y_pos: int = None):
+    def pause(self, pos: int, pause_length: int, y_pos: int | None = None):
         """
         pos: x and y position of the pause
         pause_length: [
@@ -175,22 +166,38 @@ class NoteRenderer:
         match pause_length:
             case 0:
                 x = pos - self.__whole_pause.get_width() // 2
-                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 2.6)
+                y = (
+                    y_pos
+                    if y_pos is not None
+                    else self.__c3_pos - (self.__line_spacing * 2.6)
+                )
                 height = self.__whole_pause.get_height()
                 self.screen.blit(self.__whole_pause, (x, y - height // 2))
             case 1:
                 x = pos - self.__half_pause.get_width() // 2
-                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 2.3)
+                y = (
+                    y_pos
+                    if y_pos is not None
+                    else self.__c3_pos - (self.__line_spacing * 2.3)
+                )
                 height = self.__half_pause.get_height()
                 self.screen.blit(self.__half_pause, (x, y - height // 2))
             case 2:
                 x = pos - self.__quarter_pause.get_width() // 2
-                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 3)
+                y = (
+                    y_pos
+                    if y_pos is not None
+                    else self.__c3_pos - (self.__line_spacing * 3)
+                )
                 height = self.__quarter_pause.get_height()
                 self.screen.blit(self.__quarter_pause, (x, y - height // 2))
             case 3:
                 x = pos - self.__eighth_pause.get_width() // 2
-                y = y_pos if y_pos is not None else self.__c3_pos - (self.__line_spacing * 3)
+                y = (
+                    y_pos
+                    if y_pos is not None
+                    else self.__c3_pos - (self.__line_spacing * 3)
+                )
                 height = self.__eighth_pause.get_height()
                 self.screen.blit(self.__eighth_pause, (x, y - height // 2))
             case _:
