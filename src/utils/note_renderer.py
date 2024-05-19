@@ -1,13 +1,12 @@
-from typing import List, Literal, Sequence
+from typing import List, Literal
 
 import pygame as pg
 from pygame import Surface
 from pygame.font import Font
-from zmq import has
 
-from .image_rescaler import ImageRescaler
-from ..render.staff import Staff
-from ..utils.root_dir import root_dir
+from src.utils.image_rescaler import ImageRescaler
+from src.render.staff import Staff
+from src.utils.root_dir import root_dir
 
 
 class NoteRenderer:
@@ -23,17 +22,18 @@ class NoteRenderer:
         )
         self.__line_spacing = Staff.line_spacing
         self.__draw_lines = draw_lines
+
         self.__whole_pause = ImageRescaler.rescale_from_height(
-            pg.image.load(_dir + "assets\\images\\pauses\\whole_pause.png"), 10
+            pg.image.load(_dir + "assets/images/pauses/whole_pause.png"), 10
         )
         self.__half_pause = ImageRescaler.rescale_from_height(
-            pg.image.load(_dir + "assets\\images\\pauses\\half_pause.png"), 10
+            pg.image.load(_dir + "assets/images/pauses/half_pause.png"), 10
         )
         self.__quarter_pause = ImageRescaler.rescale_from_height(
-            pg.image.load(_dir + "assets\\images\\pauses\\quarter_pause.png"), 48
+            pg.image.load(_dir + "assets/images/pauses/quarter_pause.png"), 48
         )
         self.__eighth_pause = ImageRescaler.rescale_from_height(
-            pg.image.load(_dir + "assets\\images\\pauses\\eighth_pause.png"), 32
+            pg.image.load(_dir + "assets/images/pauses/eighth_pause.png"), 32
         )
 
     def __draw_accident(
