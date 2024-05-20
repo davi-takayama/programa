@@ -52,6 +52,8 @@ class Challenge(ChallengeBase):
             else self.__handle_event_without_audio
         )
         self.go_back_button = self.init_back_button(self.__close_threads)
+        self.__vol_sensibility = 5
+        self.__sensibility_button = self.__init_sensibility_button()
 
     def render(self):
         if self.current_challenge == self.num_challenges:
@@ -86,6 +88,8 @@ class Challenge(ChallengeBase):
             self.__continue_button.event_check(event)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.__continue_button.on_click()
+        else:
+            self.__sensibility_button.event_check(event)
 
     def __regular_challenges(self):
         self.screen.fill("white")
@@ -146,6 +150,7 @@ class Challenge(ChallengeBase):
                 ),
             )
             self.__get_note()
+            self.__sensibility_button.render()
         else:
 
             width, _ = self.font.size(self.__continue_text)
@@ -288,7 +293,7 @@ class Challenge(ChallengeBase):
         end_time = time.time()
         global vol
 
-        if self.__note_played is None and vol > 5 and not self.__continue:
+        if self.__note_played is None and vol > self.__vol_sensibility and not self.__continue:
             (
                 self.__calc_note_position(self.__played_notes[-1])
                 if self.__played_notes
@@ -354,7 +359,7 @@ class Challenge(ChallengeBase):
             pass
 
     def __start_audio_devices(self):
-        def get_volume(indata, frames, time, status):
+        def get_volume(indata, *_):
             volume_norm = np.linalg.norm(indata) * 10
             global prev_vol
             global vol
@@ -366,3 +371,22 @@ class Challenge(ChallengeBase):
         self.analyzer.start()
         self.stream = sd.InputStream(callback=get_volume)
         self.stream.start()
+
+    def __init_sensibility_button(self):
+
+        def callback():
+            global vol
+            self.__vol_sensibility = (vol * 1.25) if vol > 1.5 else 2
+
+        text = "Ajustar sensibilidade de volume"
+        x = self.screen.get_width() - self.font.size(text)[0] - 30
+        y = self.screen.get_height() - self.font.size(text)[1] - 20
+        button = Button(
+            self.screen,
+            (x, y),
+            text,
+            self.font,
+            callback,
+        )
+
+        return button
