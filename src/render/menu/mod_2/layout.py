@@ -54,8 +54,7 @@ class Module2(ModuleClass):
                 (self.note_x_placement[3], self.note_y_placement[1]),
                 (self.note_x_placement[4], self.note_y_placement[2]),
             ],
-            0,
-            [
+            color=[
                 ("black" if self.module.chapters[1]["unlocked"] else "gray"),
                 ("black" if self.module.chapters[2]["unlocked"] else "gray"),
             ],
