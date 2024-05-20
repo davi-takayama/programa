@@ -1,5 +1,6 @@
 import textwrap
 from abc import abstractmethod
+from typing import Callable
 
 from pygame import Surface
 from pygame.event import Event
@@ -39,7 +40,7 @@ class ChallengeBase(Renderable):
     def event_check(self, event_arg: Event | None = None):
         pass
 
-    def init_back_button(self, extra_arguments: callable = None):
+    def init_back_button(self, extra_arguments = None):
         def click_back():
             if extra_arguments:
                 extra_arguments()
@@ -51,7 +52,7 @@ class ChallengeBase(Renderable):
 
         return Button(self.screen, (20, 20), button_text, self.font, click_back)
 
-    def init_continue_button(self, click_continue: callable):
+    def init_continue_button(self, click_continue: Callable):
         return Button(
             font=self.font,
             text="Continuar",
