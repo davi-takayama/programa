@@ -23,7 +23,6 @@ class Explanation(Renderable):
         self.confirm_button = None
         self.__button = None
         self.pg_count = 0
-        print("iniciado")
         self.__top_text = [
             "Anteriormente foi visto que existem diferentes durações de notas e pausas.",
             "O uso de um metrônomo é de grande importância para garantir constância no rítmo.",
