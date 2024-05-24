@@ -37,7 +37,7 @@ class ChallengeBase(Renderable):
         pass
 
     @abstractmethod
-    def event_check(self, event_arg: Event | None = None):
+    def event_check(self, event_arg: Event):
         pass
 
     def init_back_button(self, extra_arguments = None):

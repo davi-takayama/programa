@@ -116,6 +116,10 @@ class Module2(ModuleClass):
                     event_arg.pos) and self.module.chapters[2]["completed"]:
                 from .explanation_3 import Explanation
                 self.change_state(Explanation(self.screen, self.change_state))
+            elif self.calculate_rect(self.note_x_placement[7], self.note_y_placement[-2], 1).collidepoint(
+                    event_arg.pos) and self.module.chapters[3]["unlocked"]:
+                from .challenge_3 import Challenge
+                self.change_state(Challenge(self.screen, self.change_state, 3))
 
     def __render_first_chord(self):
         for i in range(3):

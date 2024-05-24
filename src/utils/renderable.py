@@ -16,5 +16,5 @@ class Renderable(ABC):
         pass
 
     @abstractmethod
-    def event_check(self, event_arg: Event | None = None):
+    def event_check(self, event_arg: Event):
         pass

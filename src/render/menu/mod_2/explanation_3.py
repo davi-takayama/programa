@@ -118,7 +118,7 @@ class Explanation(Renderable):
                 self.note_renderer.whole(x_positions[0], y_pos)
                 self.note_renderer.half(x_positions[1], y_pos)
                 self.note_renderer.quarter(x_positions[2], y_pos)
-                self.note_renderer.eighth([(x_positions[3], y_pos)], 0)
+                self.note_renderer.eighth([(x_positions[3], y_pos)])
                 self.note_renderer.pause(x_positions[4], 0)
                 self.note_renderer.pause(x_positions[5], 1)
                 self.note_renderer.pause(x_positions[6], 2)

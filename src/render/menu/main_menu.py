@@ -61,7 +61,7 @@ class Menu(Renderable):
             total_chapters=self.__total_chapters,
         ).render()
 
-    def event_check(self, event_arg: Event | None = None):
+    def event_check(self, event_arg: Event):
         self.modules[self.current_module].event_check(event_arg)
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.__arrow_left.get_rect(topleft=(self.__arrow_left_x, self.__arrow_y)).collidepoint(

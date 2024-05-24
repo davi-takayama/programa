@@ -35,6 +35,7 @@ class Staff:
         )
         self.time_signature = time_signature
         self.font = Font(None, 64)
+        self.start_x = self.trebble_cleff_asset.get_width() * 2.5
 
     def render(self, render_cleff=True, render_time_signature=True,
                time_signature_color: tuple[str, str] = ("black", "black")):
