@@ -324,7 +324,7 @@ class Challenge(ChallengeBase):
 
         # if there is an interval between two notes, insert a pause in that space
         for i in range(len(self.__played) - 1):
-            if self.__played[i + 1][1][1] - self.__played[i][1][0] > 10:
+            if self.__played[i + 1][1][1] - self.__played[i][1][0] > 0:
                 self.__played.insert(i + 1, ("pause", (self.__played[i][1][1], self.__played[i + 1][1][0])))
 
         i = 0
