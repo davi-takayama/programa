@@ -7,6 +7,7 @@ from pygame.event import Event
 
 from .mod_1.layout import Module1
 from .mod_2.layout import Module2
+from .mod_3.layout import Module3
 from .top_menu import TopMenu
 from ..staff import Staff
 from ...utils.image_rescaler import ImageRescaler
@@ -42,6 +43,7 @@ class Menu(Renderable):
         self.modules: List[ModuleClass] = [
             Module1(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md1),
             Module2(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md2),
+            Module3(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md2),
         ]
 
     def render(self):

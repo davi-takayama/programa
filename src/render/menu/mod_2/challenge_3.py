@@ -165,7 +165,7 @@ class Challenge(ChallengeBase):
             if self.score == self.num_challenges:
                 chapter["perfected"] = True
             if self.chapter_index + 1 < len(save.md2.chapters):
-                next_chapter = save.md2.chapters[self.chapter_index + 1]
+                next_chapter = save.md3.chapters[self.chapter_index + 1]
                 next_chapter["unlocked"] = True
             else:
                 save.md3.unlocked = True
@@ -210,13 +210,13 @@ class Challenge(ChallengeBase):
         for i in range(len(challenge)):
             challenge[i] = ('note', challenge[i][1])
         num_pauses = random.randint(1, len(challenge) // 3 if len(challenge) > 3 else 1)
-        pause_indices = random.sample(range(len(challenge)), num_pauses)
-        for i in range(1, len(pause_indices) - 1):
-            if abs(pause_indices[i] - pause_indices[i - 1]) == 1 or abs(pause_indices[i + 1] - pause_indices[i]) == 1:
-                pause_indices[i] += 2
-            pause_indices[i] = max(1, min(len(challenge) - 2, pause_indices[i]))
-            if pause_indices[i] == pause_indices[i + 1]:
-                pause_indices[i] += 1
+        pause_indices: set[int] = set()
+
+        for i in range(num_pauses):
+            pause_index = random.randint(1, len(challenge) - 2)
+            while pause_index - 1 in pause_indices or pause_index + 1 in pause_indices or pause_index in pause_indices:
+                pause_index = random.randint(1, len(challenge) - 2)
+            pause_indices.add(pause_index)
 
         for i in pause_indices:
             challenge[i] = ('pause', challenge[i][1])
@@ -322,8 +322,10 @@ class Challenge(ChallengeBase):
 
         self.__played = [("note", (start, start + length)) for start, length in threshold_meet]
 
-        for i in range(1, len(self.__played)):
-            self.__played.insert(i, ("pause", (self.__played[i - 1][1][1], self.__played[i][1][0])))
+        # if there is an interval between two notes, insert a pause in that space
+        for i in range(len(self.__played) - 1):
+            if self.__played[i + 1][1][1] - self.__played[i][1][0] > 10:
+                self.__played.insert(i + 1, ("pause", (self.__played[i][1][1], self.__played[i + 1][1][0])))
 
         i = 0
         while i < len(self.__played) - 1:
@@ -341,26 +343,27 @@ class Challenge(ChallengeBase):
                 self.__played.pop(i)
             else:
                 i += 1
-        print(self.__played)
-        print(audio_stream)
 
         self.__stream_processed = True
         self.calculate_score()
 
     def calculate_score(self):
         correct_plays = 0
+        print("Played: ", self.__played)
         for index, time in enumerate(self.__curr_rythm):
             if index >= len(self.__played):
                 break
             played = self.__played[index][1][1] - self.__played[index][1][0]
             played_len = played / len(self.__vol_stream)
-            print(f"Time: {time}")
-            print(f"Played: {played_len}")
-            print(f"Diff: {abs(time[1] - played_len)}")
+            played_type = self.__played[index][0]
 
-            if time[1] - 0.075 <= played_len <= time[1] + 0.075:
-                correct_plays += 1
-        print(f"Correct plays: {correct_plays}")
-        print(f"Score: {round(correct_plays / len(self.__curr_rythm), 2)}")
+            print(f"Time: {time}; Played: {played_len}; Diff: {abs(time[1] - played_len)}")
+            if index == 0 or index == len(self.__curr_rythm) - 1:
+                if time[1] - 0.2 <= played_len <= time[1] + 0.2 and time[0] == played_type:
+                    correct_plays += 1
+            else:
+                if time[1] - 0.1 <= played_len <= time[1] + 0.1 and time[0] == played_type:
+                    correct_plays += 1
+        print(f"Correct plays: {correct_plays}; Score: {round(correct_plays / len(self.__curr_rythm), 2)}")
         print()
         self.score += round(correct_plays / len(self.__curr_rythm), 2)
