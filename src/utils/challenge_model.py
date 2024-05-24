@@ -36,11 +36,23 @@ class ChallengeBase(Renderable):
     def render(self):
         pass
 
+    def render_challenge_info(self):
+        text = "Desafio " + str(self.current_challenge + 1) + "/" + str(self.num_challenges)
+        width, height = self.font.size(text)
+        self.screen.blit(
+            self.font.render(text, True, "black"),
+            ((self.screen.get_width()) - width - 10, 10),
+        )
+        pontuacao = "Pontuação: " + str(self.score)
+        width, _ = self.font.size(pontuacao)
+        self.screen.blit(self.font.render(pontuacao, True, "black"),
+                         (self.screen.get_width() - width - 10, 20 + height)
+                         )
     @abstractmethod
     def event_check(self, event_arg: Event):
         pass
 
-    def init_back_button(self, extra_arguments = None):
+    def init_back_button(self, extra_arguments=None):
         def click_back():
             if extra_arguments:
                 extra_arguments()

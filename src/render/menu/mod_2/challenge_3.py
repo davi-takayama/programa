@@ -48,6 +48,7 @@ class Challenge(ChallengeBase):
             self.__end_button.render()
         else:
             self.__render_challenge()
+            self.render_challenge_info()
 
     def __render_challenge(self):
         self.__back_button.render()

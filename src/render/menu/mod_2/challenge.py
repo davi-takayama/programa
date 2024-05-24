@@ -53,6 +53,7 @@ class Challenge(ChallengeBase):
                 self.__challenge_render()
             else:
                 self.__continue_render()
+            self.render_challenge_info()
         else:
             self.end_render()
             self.__end_button.render()

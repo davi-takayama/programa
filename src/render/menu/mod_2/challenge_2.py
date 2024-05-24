@@ -56,6 +56,8 @@ class Challenge2(ChallengeBase):
                                  (self.screen.get_width() // 2 - text_render.get_width() // 2, self.screen.get_height() // 2))
 
                 self.__continue_button.render()
+
+            self.render_challenge_info()
         else:
             self.end_render()
             self.__end_button.render()

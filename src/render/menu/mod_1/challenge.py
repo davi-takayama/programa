@@ -62,6 +62,7 @@ class Challenge(ChallengeBase):
         else:
             self.__level()
             self.go_back_button.render()
+            self.render_challenge_info()
 
     def event_check(self, event_arg: Event | None = None):
         if self.current_challenge == self.num_challenges:
