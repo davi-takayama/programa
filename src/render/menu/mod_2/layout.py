@@ -31,7 +31,7 @@ class Module2(ModuleClass):
         self.first_chord_rect: Rect = self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3)
 
     def __draw_star(self, x: int, y: int, chapter_index: int):
-        if self.module.chapters[chapter_index]["unlocked"]:
+        if self.module.chapters[chapter_index]["completed"]:
             star_asset = self.full_star if self.module.chapters[chapter_index]["perfected"] else self.blank_star
             star_height = 16
             star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
@@ -77,6 +77,8 @@ class Module2(ModuleClass):
         self.__draw_star(self.note_x_placement[1], self.note_y_placement[0], 0)
         self.__draw_star(self.note_x_placement[3], self.note_y_placement[1], 1)
         self.__draw_star(self.note_x_placement[4], self.note_y_placement[2], 2)
+        self.__draw_star(self.note_x_placement[7], self.note_y_placement[-2], 3)
+        self.__draw_star(self.note_x_placement[8], self.note_y_placement[-3], 4)
 
         text = pygame.font.Font(None, size=32).render(self.text, True, "black")
         text_x = (self.surface.get_width() - text.get_width()) // 2
@@ -120,6 +122,10 @@ class Module2(ModuleClass):
                     event_arg.pos) and self.module.chapters[3]["unlocked"]:
                 from .challenge_3 import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, 3))
+            elif self.calculate_rect(self.note_x_placement[8], self.note_y_placement[-3], 1).collidepoint(
+                    event_arg.pos) and self.module.chapters[4]["unlocked"]:
+                from .challenge_3 import Challenge
+                self.change_state(Challenge(self.screen, self.change_state, 4, True))
 
     def __render_first_chord(self):
         for i in range(3):

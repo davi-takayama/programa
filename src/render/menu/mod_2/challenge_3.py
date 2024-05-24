@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pygame
 import sounddevice as sd
@@ -13,7 +15,7 @@ vol = 0
 
 
 class Challenge(ChallengeBase):
-    def __init__(self, screen: Surface, change_state, chapter_index: int):
+    def __init__(self, screen: Surface, change_state, chapter_index: int, use_pauses: bool = False):
         super().__init__(screen, change_state, chapter_index, True)
         self.__start_audio_devices()
         self.__continue_button = self.init_continue_button(self.__click_continue)
@@ -25,20 +27,28 @@ class Challenge(ChallengeBase):
         self.__vol_stream = []
         self.__vol_sensibility = 2
         self.__start_time = 0
-        self.__times = [
-            [0.25, 0.25, 0.25, 0.25],
-            [0.25, 0.25, 0.5],
-            [0.5, 0.25, 0.25],
-            [0.25, 0.125, 0.125, 0.25, 0.25],
-            [0.25, 0.125, 0.125, 0.25, 0.125, 0.125],
+        self.__times: list[list[tuple[str, float]]] = [
+            [('note', 0.25), ('note', 0.25), ('note', 0.25), ('note', 0.25)],
+            [('note', 0.25), ('note', 0.25), ('note', 0.5)],
+            [('note', 0.5), ('note', 0.25), ('note', 0.25)],
+            [('note', 0.25), ('note', 0.125), ('note', 0.125), ('note', 0.25), ('note', 0.25)],
+            [('note', 0.25), ('note', 0.125), ('note', 0.125), ('note', 0.25), ('note', 0.125), ('note', 0.125)],
         ]
-        self.__curr_rythm = self.__times[self.current_challenge]
+        self.__times_with_pauses: list[list[tuple[str, float]]] = [
+            [("", 0.25), ("", 0.25), ("", 0.25), ("", 0.25)],
+            [("", 0.25), ("", 0.25), ("", 0.5)],
+            [("", 0.25), ("", 0.125), ("", 0.125), ("", 0.25), ("", 0.25)],
+            [("", 0.25), ("", 0.125), ("", 0.125), ("", 0.25), ("", 0.125), ("", 0.125)],
+            [("", 0.125), ("", 0.125), ("", 0.125), ("", 0.125), ("", 0.25), ("", 0.125), ("", 0.125)],
+        ]
+        self.__curr_rythm = self.__times[self.current_challenge] if not use_pauses else self.__random_challenge()
         self.__played: list[tuple[str, tuple[int, int]]] = []
         self.num_challenges = len(self.__times)
         self.__started_challenge = False
         self.__finished_challenge = False
         self.__y_pos: int = int(self.staff.line_positions[3] - self.staff.note_spacing)
         self.__stream_processed = False
+        self.__use_pauses = use_pauses
 
     def render(self):
         self.screen.fill("white")
@@ -60,11 +70,11 @@ class Challenge(ChallengeBase):
             self.__sensibility_button.render()
             text = "Analise a partitura e clique em iniciar para começar o desafio"
             text_width = self.font.size(text)[0]
-            text_height = self.font.size(text)[1]
             self.screen.blit(
                 self.font.render(text, True, "black"),
                 (self.screen.get_width() // 2 - text_width // 2, self.screen.get_height() // 2)
             )
+
         else:
             text = "Comece a tocar em: X"
             if self.__start_time + self.__metronome.get_cycle_time() * 2 <= pygame.time.get_ticks():
@@ -99,18 +109,29 @@ class Challenge(ChallengeBase):
 
     def __render_notes(self, x_pos):
         for i in range(len(self.__curr_rythm)):
-            if np.isclose(self.__curr_rythm[i], 0.125, rtol=1e-09, atol=1e-09):
-                if i < len(self.__curr_rythm) - 1 and np.isclose(self.__curr_rythm[i + 1], 0.125, rtol=1e-09, atol=1e-09):
-                    self.note_renderer.eighth([(x_pos[i], self.__y_pos), (x_pos[i + 1], self.__y_pos)])
+            if np.isclose(self.__curr_rythm[i][1], 0.125, rtol=1e-09, atol=1e-09):
+                if self.__curr_rythm[i][0] == 'pause':
+                    self.note_renderer.pause(x_pos[i], 3)
                 else:
-                    if np.isclose(self.__curr_rythm[i - 1], 0.125, rtol=1e-09, atol=1e-09):
+                    if i + 1 < len(self.__curr_rythm) and self.__curr_rythm[i + 1][0] == 'note' and np.isclose(
+                            self.__curr_rythm[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
+                        self.note_renderer.eighth([(x_pos[i], self.__y_pos), (x_pos[i + 1], self.__y_pos)])
+                    elif i - 1 >= 0 and self.__curr_rythm[i - 1][0] == 'note' and np.isclose(
+                            self.__curr_rythm[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
                         continue
                     else:
                         self.note_renderer.eighth([(x_pos[i], self.__y_pos)])
-            elif np.isclose(self.__curr_rythm[i], 0.25, rtol=1e-09, atol=1e-09):
-                self.note_renderer.quarter(x_pos[i], self.__y_pos)
-            elif np.isclose(self.__curr_rythm[i], 0.5, rtol=1e-09, atol=1e-09):
-                self.note_renderer.half(x_pos[i], self.__y_pos)
+
+            elif np.isclose(self.__curr_rythm[i][1], 0.25, rtol=1e-09, atol=1e-09):
+                if self.__curr_rythm[i][0] == "note":
+                    self.note_renderer.quarter(x_pos[i], self.__y_pos)
+                else:
+                    self.note_renderer.pause(x_pos[i], 2)
+            elif np.isclose(self.__curr_rythm[i][1], 0.5, rtol=1e-09, atol=1e-09):
+                if self.__curr_rythm[i][0] == "note":
+                    self.note_renderer.half(x_pos[i], self.__y_pos)
+                else:
+                    self.note_renderer.pause(x_pos[i], 1)
 
     def event_check(self, event_arg: Event):
         if event_arg.type == pygame.QUIT:
@@ -174,16 +195,37 @@ class Challenge(ChallengeBase):
         self.__vol_stream = []
         self.__played = []
         if self.current_challenge < self.num_challenges:
-            self.__curr_rythm = self.__times[self.current_challenge]
+            self.__curr_rythm = self.__times[self.current_challenge] if not self.__use_pauses else self.__random_challenge()
             self.__finished_challenge = False
             self.__stream_processed = False
             self.__start_time = 0
             self.__started_challenge = False
 
+    def __random_challenge(self):
+        num_challenges_available = len(self.__times_with_pauses)
+        index = np.random.randint(0, num_challenges_available)
+        challenge = self.__times_with_pauses[index].copy()
+        random.shuffle(self.__times_with_pauses[index])
+        item: tuple[str, float]
+        for i in range(len(challenge)):
+            challenge[i] = ('note', challenge[i][1])
+        num_pauses = random.randint(1, len(challenge) // 3 if len(challenge) > 3 else 1)
+        pause_indices = random.sample(range(len(challenge)), num_pauses)
+        for i in range(1, len(pause_indices) - 1):
+            if abs(pause_indices[i] - pause_indices[i - 1]) == 1 or abs(pause_indices[i + 1] - pause_indices[i]) == 1:
+                pause_indices[i] += 2
+            pause_indices[i] = max(1, min(len(challenge) - 2, pause_indices[i]))
+            if pause_indices[i] == pause_indices[i + 1]:
+                pause_indices[i] += 1
+
+        for i in pause_indices:
+            challenge[i] = ('pause', challenge[i][1])
+        self.__times_with_pauses.pop(index)
+        return challenge
+
     def __get_volume_stream(self):
         global vol
-        if vol > self.__vol_sensibility:
-            self.__vol_stream.append(vol)
+        self.__vol_stream.append(vol)
 
     def __start_audio_devices(self):
         def get_volume(indata, *_):
@@ -253,9 +295,14 @@ class Challenge(ChallengeBase):
 
     def process_audio_stream(self):
         self.__played = []  # [(type, (start, length)), ...]
-        mean_vol_threshold = np.mean(self.__vol_stream) * 0.7
+        mean_vol_threshold = 0
+        if len(self.__vol_stream) > 0 and not np.isnan(self.__vol_stream).any() and not np.isinf(self.__vol_stream).any():
+            mean_vol_threshold = np.mean(self.__vol_stream) * 0.7
 
         audio_stream = self.__vol_stream.copy()
+        for i in range(len(audio_stream)):
+            if audio_stream[i] < self.__vol_sensibility:
+                audio_stream[i] = 0
 
         for i in range(2, len(self.__vol_stream) - 2):
             if self.__vol_stream[i] > mean_vol_threshold:
@@ -294,6 +341,8 @@ class Challenge(ChallengeBase):
                 self.__played.pop(i)
             else:
                 i += 1
+        print(self.__played)
+        print(audio_stream)
 
         self.__stream_processed = True
         self.calculate_score()
@@ -307,9 +356,9 @@ class Challenge(ChallengeBase):
             played_len = played / len(self.__vol_stream)
             print(f"Time: {time}")
             print(f"Played: {played_len}")
-            print(f"Diff: {abs(time - played_len)}")
+            print(f"Diff: {abs(time[1] - played_len)}")
 
-            if time - 0.075 <= played_len <= time + 0.075:
+            if time[1] - 0.075 <= played_len <= time[1] + 0.075:
                 correct_plays += 1
         print(f"Correct plays: {correct_plays}")
         print(f"Score: {round(correct_plays / len(self.__curr_rythm), 2)}")

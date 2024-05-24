@@ -43,11 +43,15 @@ class ChallengeBase(Renderable):
             self.font.render(text, True, "black"),
             ((self.screen.get_width()) - width - 10, 10),
         )
-        pontuacao = "Pontuação: " + str(self.score)
+        score = self.score
+        if isinstance(self.score, float):
+            score = round(self.score, 2)
+        pontuacao = "Pontuação: " + str(score)
         width, _ = self.font.size(pontuacao)
         self.screen.blit(self.font.render(pontuacao, True, "black"),
                          (self.screen.get_width() - width - 10, 20 + height)
                          )
+
     @abstractmethod
     def event_check(self, event_arg: Event):
         pass
@@ -110,9 +114,14 @@ class ChallengeBase(Renderable):
             )
             self.screen.blit(text_surface, text_rect.topleft)
 
-        text = (
-                "Sua pontuação foi: " + str(self.score) + "/" + str(self.num_challenges)
-        )
+        score = 0
+        if isinstance(score, int):
+            score = self.score
+        elif isinstance(score, float):
+            score = round(self.score, 2)
+
+        text = "Sua pontuação foi: " + str(score) + "/" + str(self.num_challenges)
+
         width, _ = self.font.size(text)
         self.screen.blit(
             self.font.render(text, True, "black"),
