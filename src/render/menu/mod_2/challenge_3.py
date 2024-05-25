@@ -63,8 +63,19 @@ class Challenge(ChallengeBase):
     def __render_challenge(self):
         self.__back_button.render()
         self.staff.render()
-        x_pos = [int(self.staff.start_x + i * 75) for i in range(len(self.__curr_rythm))]
-        self.__render_notes(x_pos)
+        possible_area = (self.screen.get_width() // 2) - self.staff.start_x
+        x_pos = [int(self.staff.start_x + i * (possible_area / len(self.__curr_rythm))) for i in range(len(self.__curr_rythm))]
+        self.__render_notes(x_pos, self.__curr_rythm)
+        line_y_start = self.staff.line_positions[0]
+        line_y_end = self.staff.line_positions[-1]
+        pygame.draw.line(
+            self.screen,
+            "black",
+            (self.screen.get_width() // 2, line_y_start),
+            (self.screen.get_width() // 2, line_y_end),
+            4
+        )
+
         if not self.__started_challenge and not self.__finished_challenge:
             self.__start_button.render()
             self.__sensibility_button.render()
@@ -98,6 +109,18 @@ class Challenge(ChallengeBase):
                 )
         if self.__finished_challenge:
             self.__continue_button.render()
+            if self.__stream_processed:
+                half_screen_width = self.screen.get_width() // 2
+                num_played = len(self.__played)
+                x_pos = [half_screen_width + 20 + i * (possible_area // num_played) for i in range(num_played)]
+                self.__render_notes(x_pos, self.__played)
+                text = "Você tocou:"
+                text_width = self.font.size(text)[0]
+                text_y_pos = self.staff.line_positions[0] - self.staff.note_spacing * 4
+                self.screen.blit(
+                    self.font.render(text, True, "black"),
+                    (half_screen_width * 1.5 - text_width // 2, text_y_pos)
+                )
 
     def __end_current_challenge(self):
         self.__finished_challenge = True
@@ -107,31 +130,31 @@ class Challenge(ChallengeBase):
         if not self.__stream_processed:
             self.process_audio_stream()
 
-    def __render_notes(self, x_pos):
-        for i in range(len(self.__curr_rythm)):
-            if np.isclose(self.__curr_rythm[i][1], 0.125, rtol=1e-09, atol=1e-09):
-                if self.__curr_rythm[i][0] == 'pause':
-                    self.note_renderer.pause(x_pos[i], 3)
+    def __render_notes(self, x_pos, notes):
+        for i in range(len(notes)):
+            if np.isclose(notes[i][1], 0.125, rtol=1e-09, atol=1e-09):
+                if notes[i][0] == 'pause':
+                    self.note_renderer.pause(x_pos[i], 3, shift=True)
                 else:
-                    if i + 1 < len(self.__curr_rythm) and self.__curr_rythm[i + 1][0] == 'note' and np.isclose(
-                            self.__curr_rythm[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
+                    if i + 1 < len(notes) and notes[i + 1][0] == 'note' and np.isclose(
+                            notes[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
                         self.note_renderer.eighth([(x_pos[i], self.__y_pos), (x_pos[i + 1], self.__y_pos)])
-                    elif i - 1 >= 0 and self.__curr_rythm[i - 1][0] == 'note' and np.isclose(
-                            self.__curr_rythm[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
+                    elif i - 1 >= 0 and notes[i - 1][0] == 'note' and np.isclose(
+                            notes[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
                         continue
                     else:
                         self.note_renderer.eighth([(x_pos[i], self.__y_pos)])
 
-            elif np.isclose(self.__curr_rythm[i][1], 0.25, rtol=1e-09, atol=1e-09):
-                if self.__curr_rythm[i][0] == "note":
+            elif np.isclose(notes[i][1], 0.25, rtol=1e-09, atol=1e-09):
+                if notes[i][0] == "note":
                     self.note_renderer.quarter(x_pos[i], self.__y_pos)
                 else:
-                    self.note_renderer.pause(x_pos[i], 2)
-            elif np.isclose(self.__curr_rythm[i][1], 0.5, rtol=1e-09, atol=1e-09):
-                if self.__curr_rythm[i][0] == "note":
+                    self.note_renderer.pause(x_pos[i], 2, shift=True)
+            elif np.isclose(notes[i][1], 0.5, rtol=1e-09, atol=1e-09):
+                if notes[i][0] == "note":
                     self.note_renderer.half(x_pos[i], self.__y_pos)
                 else:
-                    self.note_renderer.pause(x_pos[i], 1)
+                    self.note_renderer.pause(x_pos[i], 1, shift=True)
 
     def event_check(self, event_arg: Event):
         if event_arg.type == pygame.QUIT:

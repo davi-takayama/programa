@@ -153,7 +153,7 @@ class NoteRenderer:
                     pg.draw.line(self.screen, color[color_index], (positions[index - 1][0] + 18, positions[index - 1][1] - 32),
                                  (pos[0] + 18, pos[1] - 32), 6)
 
-    def pause(self, pos: int, pause_length: int, y_pos: int | None = None):
+    def pause(self, pos: int, pause_length: int, y_pos: int | None = None, shift: bool = False):
         """
         pos: x and y position of the pause
         pause_length: [
@@ -165,7 +165,7 @@ class NoteRenderer:
         """
         match pause_length:
             case 0:
-                x = pos - self.__whole_pause.get_width() // 2
+                x = pos - self.__whole_pause.get_width() // 2 if not shift else pos
                 y = (
                     y_pos
                     if y_pos is not None
@@ -174,7 +174,7 @@ class NoteRenderer:
                 height = self.__whole_pause.get_height()
                 self.screen.blit(self.__whole_pause, (x, y - height // 2))
             case 1:
-                x = pos - self.__half_pause.get_width() // 2
+                x = pos - self.__half_pause.get_width() // 2 if not shift else pos
                 y = (
                     y_pos
                     if y_pos is not None
@@ -183,7 +183,7 @@ class NoteRenderer:
                 height = self.__half_pause.get_height()
                 self.screen.blit(self.__half_pause, (x, y - height // 2))
             case 2:
-                x = pos - self.__quarter_pause.get_width() // 2
+                x = pos - self.__quarter_pause.get_width() // 2 if not shift else pos
                 y = (
                     y_pos
                     if y_pos is not None
@@ -192,7 +192,7 @@ class NoteRenderer:
                 height = self.__quarter_pause.get_height()
                 self.screen.blit(self.__quarter_pause, (x, y - height // 2))
             case 3:
-                x = pos - self.__eighth_pause.get_width() // 2
+                x = pos - self.__eighth_pause.get_width() // 2 if not shift else pos
                 y = (
                     y_pos
                     if y_pos is not None
