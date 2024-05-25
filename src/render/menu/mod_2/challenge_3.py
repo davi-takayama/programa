@@ -323,11 +323,17 @@ class Challenge(ChallengeBase):
         self.__played = [("note", (start, start + length)) for start, length in threshold_meet]
 
         print("played nao processado", self.__played)
-        for i, play in enumerate(self.__played[:-1]):
+        curr_index = 0
+        aux_arr = []
+        for i, item in enumerate(self.__played[:-1]):
+            print(curr_index)
             next_play = self.__played[i + 1]
-            if next_play[1][0] - play[1][1] >= 10 and play[0] == "note" and next_play[0] == "note":
-                self.__played.insert(i + 1, ("pause", (play[1][1], next_play[1][0])))
-
+            play = self.__played[i]
+            aux_arr.append(play)
+            if next_play[1][0] - play[1][1] > 0 and play[0] == "note" and next_play[0] == "note":
+                aux_arr.append(("pause", (play[1][1], next_play[1][0])))
+        aux_arr.append(self.__played[-1])
+        self.__played = aux_arr
         print("played depois da insercao das pausas", self.__played)
 
         i = 0
@@ -348,25 +354,24 @@ class Challenge(ChallengeBase):
                 i += 1
         print("played depois da juncao das pausas", self.__played)
 
+        rounded_array = []
+        for item in self.__played:
+            fraction = (item[1][1] - item[1][0]) / len(self.__vol_stream)
+            possible_values = [0.125, 0.25, 0.5]
+            #             detect the nearest value
+            rounded = min(possible_values, key=lambda x: abs(x - fraction))
+            rounded_array.append((item[0], rounded))
+        self.__played = rounded_array
+
         self.__stream_processed = True
         self.calculate_score()
 
     def calculate_score(self):
         correct_plays = 0
-        for index, time in enumerate(self.__curr_rythm):
-            if index >= len(self.__played):
-                break
-            played = self.__played[index][1][1] - self.__played[index][1][0]
-            played_len = played / len(self.__vol_stream)
-            played_type = self.__played[index][0]
-
-            print(f"Time: {time}; Played: {played_len}; Diff: {abs(time[1] - played_len)}")
-            if index == 0 or index == len(self.__curr_rythm) - 1:
-                if time[1] - 0.2 <= played_len <= time[1] + 0.2 and time[0] == played_type:
-                    correct_plays += 1
-            else:
-                if time[1] - 0.1 <= played_len <= time[1] + 0.1 and time[0] == played_type:
-                    correct_plays += 1
+        for i in range(len(self.__played)):
+            if self.__played[i][0] == self.__curr_rythm[i][0] and np.isclose(self.__played[i][1], self.__curr_rythm[i][1], rtol=1e-09,
+                                                                             atol=1e-09):
+                correct_plays += 1
         print(f"Correct plays: {correct_plays}; Score: {round(correct_plays / len(self.__curr_rythm), 2)}")
         print()
         self.score += round(correct_plays / len(self.__curr_rythm), 2)
