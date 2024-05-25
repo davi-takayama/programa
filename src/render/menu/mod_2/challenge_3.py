@@ -165,7 +165,7 @@ class Challenge(ChallengeBase):
             if self.score == self.num_challenges:
                 chapter["perfected"] = True
             if self.chapter_index + 1 < len(save.md2.chapters):
-                next_chapter = save.md3.chapters[self.chapter_index + 1]
+                next_chapter = save.md2.chapters[self.chapter_index + 1]
                 next_chapter["unlocked"] = True
             else:
                 save.md3.unlocked = True
@@ -322,17 +322,20 @@ class Challenge(ChallengeBase):
 
         self.__played = [("note", (start, start + length)) for start, length in threshold_meet]
 
-        # if there is an interval between two notes, insert a pause in that space
-        for i in range(len(self.__played) - 1):
-            if self.__played[i + 1][1][1] - self.__played[i][1][0] > 0:
-                self.__played.insert(i + 1, ("pause", (self.__played[i][1][1], self.__played[i + 1][1][0])))
+        print("played nao processado", self.__played)
+        for i, play in enumerate(self.__played[:-1]):
+            next_play = self.__played[i + 1]
+            if next_play[1][0] - play[1][1] >= 10 and play[0] == "note" and next_play[0] == "note":
+                self.__played.insert(i + 1, ("pause", (play[1][1], next_play[1][0])))
+
+        print("played depois da insercao das pausas", self.__played)
 
         i = 0
         while i < len(self.__played) - 1:
             if self.__played[i][0] == "pause" and self.__played[i + 1][0] == "pause":
                 self.__played[i] = ("pause", (self.__played[i][1][0], self.__played[i + 1][1][1]))
                 self.__played.pop(i + 1)
-            elif self.__played[i][0] == "pause" and self.__played[i][1][1] - self.__played[i][1][0] <= 10:
+            elif self.__played[i][0] == "pause" and self.__played[i][1][1] - self.__played[i][1][0] <= 7:
                 self.__played[i + 1] = (
                     self.__played[i + 1][0],
                     (
@@ -343,13 +346,13 @@ class Challenge(ChallengeBase):
                 self.__played.pop(i)
             else:
                 i += 1
+        print("played depois da juncao das pausas", self.__played)
 
         self.__stream_processed = True
         self.calculate_score()
 
     def calculate_score(self):
         correct_plays = 0
-        print("Played: ", self.__played)
         for index, time in enumerate(self.__curr_rythm):
             if index >= len(self.__played):
                 break
