@@ -1,5 +1,8 @@
+from abc import abstractmethod
+
 import pygame
 from pygame import Rect, Surface
+from pygame.event import Event
 
 from .note_renderer import NoteRenderer
 from .renderable import Renderable
@@ -9,7 +12,6 @@ from ..render.staff import Staff
 
 
 class ModuleClass(Renderable):
-
     def __init__(
             self,
             screen: Surface,
@@ -31,7 +33,16 @@ class ModuleClass(Renderable):
         self.module: Module = module
         self.full_star = pygame.image.load(root_dir + "/assets/images/filled_star.png")
         self.blank_star = pygame.image.load(root_dir + "/assets/images/blank_star.png")
+        self.action_sound = pygame.mixer.Sound("assets/audio/metronome_trebble.wav")
         self.note_renderer = NoteRenderer(self.surface, c3_pos=self.c3)
+
+    @abstractmethod
+    def render(self):
+        pass
+
+    @abstractmethod
+    def event_check(self, event_arg: Event):
+        pass
 
     @staticmethod
     def calculate_note_x_placements(

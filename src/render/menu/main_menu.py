@@ -38,6 +38,8 @@ class Menu(Renderable):
         self.__arrow_left_x = self.__cleff_width
         self.__arrow_right_x = self.screen.get_width() - self.__arrow_right.get_width() - self.__cleff_width
 
+        self.action_sound = pygame.mixer.Sound(root_dir + "/assets/audio/metronome_bass.wav")
+
         self.current_module = self.save.last_opened
 
         self.modules: List[ModuleClass] = [
@@ -72,12 +74,14 @@ class Menu(Renderable):
                 save = Save.load()
                 save.last_opened = self.current_module
                 save.save()
+                self.action_sound.play()
             elif self.__arrow_right.get_rect(topleft=(self.__arrow_right_x, self.__arrow_y)).collidepoint(
                     event_arg.pos) and self.current_module < len(self.modules) - 1:
                 self.current_module = (self.current_module + 1) % len(self.modules)
                 save = Save.load()
                 save.last_opened = self.current_module
                 save.save()
+                self.action_sound.play()
         return super().event_check(event_arg)
 
     def __get_modules_data(self):

@@ -14,7 +14,7 @@ from src.utils.save_operations.read_save import Save
 vol = 0
 
 
-class Challenge(ChallengeBase):
+class Challenge3(ChallengeBase):
     def __init__(self, screen: Surface, change_state, chapter_index: int, use_pauses: bool = False):
         super().__init__(screen, change_state, chapter_index, True)
         self.__start_audio_devices()

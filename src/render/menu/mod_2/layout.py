@@ -88,44 +88,46 @@ class Module2(ModuleClass):
         self.screen.blit(self.surface, (self.x_pos, 0))
 
     def event_check(self, event_arg: Event | None = None):
+        def check_and_change_state(x, y, height, chapter_index, challenge_class: int, unlock_next: bool = False,
+                                   use_pauses: bool = False):
+            if self.calculate_rect(self.note_x_placement[x], self.note_y_placement[y], height).collidepoint(event_arg.pos) and \
+                    self.module.chapters[chapter_index]["unlocked"]:
+                self.action_sound.play()
+                match challenge_class:
+                    case 0:
+                        from .challenge import Challenge
+                        self.change_state(
+                            Challenge(self.screen, self.change_state, chapter_index, unlock_next=unlock_next, use_pauses=use_pauses))
+                    case 1:
+                        from .challenge_2 import Challenge2
+                        self.change_state(
+                            Challenge2(self.screen, self.change_state, chapter_index, ))
+                    case 2:
+                        from .challenge_3 import Challenge3
+                        self.change_state(
+                            Challenge3(self.screen, self.change_state, chapter_index, use_pauses=use_pauses))
+
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3).collidepoint(
                     event_arg.pos) and self.module.unlocked:
                 from .explanation import Explanation
                 self.change_state(Explanation(self.screen, self.change_state))
-
-            elif self.calculate_rect(self.note_x_placement[1], self.note_y_placement[0], 1).collidepoint(
-                    event_arg.pos) and self.module.chapters[0]["unlocked"]:
-                from .challenge import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, 0, unlock_next=False))
-
-            if self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
+            elif self.calculate_rect(self.note_x_placement[2], self.note_y_placement[2], 2).collidepoint(
                     event_arg.pos) and self.module.chapters[0]["completed"]:
                 from .explanation_2 import Explanation
                 self.change_state(Explanation(self.screen, self.change_state))
-
-            elif self.calculate_rect(self.note_x_placement[3], self.note_y_placement[1], 1).collidepoint(
-                    event_arg.pos) and self.module.chapters[1]["unlocked"]:
-                from .challenge import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, 1, unlock_next=True, use_pauses=True))
-
-            elif self.calculate_rect(self.note_x_placement[4], self.note_y_placement[2], 1).collidepoint(
-                    event_arg.pos) and self.module.chapters[2]["unlocked"]:
-                from .challenge_2 import Challenge2
-                self.change_state(Challenge2(self.screen, self.change_state, 2))
-
             elif self.calculate_rect(self.note_x_placement[6], self.note_y_placement[3], 2).collidepoint(
                     event_arg.pos) and self.module.chapters[2]["completed"]:
                 from .explanation_3 import Explanation
                 self.change_state(Explanation(self.screen, self.change_state))
-            elif self.calculate_rect(self.note_x_placement[7], self.note_y_placement[-2], 1).collidepoint(
-                    event_arg.pos) and self.module.chapters[3]["unlocked"]:
-                from .challenge_3 import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, 3))
-            elif self.calculate_rect(self.note_x_placement[8], self.note_y_placement[-3], 1).collidepoint(
-                    event_arg.pos) and self.module.chapters[4]["unlocked"]:
-                from .challenge_3 import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, 4, True))
+
+            check_and_change_state(1, 0, 1, 0, 0)
+            check_and_change_state(3, 1, 1, 1, 0, unlock_next=True, use_pauses=True)
+
+            check_and_change_state(4, 2, 1, 2, 1)
+
+            check_and_change_state(7, 4, 1, 3, 2)
+            check_and_change_state(8, 4, 1, 4, 2, use_pauses=True)
 
     def __render_first_chord(self):
         for i in range(3):

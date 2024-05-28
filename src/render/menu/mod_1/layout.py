@@ -99,6 +99,7 @@ class Module1(ModuleClass):
             ):
                 from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, chapter_index, use_audio, num_challenges, chromatic))
+                self.action_sound.play()
 
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.first_chord_rect.collidepoint(event_arg.pos):
