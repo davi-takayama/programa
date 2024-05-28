@@ -133,28 +133,36 @@ class Challenge(ChallengeBase):
     def __render_notes(self, x_pos, notes):
         for i in range(len(notes)):
             if np.isclose(notes[i][1], 0.125, rtol=1e-09, atol=1e-09):
-                if notes[i][0] == 'pause':
-                    self.note_renderer.pause(x_pos[i], 3, shift=True)
-                else:
-                    if i + 1 < len(notes) and notes[i + 1][0] == 'note' and np.isclose(
-                            notes[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
-                        self.note_renderer.eighth([(x_pos[i], self.__y_pos), (x_pos[i + 1], self.__y_pos)])
-                    elif i - 1 >= 0 and notes[i - 1][0] == 'note' and np.isclose(
-                            notes[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
-                        continue
-                    else:
-                        self.note_renderer.eighth([(x_pos[i], self.__y_pos)])
-
+                self.__render_eighth_note(x_pos, notes, i)
             elif np.isclose(notes[i][1], 0.25, rtol=1e-09, atol=1e-09):
-                if notes[i][0] == "note":
-                    self.note_renderer.quarter(x_pos[i], self.__y_pos)
-                else:
-                    self.note_renderer.pause(x_pos[i], 2, shift=True)
+                self.__render_quarter_note(x_pos, notes, i)
             elif np.isclose(notes[i][1], 0.5, rtol=1e-09, atol=1e-09):
-                if notes[i][0] == "note":
-                    self.note_renderer.half(x_pos[i], self.__y_pos)
-                else:
-                    self.note_renderer.pause(x_pos[i], 1, shift=True)
+                self.__render_half_note(x_pos, notes, i)
+
+    def __render_eighth_note(self, x_pos, notes, i):
+        if notes[i][0] == 'pause':
+            self.note_renderer.pause(x_pos[i], 3, shift=True)
+        else:
+            if i + 1 < len(notes) and notes[i + 1][0] == 'note' and np.isclose(
+                    notes[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
+                self.note_renderer.eighth([(x_pos[i], self.__y_pos), (x_pos[i + 1], self.__y_pos)])
+            elif i - 1 >= 0 and notes[i - 1][0] == 'note' and np.isclose(
+                    notes[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
+                return
+            else:
+                self.note_renderer.eighth([(x_pos[i], self.__y_pos)])
+
+    def __render_quarter_note(self, x_pos, notes, i):
+        if notes[i][0] == "note":
+            self.note_renderer.quarter(x_pos[i], self.__y_pos)
+        else:
+            self.note_renderer.pause(x_pos[i], 2, shift=True)
+
+    def __render_half_note(self, x_pos, notes, i):
+        if notes[i][0] == "note":
+            self.note_renderer.half(x_pos[i], self.__y_pos)
+        else:
+            self.note_renderer.pause(x_pos[i], 1, shift=True)
 
     def event_check(self, event_arg: Event):
         if event_arg.type == pygame.QUIT:
@@ -183,15 +191,14 @@ class Challenge(ChallengeBase):
         save = Save.load()
         chapter = save.md2.chapters[self.chapter_index]
 
-        if self.score >= self.num_challenges * 0.7:
-            chapter["completed"] = True
-            if self.score == self.num_challenges:
-                chapter["perfected"] = True
-            if self.chapter_index + 1 < len(save.md2.chapters):
-                next_chapter = save.md2.chapters[self.chapter_index + 1]
-                next_chapter["unlocked"] = True
-            else:
-                save.md3.unlocked = True
+        chapter["completed"] = self.score >= self.num_challenges * 0.7
+        chapter["perfected"] = self.score == self.num_challenges
+
+        if self.chapter_index + 1 < len(save.md2.chapters):
+            next_chapter = save.md2.chapters[self.chapter_index + 1]
+            next_chapter["unlocked"] = self.score >= self.num_challenges * 0.7
+        else:
+            save.md3.unlocked = True
         save.md2.chapters[self.chapter_index] = chapter
         save.save()
 
@@ -226,10 +233,10 @@ class Challenge(ChallengeBase):
 
     def __random_challenge(self):
         num_challenges_available = len(self.__times_with_pauses)
-        index = np.random.randint(0, num_challenges_available)
+        rng = np.random.default_rng(seed=69)
+        index = rng.integers(0, num_challenges_available)
         challenge = self.__times_with_pauses[index].copy()
         random.shuffle(self.__times_with_pauses[index])
-        item: tuple[str, float]
         for i in range(len(challenge)):
             challenge[i] = ('note', challenge[i][1])
         num_pauses = random.randint(1, len(challenge) // 3 if len(challenge) > 3 else 1)
@@ -318,19 +325,35 @@ class Challenge(ChallengeBase):
 
     def process_audio_stream(self):
         self.__played = []  # [(type, (start, length)), ...]
-        mean_vol_threshold = 0
+        mean_vol_threshold = self.__calculate_mean_vol_threshold()
+
+        audio_stream = self.__filter_audio_stream(self.__vol_stream, self.__vol_sensibility)
+
+        threshold_meet = self.__find_threshold_meet(audio_stream, mean_vol_threshold)
+        self.__played = self.__convert_threshold_meet_to_played(threshold_meet)
+
+        self.__insert_pauses_between_notes()
+        self.__join_adjacent_pauses()
+        self.__round_played_values()
+
+        self.__stream_processed = True
+        self.calculate_score()
+
+    def __calculate_mean_vol_threshold(self):
         if len(self.__vol_stream) > 0 and not np.isnan(self.__vol_stream).any() and not np.isinf(self.__vol_stream).any():
-            mean_vol_threshold = np.mean(self.__vol_stream) * 0.7
+            return np.mean(self.__vol_stream) * 0.7
+        return 0
 
-        audio_stream = self.__vol_stream.copy()
-        for i in range(len(audio_stream)):
-            if audio_stream[i] < self.__vol_sensibility:
-                audio_stream[i] = 0
+    @staticmethod
+    def __filter_audio_stream(audio_stream, vol_sensibility):
+        filtered_stream = audio_stream.copy()
+        for i in range(len(filtered_stream)):
+            if filtered_stream[i] < vol_sensibility:
+                filtered_stream[i] = 0
+        return filtered_stream
 
-        for i in range(2, len(self.__vol_stream) - 2):
-            if self.__vol_stream[i] > mean_vol_threshold:
-                self.__vol_stream[i] = np.mean(self.__vol_stream[i - 2:i + 3])
-
+    @staticmethod
+    def __find_threshold_meet(audio_stream, mean_vol_threshold):
         threshold_meet = []
         length = 0
         for i in range(len(audio_stream)):
@@ -342,23 +365,22 @@ class Challenge(ChallengeBase):
                 length = 0
         if length > 0:
             threshold_meet.append((len(audio_stream) - length, length))
+        return threshold_meet
 
-        self.__played = [("note", (start, start + length)) for start, length in threshold_meet]
+    def __convert_threshold_meet_to_played(self, threshold_meet) -> list[tuple[str, tuple[int, int]]]:
+        return [("note", (start, start + length)) for start, length in threshold_meet]
 
-        print("played nao processado", self.__played)
-        curr_index = 0
+    def __insert_pauses_between_notes(self):
         aux_arr = []
         for i, item in enumerate(self.__played[:-1]):
-            print(curr_index)
             next_play = self.__played[i + 1]
-            play = self.__played[i]
-            aux_arr.append(play)
-            if next_play[1][0] - play[1][1] > 0 and play[0] == "note" and next_play[0] == "note":
-                aux_arr.append(("pause", (play[1][1], next_play[1][0])))
+            aux_arr.append(item)
+            if next_play[1][0] - item[1][1] > 0 and item[0] == "note" and next_play[0] == "note":
+                aux_arr.append(("pause", (item[1][1], next_play[1][0])))
         aux_arr.append(self.__played[-1])
         self.__played = aux_arr
-        print("played depois da insercao das pausas", self.__played)
 
+    def __join_adjacent_pauses(self):
         i = 0
         while i < len(self.__played) - 1:
             if self.__played[i][0] == "pause" and self.__played[i + 1][0] == "pause":
@@ -375,25 +397,22 @@ class Challenge(ChallengeBase):
                 self.__played.pop(i)
             else:
                 i += 1
-        print("played depois da juncao das pausas", self.__played)
 
+    def __round_played_values(self):
         rounded_array = []
         for item in self.__played:
             fraction = (item[1][1] - item[1][0]) / len(self.__vol_stream)
             possible_values = [0.125, 0.25, 0.5]
-            #             detect the nearest value
-            rounded = min(possible_values, key=lambda x: abs(x - fraction))
+            rounded = min(possible_values, key=lambda x, fraction=fraction: abs(x - fraction))
             rounded_array.append((item[0], rounded))
         self.__played = rounded_array
-
-        self.__stream_processed = True
-        self.calculate_score()
 
     def calculate_score(self):
         correct_plays = 0
         for i in range(len(self.__played)):
-            if self.__played[i][0] == self.__curr_rythm[i][0] and np.isclose(self.__played[i][1], self.__curr_rythm[i][1], rtol=1e-09,
-                                                                             atol=1e-09):
+            if i < len(self.__curr_rythm) and self.__played[i][0] == self.__curr_rythm[i][0] and np.isclose(self.__played[i][1],
+                                                                                                            self.__curr_rythm[i][1],
+                                                                                                            rtol=1e-09, atol=1e-09):
                 correct_plays += 1
         print(f"Correct plays: {correct_plays}; Score: {round(correct_plays / len(self.__curr_rythm), 2)}")
         print()

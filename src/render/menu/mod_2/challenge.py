@@ -23,22 +23,16 @@ class Challenge(ChallengeBase):
     ):
         super().__init__(screen, change_state, chapter_index, False, num_challenges)
         self.__use_pauses = use_pauses
-        self.__unlock_next = unlock_next
-        self.__notes_dict: dict[float, callable] = {
-            1: self.note_renderer.whole,
+        from typing import Dict, Callable
+
+        self.__notes_dict: Dict[float, Callable] = {
+            1.0: self.note_renderer.whole,
             0.5: self.note_renderer.half,
             0.25: self.note_renderer.quarter,
             0.125: self.note_renderer.single_eighth,
         }
-        self.__pauses_dict: dict[float, int] = {
-            1: 0,
-            0.5: 1,
-            0.25: 2,
-            0.125: 3,
-        }
-
-        self.__pushed_notes = []
         self.__chosen_notes = []
+        self.__pushed_notes = []
         self.__note_buttons = self.__init_note_option_buttons() if not self.__use_pauses else self.__init_pause_option_buttons()
         self.__delete_button = self.__init_delete_button()
         self.__continue_button = self.init_continue_button(self.__click_continue)
@@ -123,14 +117,14 @@ class Challenge(ChallengeBase):
         self.screen.blit(text, (self.screen.get_width() // 2 - text.get_width() // 2, 20))
 
     def __init_note_option_buttons(self) -> List[Button]:
-        note_renderer = NoteRenderer(
-            self.screen, (self.screen.get_height() // 4 * 3) + 32
-        )
-        notes_dict: dict[float, callable] = {
-            1: note_renderer.whole,
-            0.5: note_renderer.half,
-            0.25: note_renderer.quarter,
-            0.125: note_renderer.single_eighth,
+        from typing import Dict, Callable
+        from src.utils.note_renderer import NoteRenderer
+        button_renderer = NoteRenderer(self.screen, draw_lines=False)
+        notes_dict: Dict[float, Callable] = {
+            1: button_renderer.whole,
+            0.5: button_renderer.half,
+            0.25: button_renderer.quarter,
+            0.125: button_renderer.single_eighth,
         }
 
         def make_button_callback(value):
@@ -173,7 +167,7 @@ class Challenge(ChallengeBase):
                 self.font,
                 lambda: self.__pushed_notes.append(value)
             )
-            button.height *= 2.5
+            button.height = int(button.height * 2.5)
             button.pos = (button.pos[0], button.pos[1] - 16)
 
             original_render = button.render
@@ -264,15 +258,12 @@ class Challenge(ChallengeBase):
         save = Save.load()
         chapter = save.md2.chapters[self.chapter_index]
 
-        if self.score >= int(self.num_challenges * 0.7):
-            chapter["completed"] = True
-            if self.score == self.num_challenges:
-                chapter["perfected"] = True
-            if self.chapter_index + 1 < len(save.md2.chapters) and self.__unlock_next:
-                next_chapter = save.md2.chapters[self.chapter_index + 1]
-                next_chapter["unlocked"] = True
-            else:
-                save.md3.unlocked = True
+        chapter["completed"] = self.score >= int(self.num_challenges * 0.7)
+        chapter["perfected"] = self.score == self.num_challenges
+        
+        next_chapter = save.md2.chapters[self.chapter_index + 1]
+        next_chapter["unlocked"] = self.score >= int(self.num_challenges * 0.7)
+
         save.md2.chapters[self.chapter_index] = chapter
         save.save()
         from ..main_menu import Menu

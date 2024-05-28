@@ -37,7 +37,7 @@ class Challenge(ChallengeBase):
         self.__continue = False
         self.__note_buttons: List[Button] = []
         self.__init_note_buttons()
-        self.__continue_button = self.init_continue_button(self.click_continue)
+        self.__continue_button = self.init_continue_button(self.__click_continue)
         self.__continue_text = ""
         self.__played_notes = []
         if use_audio:
@@ -64,7 +64,7 @@ class Challenge(ChallengeBase):
             self.go_back_button.render()
             self.render_challenge_info()
 
-    def event_check(self, event_arg: Event | None = None):
+    def event_check(self, event_arg: Event):
         if self.current_challenge == self.num_challenges:
             self.end_button.event_check(event_arg)
         else:
@@ -174,7 +174,7 @@ class Challenge(ChallengeBase):
             sharp = 'none'
         return sharp
 
-    def click_continue(self):
+    def __click_continue(self):
         self.__current_note = self.__pick_random_note()
         self.__continue = False
         self.current_challenge += 1
@@ -215,19 +215,18 @@ class Challenge(ChallengeBase):
 
         self.__note_buttons = buttons
 
-    def click_end(self):
+    def __click_end(self):
         save = Save.load()
         chapter = save.md1.chapters[self.chapter_index]
 
-        if self.score >= int(self.num_challenges * 0.7):
-            chapter["completed"] = True
-            if self.score == self.num_challenges:
-                chapter["perfected"] = True
-            if self.chapter_index + 1 < len(save.md1.chapters):
-                next_chapter = save.md1.chapters[self.chapter_index + 1]
-                next_chapter["unlocked"] = True
-            else:
-                save.md2.unlocked = True
+        chapter["completed"] = self.score >= int(self.num_challenges * 0.7)
+        chapter["perfected"] = self.score == self.num_challenges
+
+        if self.chapter_index + 1 < len(save.md1.chapters):
+            next_chapter = save.md1.chapters[self.chapter_index + 1]
+            next_chapter["unlocked"] = True
+        else:
+            save.md2.unlocked = True
         save.md1.chapters[self.chapter_index] = chapter
         save.save()
         from ..main_menu import Menu
@@ -247,31 +246,6 @@ class Challenge(ChallengeBase):
             return self.staff_notes[num] + return_char[hassharp], num
         else:
             return self.staff_notes[num], num
-
-    def __click_end(self):
-        save = Save.load()
-        chapter = save.md1.chapters[self.chapter_index]
-
-        if self.score >= int(self.num_challenges * 0.7):
-            chapter["completed"] = True
-            if self.score == self.num_challenges:
-                chapter["perfected"] = True
-            if self.chapter_index + 1 < len(save.md1.chapters):
-                next_chapter = save.md1.chapters[self.chapter_index + 1]
-                next_chapter["unlocked"] = True
-            else:
-                save.md2.unlocked = True
-        save.md1.chapters[self.chapter_index] = chapter
-        save.save()
-
-        try:
-            self.__close_threads()
-        except AttributeError:
-            pass
-
-        from ..main_menu import Menu
-
-        self.change_state(Menu(self.screen, self.change_state))
 
     def __calc_note_position(self, note: str):
         note_name = note[0]

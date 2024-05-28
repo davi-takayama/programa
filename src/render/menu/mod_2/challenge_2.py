@@ -30,12 +30,12 @@ class Challenge2(ChallengeBase):
         self.__continue_button = self.init_continue_button(self.__click_continue)
         self.__feedback_text = ""
 
-        self.__end_button = self.init_end_button(self.__click_end)
+        self.__end_button = self.init_end_button(self.click_end)
 
     def render(self):
         self.screen.fill("white")
         if self.current_challenge != self.num_challenges:
-            self.staff.render(self.screen)
+            self.staff.render()
             self.go_back_button.render()
 
             notes_render_width = self.screen.get_width() - self.staff.trebble_cleff_asset.get_width() * 4
@@ -78,7 +78,7 @@ class Challenge2(ChallengeBase):
             (self.staff.trebble_cleff_asset.get_width()) + i * (width // len(self.notes) + 1) for i in
             range(1, len(self.notes) + 1)
         ]
-        y_pos = self.staff.c3_position - self.staff.line_spacing * 2.5
+        y_pos = int(self.staff.c3_position - self.staff.line_spacing * 2.5)
         for i, note in enumerate(self.notes):
             if self.__notes_and_pauses[i]:
                 self.notes_dict[note](x_positions[i], y_pos)
@@ -94,7 +94,7 @@ class Challenge2(ChallengeBase):
     def get_random_notes(self):
         time_values = [1, 0.5, 0.25, 0.125]
         time_sig_value = self.__time_signature[0] / self.__time_signature[1]
-        num_notes = random.randint(2, min((8 * time_sig_value), 12))
+        num_notes = random.randint(2, min(int(8 * time_sig_value), 12))
 
         def adjust_values(values):
             for i, value in enumerate(values):
@@ -153,7 +153,7 @@ class Challenge2(ChallengeBase):
         self.notes = []
         self.get_random_notes()
 
-    def __click_end(self):
+    def click_end(self):
         save = Save.load()
         chapter = save.md2.chapters[self.chapter_index]
 
