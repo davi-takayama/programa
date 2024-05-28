@@ -38,7 +38,7 @@ class Menu(Renderable):
         self.__arrow_left_x = self.__cleff_width
         self.__arrow_right_x = self.screen.get_width() - self.__arrow_right.get_width() - self.__cleff_width
 
-        self.current_module = self.save.lastOpened
+        self.current_module = self.save.last_opened
 
         self.modules: List[ModuleClass] = [
             Module1(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md1),
@@ -70,13 +70,13 @@ class Menu(Renderable):
                     event_arg.pos) and self.current_module > 0:
                 self.current_module = (self.current_module - 1) % len(self.modules)
                 save = Save.load()
-                save.lastOpened = self.current_module
+                save.last_opened = self.current_module
                 save.save()
             elif self.__arrow_right.get_rect(topleft=(self.__arrow_right_x, self.__arrow_y)).collidepoint(
                     event_arg.pos) and self.current_module < len(self.modules) - 1:
                 self.current_module = (self.current_module + 1) % len(self.modules)
                 save = Save.load()
-                save.lastOpened = self.current_module
+                save.last_opened = self.current_module
                 save.save()
         return super().event_check(event_arg)
 

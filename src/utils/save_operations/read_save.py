@@ -23,11 +23,17 @@ class Chapter:
     completed: bool
     perfected: bool
 
+    def set_item(self, key, value):
+        self.__dict__[key] = value
+
 
 @dataclass
 class Module:
     unlocked: bool
     chapters: List[Chapter]
+
+    def __set_item__(self, key, value):
+        self.__dict__[key] = value
 
 
 @dataclass
@@ -35,25 +41,27 @@ class Save:
     md1: Module
     md2: Module
     md3: Module
-    lastOpened: int
+    last_opened: int
 
     @classmethod
     def load(cls):
-        save_data: dict = json.load(open(save_path, "r"))
+        with open(save_path, "r") as _file:
+            save_data: dict = json.load(_file)
         return cls(
             Module(**save_data["md1"]),
             Module(**save_data["md2"]),
             Module(**save_data["md3"]),
-            save_data["lastOpened"],
+            save_data["last_opened"],
         )
 
     def save(self):
-        json.dump(
-            {
-                "md1": self.md1.__dict__,
-                "md2": self.md2.__dict__,
-                "md3": self.md3.__dict__,
-                "lastOpened": self.lastOpened,
-            },
-            open(save_path, "w"),
-        )
+        with open(save_path, "w") as __file:
+            json.dump(
+                {
+                    "md1": self.md1.__dict__,
+                    "md2": self.md2.__dict__,
+                    "md3": self.md3.__dict__,
+                    "last_opened": self.last_opened,
+                },
+                __file,
+            )
