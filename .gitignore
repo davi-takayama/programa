@@ -5,3 +5,4 @@ __pycache__/
 /savestate/*
 /env/*
 /.idea/*
+/.sonarlint/*
