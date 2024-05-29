@@ -39,34 +39,50 @@ O projeto está estruturado da seguinte forma:
 >>> 📂 menu - tela de navegação da aplicação
 >>>> 📂 mod_x - módulos de cada uma das partes do programa
 >>>>> 📄 challenge
+>>>>>
 >>>>> 📄 explanation
+>>>>>
 >>>>> 📄 layout
 >>>>
 >>>> 📄 [main_menu](src/render/menu/main_menu.py) - gerencia e exibe as informações do módulo atualmente aberto
+>>>>
 >>>> 📄 [top_menu](src/render/menu/top_menu.py) - componente do menu que exibe o progresso geral de todos os módulos
 >>>
 >>> 📄 [intro_scr](src//render/intro_scr.py) - exibida na primeira vez abrindo a aplicação
+>>>
 >>> 📄 [staff](src/render/staff.py) - componente que exibe a pauta da partitura (usado em diversas telas)
 >>
 >> 📂 utils - funções e classes utilitárias
 >>> 📂 audioinput - arquivos usados para identificar as notas pela frequência do microfone
 >>>> 📄 [audio_analyzer](src/utils/audioinput/audio_analyzer.py) - classe que identifica as notas de acordo com a frequência
+>>>>
 >>>> 📄 [threading_helper](src/utils/audioinput/threading_helper.py) - thread auxiliar que guarda um buffer para o arquivo acima
 >>>
 >>> 📂 save_operations
 >>>> 📄 [check_save_exists](src/utils/save_operations/check_save_exists.py) - arquivo que verifica os dados existentes
+>>>>
 >>>> 📄 [create_save](src/utils/save_operations/create_save.py) - função que cria dados designado
+>>>>
 >>>> 📄 [read_save](src/utils/save_operations/read_save.py) - classes que mapeiam (leitura e escrita) dos dados
+>>>>
 >>>> 📄 [save](src/utils/save_operations/save.json) - template dos dados
 >>>
 >>> 📄 [bottom_screen_button](src/utils/bottom_screen_button.py) - devolve um botão no canto inferior direito
+>>>
 >>> 📄 [button](src/utils/button.py) - classe do objeto de botão
+>>>
 >>> 📄 [challenge_model](src/utils/challenge_model.py) - classe abstrata de desafio
+>>>
 >>> 📄 [image_rescaler](src/utils/image_rescaler.py) - funções de reescalar uma imagem proporcionalmente
+>>>
 >>> 📄 [metronome](src/utils/metronome.py) - thread que inicia um metrônomo
+>>>
 >>> 📄 [module_model](src/utils/module_model.py) - classe abstrata do layout de um módulo
+>>>
 >>> 📄 [note_renderer](src/utils/note_renderer.py) - renderiza as notas e pausas
+>>>
 >>> 📄 [renderable](src/utils/renderable.py) - classe abstrata de todos os componentes visuais
+>>>
 >>> 📄 [root_dir](src/utils/root_dir.py) - devolve o diretório raiz da aplicação
 >>
 >> 📄 [state_handler](src/state_handler.py) - gerencia o estado da aplicação para definir telas e ações
