@@ -2,6 +2,7 @@ import textwrap
 from abc import abstractmethod
 from typing import Callable
 
+import pygame
 from pygame import Surface
 from pygame.event import Event
 from pygame.font import Font
@@ -10,6 +11,7 @@ from src.render.staff import Staff
 from src.utils.button import Button
 from src.utils.note_renderer import NoteRenderer
 from src.utils.renderable import Renderable
+from src.utils.root_dir import root_dir
 
 
 class ChallengeBase(Renderable):
@@ -31,6 +33,8 @@ class ChallengeBase(Renderable):
         self.font = Font(None, size=32)
         self.note_renderer = NoteRenderer(screen, self.staff.c3_position)
         self.go_back_button = self.init_back_button()
+        self.correct_se = pygame.mixer.Sound(root_dir + "assets/audio/correct_answer.mp3")
+        self.incorrect_se = pygame.mixer.Sound(root_dir + "assets/audio/incorrect_answer.mp3")
 
     @abstractmethod
     def render(self):

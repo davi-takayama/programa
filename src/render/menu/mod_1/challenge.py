@@ -190,10 +190,10 @@ class Challenge(ChallengeBase):
             if text == checked_value:
                 self.score += 1
                 self.__continue_text = "Correto!"
+                self.correct_se.play()
             else:
-                self.__continue_text = (
-                        "Incorreto! A resposta correta era: " + checked_value
-                )
+                self.__continue_text = ("Incorreto! A resposta correta era: " + checked_value)
+                self.incorrect_se.play()
             self.__continue = True
 
         buttons = []
@@ -303,6 +303,7 @@ class Challenge(ChallengeBase):
         if self.__note_played == checked_value:
             self.score += 1
             self.__continue_text = "Correto!"
+            self.correct_se.play()
         else:
             self.__continue_text = (
                     "Incorreto! A nota correta era: "
@@ -310,6 +311,7 @@ class Challenge(ChallengeBase):
                     + ". Você tocou: "
                     + self.__note_played
             )
+            self.incorrect_se.play()
         self.__played_notes = []
 
     @staticmethod

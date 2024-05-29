@@ -125,9 +125,12 @@ class Challenge2(ChallengeBase):
                         self.__feedback_text = "Correto! Estas notas não fecham um compasso da assinatura de tempo!"
                     else:
                         self.__feedback_text = "Correto! Estas notas passam de um compasso da assinatura de tempo!"
+                self.correct_se.play()
             else:
                 self.__feedback_text = (
-                    f"Incorreto! As notas somam {sum(self.notes) * self.__time_signature[1]} tempos e o compasso requer {self.__time_signature[0]} tempos.")
+                    f"Incorreto! As notas somam {sum(self.notes) * self.__time_signature[1]} tempos e o compasso requer "
+                    f"{self.__time_signature[0]} tempos.")
+                self.incorrect_se.play()
 
             self.__continue = True
 

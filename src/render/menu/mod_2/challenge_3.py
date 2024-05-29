@@ -416,4 +416,9 @@ class Challenge3(ChallengeBase):
                 correct_plays += 1
         print(f"Correct plays: {correct_plays}; Score: {round(correct_plays / len(self.__curr_rythm), 2)}")
         print()
-        self.score += round(correct_plays / len(self.__curr_rythm), 2)
+        score = round(correct_plays / len(self.__curr_rythm), 2)
+        self.score += score
+        if score >= 0.7:
+            self.correct_se.play()
+        else:
+            self.incorrect_se.play()

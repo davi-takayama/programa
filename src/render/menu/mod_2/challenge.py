@@ -39,6 +39,7 @@ class Challenge(ChallengeBase):
         self.__pick_notes()
         self.__note_pos_area = abs(self.staff.trebble_cleff_asset.get_width() * 2.2 - self.screen.get_width() // 2)
         self.__end_button = self.init_end_button(self.__click_end)
+        self.__added_score = False
 
     def render(self):
         self.screen.fill("white")
@@ -115,6 +116,13 @@ class Challenge(ChallengeBase):
         text = "Correto!" if sum(self.__pushed_notes) == sum(self.__chosen_notes) else "Incorreto!"
         text = self.font.render(text, True, "black")
         self.screen.blit(text, (self.screen.get_width() // 2 - text.get_width() // 2, 20))
+        if not self.__added_score:
+            self.__added_score = True
+            if sum(self.__pushed_notes) == sum(self.__chosen_notes):
+                self.score += 1
+                self.correct_se.play()
+            else:
+                self.incorrect_se.play()
 
     def __init_note_option_buttons(self) -> List[Button]:
         from typing import Dict, Callable
@@ -247,12 +255,12 @@ class Challenge(ChallengeBase):
         )
 
     def __click_continue(self):
-        if sum(self.__pushed_notes) == sum(self.__chosen_notes):
-            self.score += 1
+
         self.current_challenge += 1
         self.__pushed_notes = []
         self.__chosen_notes = []
         self.__pick_notes()
+        self.__added_score = False
 
     def __click_end(self):
         save = Save.load()
@@ -260,7 +268,7 @@ class Challenge(ChallengeBase):
 
         chapter["completed"] = self.score >= int(self.num_challenges * 0.7)
         chapter["perfected"] = self.score == self.num_challenges
-        
+
         next_chapter = save.md2.chapters[self.chapter_index + 1]
         next_chapter["unlocked"] = self.score >= int(self.num_challenges * 0.7)
 
