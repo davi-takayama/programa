@@ -97,9 +97,9 @@ class Module1(ModuleClass):
                     self.calculate_rect(x_placement, y_placement, height).collidepoint(event_arg.pos)
                     and self.module.chapters[chapter_index]["unlocked"]
             ):
+                self.action_sound.play()
                 from .challenge import Challenge
                 self.change_state(Challenge(self.screen, self.change_state, chapter_index, use_audio, num_challenges, chromatic, unlock_next))
-                self.action_sound.play()
 
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.first_chord_rect.collidepoint(event_arg.pos):
