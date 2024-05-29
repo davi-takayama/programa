@@ -29,6 +29,7 @@ class Challenge(ChallengeBase):
             use_audio: bool = False,
             num_challenges: int = 10,
             chromatic: bool = False,
+            unlock_next: bool = True,
     ) -> None:
         super().__init__(screen, change_state, chapter_index, use_audio, num_challenges)
         self.staff_notes = ["E", "F", "G", "A", "B", "C", "D", "E", "F"]
@@ -55,6 +56,7 @@ class Challenge(ChallengeBase):
         self.__vol_sensibility = 5
         self.__sensibility_button = self.__init_sensibility_button()
         self.__continue_timer = 0
+        self.__unlock_next = unlock_next
 
     def render(self):
         if self.current_challenge == self.num_challenges:
@@ -100,7 +102,7 @@ class Challenge(ChallengeBase):
         sharp = self.__get_sharp_or_flat()
 
         self.note_renderer.quarter(
-            x_pos=self.staff.trebble_cleff_asset.get_width() * 2 + 10,
+            x_pos=self.staff.trebble_cleff_asset.get_width() * 2 + 20,
             y_pos=(self.staff.c3_position - self.staff.note_spacing * 2) - (self.__current_note[1] * self.staff.note_spacing),
             has_sharp=sharp
         )
@@ -136,7 +138,7 @@ class Challenge(ChallengeBase):
         sharp = self.__get_sharp_or_flat()
 
         self.note_renderer.quarter(
-            x_pos=self.staff.trebble_cleff_asset.get_width() * 2 + 10,
+            x_pos=self.staff.trebble_cleff_asset.get_width() * 2 + 20,
             y_pos=(self.staff.c3_position - self.staff.note_spacing * 2) - self.__current_note[1] * self.staff.note_spacing,
             has_sharp=sharp,
         )
@@ -179,8 +181,6 @@ class Challenge(ChallengeBase):
             if pygame.time.get_ticks() - self.__continue_timer > 3000:
                 self.__continue_button.on_click()
 
-
-
     def __get_sharp_or_flat(self):
         sharp: Literal['none', 'sharp', 'flat']
         if self.__current_note[0].find("#") != -1:
@@ -204,13 +204,23 @@ class Challenge(ChallengeBase):
             checked_value = self.__current_note[0]
             checked_value = self.__swap_note_if_invalid(checked_value)
 
-            if text == checked_value:
-                self.score += 1
-                self.__continue_text = "Correto!"
-                self.correct_se.play()
+            answ = text.split('/')
+            if len(answ) > 1:
+                if checked_value == answ[0] or checked_value == answ[1]:
+                    self.score += 1
+                    self.__continue_text = "Correto!"
+                    self.correct_se.play()
+                else:
+                    self.__continue_text = ("Incorreto! A resposta correta era: " + checked_value)
+                    self.incorrect_se.play()
             else:
-                self.__continue_text = ("Incorreto! A resposta correta era: " + checked_value)
-                self.incorrect_se.play()
+                if text == checked_value:
+                    self.score += 1
+                    self.__continue_text = "Correto!"
+                    self.correct_se.play()
+                else:
+                    self.__continue_text = ("Incorreto! A resposta correta era: " + checked_value)
+                    self.incorrect_se.play()
             self.__continue = True
 
         buttons = []
@@ -241,7 +251,7 @@ class Challenge(ChallengeBase):
 
         if self.chapter_index + 1 < len(save.md1.chapters):
             next_chapter = save.md1.chapters[self.chapter_index + 1]
-            next_chapter["unlocked"] = True
+            next_chapter["unlocked"] = True if self.__unlock_next else next_chapter["unlocked"]
         else:
             save.md2.unlocked = True
         save.md1.chapters[self.chapter_index] = chapter
@@ -275,7 +285,7 @@ class Challenge(ChallengeBase):
                 - (self.staff.note_spacing * 2)
         )
         self.note_renderer.quarter(
-            x_pos=self.staff.trebble_cleff_asset.get_width() * 3 + 10,
+            x_pos=self.staff.trebble_cleff_asset.get_width() * 3 + 20,
             y_pos=pos,
             has_sharp='sharp' if has_sharp else 'none',
             color="gray",
@@ -331,7 +341,6 @@ class Challenge(ChallengeBase):
             self.incorrect_se.play()
         self.__played_notes = []
         self.__continue_timer = pygame.time.get_ticks()
-
 
     @staticmethod
     def __swap_note_if_invalid(checked_value):

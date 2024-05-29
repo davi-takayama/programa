@@ -126,8 +126,8 @@ class Module2(ModuleClass):
 
             check_and_change_state(4, 2, 1, 2, 1)
 
-            check_and_change_state(7, 4, 1, 3, 2)
-            check_and_change_state(8, 4, 1, 4, 2, use_pauses=True)
+            check_and_change_state(7, 3, 1, 3, 2)
+            check_and_change_state(8, 2, 1, 4, 2, use_pauses=True)
 
     def __render_first_chord(self):
         for i in range(3):

@@ -92,13 +92,13 @@ class Module1(ModuleClass):
                 )
 
     def event_check(self, event_arg: Event | None = None):
-        def check_and_change(x_placement, y_placement, height, chapter_index,use_audio = False, num_challenges = 10, chromatic = False):
+        def check_and_change(x_placement, y_placement, height, chapter_index,use_audio = False, num_challenges = 10, chromatic = False, unlock_next = True):
             if (
                     self.calculate_rect(x_placement, y_placement, height).collidepoint(event_arg.pos)
                     and self.module.chapters[chapter_index]["unlocked"]
             ):
                 from .challenge import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, chapter_index, use_audio, num_challenges, chromatic))
+                self.change_state(Challenge(self.screen, self.change_state, chapter_index, use_audio, num_challenges, chromatic, unlock_next))
                 self.action_sound.play()
 
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
@@ -109,7 +109,7 @@ class Module1(ModuleClass):
 
             check_and_change(self.__note_x_placements[1], self.__note_y_placement[0], 1, 0)
             check_and_change(self.__note_x_placements[2], self.__note_y_placement[1], 1, 1, True)
-            check_and_change(self.__note_x_placements[3], self.__note_y_placement[2], 1, 2, True, 15)
+            check_and_change(self.__note_x_placements[3], self.__note_y_placement[2], 1, 2, True, 15, )
 
             if (
                     self.calculate_rect(self.__note_x_placements[5] + 16, self.__note_y_placement[3], 3).collidepoint(event_arg.pos)
