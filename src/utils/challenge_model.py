@@ -35,6 +35,9 @@ class ChallengeBase(Renderable):
         self.go_back_button = self.init_back_button()
         self.correct_se = pygame.mixer.Sound(root_dir + "assets/audio/correct_answer.mp3")
         self.incorrect_se = pygame.mixer.Sound(root_dir + "assets/audio/incorrect_answer.mp3")
+    #     put both of them in the same volume
+        self.correct_se.set_volume(0.5)
+        self.incorrect_se.set_volume(0.5)
 
     @abstractmethod
     def render(self):

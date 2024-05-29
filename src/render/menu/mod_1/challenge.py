@@ -28,7 +28,7 @@ class Challenge(ChallengeBase):
             chapter_index: int,
             use_audio: bool = False,
             num_challenges: int = 10,
-            chromatic: bool = False
+            chromatic: bool = False,
     ) -> None:
         super().__init__(screen, change_state, chapter_index, use_audio, num_challenges)
         self.staff_notes = ["E", "F", "G", "A", "B", "C", "D", "E", "F"]
@@ -54,6 +54,7 @@ class Challenge(ChallengeBase):
         self.go_back_button = self.init_back_button(self.__close_threads)
         self.__vol_sensibility = 5
         self.__sensibility_button = self.__init_sensibility_button()
+        self.__continue_timer = 0
 
     def render(self):
         if self.current_challenge == self.num_challenges:
@@ -163,6 +164,22 @@ class Challenge(ChallengeBase):
                 ),
             )
             self.__continue_button.render()
+
+            time_left = 3 - (pygame.time.get_ticks() - self.__continue_timer) // 1000
+            text = "continuando em X...".replace("X", str(time_left))
+            width, _ = self.font.size(text)
+            self.screen.blit(
+                self.font.render(text, True, "black"),
+                (
+                    (self.screen.get_width() // 2) - (width // 2),
+                    (self.screen.get_height() // 2),
+                ),
+            )
+
+            if pygame.time.get_ticks() - self.__continue_timer > 3000:
+                self.__continue_button.on_click()
+
+
 
     def __get_sharp_or_flat(self):
         sharp: Literal['none', 'sharp', 'flat']
@@ -313,6 +330,8 @@ class Challenge(ChallengeBase):
             )
             self.incorrect_se.play()
         self.__played_notes = []
+        self.__continue_timer = pygame.time.get_ticks()
+
 
     @staticmethod
     def __swap_note_if_invalid(checked_value):
