@@ -1,6 +1,7 @@
 import random
 from typing import List
 
+import numpy as np
 from pygame import Surface
 from pygame.event import Event
 
@@ -79,29 +80,59 @@ class Challenge2(ChallengeBase):
             range(1, len(self.notes) + 1)
         ]
         y_pos = int(self.staff.c3_position - self.staff.line_spacing * 2.5)
-        for i, note in enumerate(self.notes):
-            if self.__notes_and_pauses[i]:
-                self.notes_dict[note](x_positions[i], y_pos)
+        print(self.__notes_and_pauses)
+
+        def render_eighth_note(x_pos, i):
+            if not self.__notes_and_pauses[i]:
+                self.note_renderer.pause(x_pos[i], 3, shift=True)
             else:
-                self.note_renderer.pause(x_positions[i], self.pauses_dict[note])
+                if i + 1 < len(self.notes) and self.__notes_and_pauses[i + 1] and np.isclose(
+                        self.notes[i + 1], 0.125, rtol=1e-09, atol=1e-09):
+                    self.note_renderer.eighth([(x_pos[i], y_pos), (x_pos[i + 1], y_pos)])
+                elif i - 1 >= 0 and self.__notes_and_pauses[i - 1] and np.isclose(
+                        self.notes[i - 1], 0.125, rtol=1e-09, atol=1e-09):
+                    return
+                else:
+                    self.note_renderer.eighth([(x_pos[i], y_pos)])
+
+        def render_note_or_pause(x_pos, i, render_note_method, pause_arg):
+            if self.__notes_and_pauses[i]:
+                render_note_method(x_pos[i], y_pos)
+            else:
+                self.note_renderer.pause(x_pos[i], pause_arg, shift=True)
+
+        for i in range(len(self.notes)):
+            if np.isclose(self.notes[i], 0.125, rtol=1e-09, atol=1e-09):
+                render_eighth_note(x_positions, i)
+            elif np.isclose(self.notes[i], 0.25, rtol=1e-09, atol=1e-09):
+                render_note_or_pause(x_positions, i, self.note_renderer.quarter, 2)
+            elif np.isclose(self.notes[i], 0.5, rtol=1e-09, atol=1e-09):
+                render_note_or_pause(x_positions, i, self.note_renderer.half, 1)
+            else:
+                render_note_or_pause(x_positions, i, self.note_renderer.whole, 0)
 
     def __get_random_time_signature(self):
         upper_numbers = [2, 3, 4, 6, 8]
         lower_numbers = [2, 4, 8]
-
-        self.__time_signature = random.choice(upper_numbers), random.choice(lower_numbers)
+        upper_num = random.choice(upper_numbers)
+        lower_num = random.choice(lower_numbers)
+        if lower_num == 8 and upper_num == 2:
+            upper_num = 4
+        if lower_num == 2 and upper_num == 8:
+            lower_num = 4
+        self.__time_signature = upper_num, lower_num
 
     def get_random_notes(self):
         time_values = [1, 0.5, 0.25, 0.125]
         time_sig_value = self.__time_signature[0] / self.__time_signature[1]
-        num_notes = random.randint(2, min(int(8 * time_sig_value), 12))
+        num_notes = random.randint(2, min(int(8 * time_sig_value), 8))
 
         def adjust_values(values):
-            for i, value in enumerate(values):
+            for index, value in enumerate(values):
                 if sum(values) < time_sig_value:
-                    values[i] = random.choice([v for v in time_values if v >= value])
+                    values[index] = random.choice([v for v in time_values if v >= value])
                 else:
-                    values[i] = random.choice([v for v in time_values if v <= value])
+                    values[index] = random.choice([v for v in time_values if v <= value])
             return values
 
         notes_list = [random.choice(time_values) for _ in range(num_notes)]
@@ -112,7 +143,13 @@ class Challenge2(ChallengeBase):
             notes_list[random.randint(0, len(notes_list) - 1)] = random.choice(time_values)
 
         self.notes = notes_list
-        self.__notes_and_pauses = [random.choice([True, False]) for _ in range(len(self.notes))]
+        notes_and_pauses_list = [random.choice([True, False]) for _ in range(len(self.notes))]
+
+        for i in range(len(notes_and_pauses_list) - 1):
+            if not notes_and_pauses_list[i] and not notes_and_pauses_list[i + 1]:
+                notes_and_pauses_list[i + 1] = True
+
+        self.__notes_and_pauses = notes_and_pauses_list
 
     def __init_buttons(self) -> List[Button]:
         def button_callback(value: bool):
