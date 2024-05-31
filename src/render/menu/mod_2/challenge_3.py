@@ -403,7 +403,7 @@ class Challenge3(ChallengeBase):
         for item in self.__played:
             fraction = (item[1][1] - item[1][0]) / len(self.__vol_stream)
             possible_values = [0.125, 0.25, 0.5]
-            rounded = min(possible_values, key=lambda x, fraction=fraction: abs(x - fraction))
+            rounded = min(possible_values, key=lambda x, fraction_arg=fraction: abs(x - fraction_arg))
             rounded_array.append((item[0], rounded))
         self.__played = rounded_array
 

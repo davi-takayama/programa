@@ -80,7 +80,6 @@ class Challenge2(ChallengeBase):
             range(1, len(self.notes) + 1)
         ]
         y_pos = int(self.staff.c3_position - self.staff.line_spacing * 2.5)
-        print(self.__notes_and_pauses)
 
         def render_eighth_note(x_pos, i):
             if not self.__notes_and_pauses[i]:
