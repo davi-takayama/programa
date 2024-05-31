@@ -4,6 +4,7 @@ import pygame
 from pygame import Rect, Surface
 from pygame.event import Event
 
+from .image_rescaler import ImageRescaler
 from .note_renderer import NoteRenderer
 from .renderable import Renderable
 from .root_dir import root_dir
@@ -67,3 +68,30 @@ class ModuleClass(Renderable):
         return Rect(self.x_pos + x_pos,
                     y_pos - self.staff.note_spacing,
                     20, height * self.staff.line_spacing)
+
+    def __draw_star(self, pos: tuple[int, int], chapter_index: int):
+        if self.module.chapters[chapter_index]["completed"]:
+            star_asset = self.full_star if self.module.chapters[chapter_index]["perfected"] else self.blank_star
+            star_height = 16
+            star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
+            star_x = pos[0] + star_asset.get_width() // 10
+            star_y = pos[1] + self.staff.line_spacing
+            self.surface.blit(star_asset, (star_x, star_y))
+
+    def draw_chapter_quarter(self, pos: tuple[int, int], chapter_index: int):
+        self.note_renderer.quarter(
+            x_pos=pos[0],
+            y_pos=pos[1],
+            color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
+        )
+
+        if self.module.chapters[chapter_index]["unlocked"]:
+            self.__draw_star(pos, chapter_index)
+
+    def draw_chapter_eighth(self, pos_list: list[tuple[int, int]], chapter_index_list: list[int]):
+        colors = ["black" if self.module.chapters[chapter_index]["unlocked"] else "gray" for chapter_index in chapter_index_list]
+        self.note_renderer.eighth(pos_list, None, colors)
+
+        for pos, chapter_index in zip(pos_list, chapter_index_list):
+            if self.module.chapters[chapter_index]["unlocked"]:
+                self.__draw_star(pos, chapter_index)

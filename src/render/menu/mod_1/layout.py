@@ -28,9 +28,12 @@ class Module1(ModuleClass):
 
     def render(self):
         self.surface.fill("white")
+        text = pygame.font.Font(None, size=32).render(self.text, True, "black")
+        text_x = (self.surface.get_width() - text.get_width()) // 2
+        text_y = self.screen.get_height() // 4
+        self.surface.blit(text, (text_x, text_y))
         self.__render_chord()
         self.__render_chapters_1_to_3()
-        self.__render_chapters_6_to_9()
         pygame.draw.line(
             self.surface,
             "black",
@@ -38,68 +41,34 @@ class Module1(ModuleClass):
             (self.__note_x_placements[4], self.staff.line_positions[-1]),
             5,
         )
-        text = pygame.font.Font(None, size=32).render(self.text, True, "black")
-        text_x = (self.surface.get_width() - text.get_width()) // 2
-        text_y = self.screen.get_height() // 4
-        self.surface.blit(text, (text_x, text_y))
+        self.__render_chapters_6_to_9()
 
         self.screen.blit(self.surface, (50, 0))
 
     def __render_chapters_1_to_3(self):
         for i in range(3):
-            self.note_renderer.quarter(
-                x_pos=self.__note_x_placements[i + 1] - 16,
-                y_pos=self.__note_y_placement[i],
-                color=("black" if self.module.chapters[i]["unlocked"] else "gray"),
-            )
-            star_asset = (
-                self.full_star
-                if self.module.chapters[i]["perfected"]
-                else self.blank_star
-            )
-            if self.module.chapters[i]["completed"]:
-                star_asset = ImageRescaler.rescale_from_height(star_asset, 16)
-                self.surface.blit(
-                    star_asset,
-                    (
-                        self.__note_x_placements[i + 1] - 16 + star_asset.get_width() // 4,
-                        self.__note_y_placement[i] + 20,
-                    ),
-                )
+            self.draw_chapter_quarter((self.__note_x_placements[i + 1], self.__note_y_placement[i]), i)
 
     def __render_chapters_6_to_9(self):
         for i in range(6, 9):
             self.note_renderer.quarter(self.__note_x_placements[5], self.__note_y_placement[i - 5],
                                        color=("black" if self.module.chapters[2]["completed"] else "gray"),
                                        )
+
         for i in range(6, 9):
-            self.note_renderer.quarter(self.__note_x_placements[i], self.__note_y_placement[i - 5],
-                                       color=("black" if self.module.chapters[i - 3]["unlocked"] else "gray"),
-                                       )
-            star_asset = (
-                self.full_star
-                if self.module.chapters[i - 3]["perfected"]
-                else self.blank_star
-            )
-            if self.module.chapters[i - 3]["completed"]:
-                star_asset = ImageRescaler.rescale_from_height(star_asset, 16)
-                self.surface.blit(
-                    star_asset,
-                    (
-                        self.__note_x_placements[i] - 4 + star_asset.get_width() // 4,
-                        self.__note_y_placement[i - 5] + 20,
-                    ),
-                )
+            self.draw_chapter_quarter((self.__note_x_placements[i], self.__note_y_placement[i - 5]), i - 3)
 
     def event_check(self, event_arg: Event | None = None):
-        def check_and_change(x_placement, y_placement, height, chapter_index,use_audio = False, num_challenges = 10, chromatic = False, unlock_next = True):
+        def check_and_change(x_placement, y_placement, height, chapter_index, use_audio=False, num_challenges=10, chromatic=False,
+                             unlock_next=True):
             if (
                     self.calculate_rect(x_placement, y_placement, height).collidepoint(event_arg.pos)
                     and self.module.chapters[chapter_index]["unlocked"]
             ):
                 self.action_sound.play()
                 from .challenge import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, chapter_index, use_audio, num_challenges, chromatic, unlock_next))
+                self.change_state(
+                    Challenge(self.screen, self.change_state, chapter_index, use_audio, num_challenges, chromatic, unlock_next))
 
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.first_chord_rect.collidepoint(event_arg.pos):
@@ -107,9 +76,9 @@ class Module1(ModuleClass):
 
                 self.change_state(Explanation1(self.screen, self.change_state))
 
-            check_and_change(self.__note_x_placements[1], self.__note_y_placement[0], 1, 0)
-            check_and_change(self.__note_x_placements[2], self.__note_y_placement[1], 1, 1, True)
-            check_and_change(self.__note_x_placements[3], self.__note_y_placement[2], 1, 2, True, 15, )
+            check_and_change(self.__note_x_placements[1] + 15, self.__note_y_placement[0], 1, 0)
+            check_and_change(self.__note_x_placements[2] + 15, self.__note_y_placement[1], 1, 1, True)
+            check_and_change(self.__note_x_placements[3] + 15, self.__note_y_placement[2], 1, 2, True, 15, )
 
             if (
                     self.calculate_rect(self.__note_x_placements[5] + 16, self.__note_y_placement[3], 3).collidepoint(event_arg.pos)
