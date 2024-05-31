@@ -23,27 +23,25 @@ class Module1(ModuleClass):
             self.staff.c3_position - (i * self.staff.line_spacing) for i in range(4)
         ]
         self.__note_x_placements = self.calculate_note_x_placements(width, 9)
+
         self.first_chord_rect = self.calculate_rect(self.__note_x_placements[0], self.__note_y_placement[2], 3)
         self.text = self.generate_text(module, "Clave e notas")
 
     def render(self):
-        self.surface.fill("white")
         text = pygame.font.Font(None, size=32).render(self.text, True, "black")
-        text_x = (self.surface.get_width() - text.get_width()) // 2
+        text_x = (self.screen.get_width() - text.get_width()) // 2
         text_y = self.screen.get_height() // 4
-        self.surface.blit(text, (text_x, text_y))
+        self.screen.blit(text, (text_x, text_y))
         self.__render_chord()
         self.__render_chapters_1_to_3()
         pygame.draw.line(
-            self.surface,
+            self.screen,
             "black",
             (self.__note_x_placements[4], self.staff.line_positions[0]),
             (self.__note_x_placements[4], self.staff.line_positions[-1]),
             5,
         )
         self.__render_chapters_6_to_9()
-
-        self.screen.blit(self.surface, (50, 0))
 
     def __render_chapters_1_to_3(self):
         for i in range(3):
@@ -76,12 +74,12 @@ class Module1(ModuleClass):
 
                 self.change_state(Explanation1(self.screen, self.change_state))
 
-            check_and_change(self.__note_x_placements[1] + 15, self.__note_y_placement[0], 1, 0)
-            check_and_change(self.__note_x_placements[2] + 15, self.__note_y_placement[1], 1, 1, True)
-            check_and_change(self.__note_x_placements[3] + 15, self.__note_y_placement[2], 1, 2, True, 15, )
+            check_and_change(self.__note_x_placements[1], self.__note_y_placement[0], 1, 0)
+            check_and_change(self.__note_x_placements[2], self.__note_y_placement[1], 1, 1, True)
+            check_and_change(self.__note_x_placements[3], self.__note_y_placement[2], 1, 2, True, 15, )
 
             if (
-                    self.calculate_rect(self.__note_x_placements[5] + 16, self.__note_y_placement[3], 3).collidepoint(event_arg.pos)
+                    self.calculate_rect(self.__note_x_placements[5], self.__note_y_placement[3], 3).collidepoint(event_arg.pos)
                     and self.module.chapters[2]["completed"]
             ):
                 save = Save.load()
@@ -93,14 +91,14 @@ class Module1(ModuleClass):
 
                 self.change_state(Explanation2(self.screen, self.change_state))
 
-            check_and_change(self.__note_x_placements[6] + 20, self.__note_y_placement[1], 1, 3, False, 10, True)
-            check_and_change(self.__note_x_placements[7] + 20, self.__note_y_placement[2], 1, 4, True, 10, True)
-            check_and_change(self.__note_x_placements[8] + 20, self.__note_y_placement[3], 1, 5, True, 12, True)
+            check_and_change(self.__note_x_placements[6], self.__note_y_placement[1], 1, 3, False, 10, True)
+            check_and_change(self.__note_x_placements[7], self.__note_y_placement[2], 1, 4, True, 10, True)
+            check_and_change(self.__note_x_placements[8], self.__note_y_placement[3], 1, 5, True, 12, True)
 
     def __render_chord(self):
         for i in range(3):
             self.note_renderer.quarter(
-                x_pos=self.__note_x_placements[0] - 16,
+                x_pos=self.__note_x_placements[0],
                 y_pos=self.__note_y_placement[0] - (self.staff.line_spacing * i),
             )
         star_asset = (
@@ -110,10 +108,10 @@ class Module1(ModuleClass):
         )
         star_height = 30
         star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
-        star_x = self.__note_x_placements[0] - 16 - star_asset.get_width() // 4
+        star_x = self.__note_x_placements[0] - star_asset.get_width() // 4
         star_y = self.first_chord_rect.bottom + self.staff.line_spacing
         perfected_completed_text = f"{self.perfected_chapters}/{self.total_chapters}"
-        text = pygame.font.Font(size=24).render(perfected_completed_text, True, "black")
+        text = pygame.font.Font(None, size=24).render(perfected_completed_text, True, "black")
         text_y = star_y + star_height + 5
-        self.surface.blit(text, (star_x + 5, text_y))
-        self.surface.blit(star_asset, (star_x, star_y))
+        self.screen.blit(text, (star_x + 5, text_y))
+        self.screen.blit(star_asset, (star_x, star_y))

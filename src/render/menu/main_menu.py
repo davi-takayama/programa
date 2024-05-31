@@ -45,12 +45,11 @@ class Menu(Renderable):
         self.modules: List[ModuleClass] = [
             Module1(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md1),
             Module2(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md2),
-            Module3(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md2),
+            Module3(screen, self.__staff, change_state, self.__cleff_width, mod_width, self.save.md3),
         ]
 
     def render(self):
         self.screen.fill("white")
-        self.modules[self.current_module].render()
 
         if self.current_module > 0:
             self.screen.blit(self.__arrow_left, (self.__arrow_left_x, self.__arrow_y))
@@ -64,6 +63,8 @@ class Menu(Renderable):
             perfected_chapters=self.__perfected_chapters,
             total_chapters=self.__total_chapters,
         ).render()
+
+        self.modules[self.current_module].render()
 
     def event_check(self, event_arg: Event):
         self.modules[self.current_module].event_check(event_arg)

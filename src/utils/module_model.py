@@ -26,16 +26,15 @@ class ModuleClass(Renderable):
         self.perfected_chapters = None
         self.completed_chapters = None
         self.total_chapters = None
-        self.surface = Surface((width, screen.get_height()))
         self.staff = staff
         self.c3 = staff.c3_position
         self.change_state = change_state
-        self.x_pos = x_pos
+        self.start_pos = x_pos
         self.module: Module = module
         self.full_star = pygame.image.load(root_dir + "/assets/images/filled_star.png")
         self.blank_star = pygame.image.load(root_dir + "/assets/images/blank_star.png")
         self.action_sound = pygame.mixer.Sound("assets/audio/metronome_trebble.wav")
-        self.note_renderer = NoteRenderer(self.surface, c3_pos=self.c3)
+        self.note_renderer = NoteRenderer(self.screen, c3_pos=self.c3)
 
     @abstractmethod
     def render(self):
@@ -45,12 +44,9 @@ class ModuleClass(Renderable):
     def event_check(self, event_arg: Event):
         pass
 
-    @staticmethod
-    def calculate_note_x_placements(
-            width: int, number_of_elements: int
-    ):
+    def calculate_note_x_placements(self, width: int, number_of_elements: int):
         num_notes = number_of_elements
-        notes_list = [width // (num_notes + 1) * i for i in range(1, num_notes + 1)]
+        notes_list = [self.start_pos + (width // (num_notes + 1) * i) for i in range(1, num_notes + 1)]
 
         return notes_list
 
@@ -65,7 +61,7 @@ class ModuleClass(Renderable):
         return f"{title} ({self.completed_chapters}/{self.total_chapters})"
 
     def calculate_rect(self, x_pos: int, y_pos: int, height: int) -> Rect:
-        return Rect(self.x_pos + x_pos,
+        return Rect(x_pos,
                     y_pos - self.staff.note_spacing,
                     20, height * self.staff.line_spacing)
 
@@ -76,16 +72,20 @@ class ModuleClass(Renderable):
             star_asset = ImageRescaler.rescale_from_height(star_asset, star_height)
             star_x = pos[0] + star_asset.get_width() // 10
             star_y = pos[1] + self.staff.line_spacing
-            self.surface.blit(star_asset, (star_x, star_y))
+            self.screen.blit(star_asset, (star_x, star_y))
 
-    def draw_chapter_quarter(self, pos: tuple[int, int], chapter_index: int):
+    def draw_chapter_quarter(self, pos: tuple[int, int], chapter_index: int, half: bool = False):
         self.note_renderer.quarter(
+            x_pos=pos[0],
+            y_pos=pos[1],
+            color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
+        ) if not half else self.note_renderer.half(
             x_pos=pos[0],
             y_pos=pos[1],
             color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
         )
 
-        if self.module.chapters[chapter_index]["unlocked"]:
+        if self.module.chapters[chapter_index]["completed"]:
             self.__draw_star(pos, chapter_index)
 
     def draw_chapter_eighth(self, pos_list: list[tuple[int, int]], chapter_index_list: list[int]):
@@ -93,5 +93,5 @@ class ModuleClass(Renderable):
         self.note_renderer.eighth(pos_list, None, colors)
 
         for pos, chapter_index in zip(pos_list, chapter_index_list):
-            if self.module.chapters[chapter_index]["unlocked"]:
+            if self.module.chapters[chapter_index]["completed"]:
                 self.__draw_star(pos, chapter_index)

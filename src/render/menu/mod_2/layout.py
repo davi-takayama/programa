@@ -31,12 +31,10 @@ class Module2(ModuleClass):
         self.first_chord_rect: Rect = self.calculate_rect(self.note_x_placement[0], self.note_y_placement[2], 3)
 
     def render(self):
-        self.surface.fill("white")
-
         text = pygame.font.Font(None, size=32).render(self.text, True, "black")
-        text_x = (self.surface.get_width() - text.get_width()) // 2
+        text_x = (self.screen.get_width() - text.get_width()) // 2
         text_y = self.screen.get_height() // 4
-        self.surface.blit(text, (text_x, text_y))
+        self.screen.blit(text, (text_x, text_y))
 
         self.__render_first_chord()
         self.draw_chapter_quarter((self.note_x_placement[1], self.note_y_placement[0]), 0)
@@ -48,7 +46,7 @@ class Module2(ModuleClass):
             ],
             [1, 2]
         )
-        pygame.draw.line(self.surface, "black",
+        pygame.draw.line(self.screen, "black",
                          (self.note_x_placement[5], self.staff.line_positions[0]),
                          (self.note_x_placement[5], self.staff.line_positions[-1]),
                          5
@@ -57,8 +55,6 @@ class Module2(ModuleClass):
 
         self.draw_chapter_quarter((self.note_x_placement[7], self.note_y_placement[-2]), 3)
         self.draw_chapter_quarter((self.note_x_placement[8], self.note_y_placement[-3]), 4)
-
-        self.screen.blit(self.surface, (self.x_pos, 0))
 
     def event_check(self, event_arg: Event | None = None):
         def check_and_change_state(x, y, height, chapter_index, challenge_class: int, unlock_next: bool = False,
@@ -121,8 +117,8 @@ class Module2(ModuleClass):
         perfected_completed_text = f"{self.perfected_chapters}/{self.total_chapters}"
         text = pygame.font.Font(None, size=24).render(perfected_completed_text, True, "black")
         text_y = star_y + star_height + 5
-        self.surface.blit(text, (star_x + 5, text_y))
-        self.surface.blit(star_asset, (star_x, star_y))
+        self.screen.blit(text, (star_x + 5, text_y))
+        self.screen.blit(star_asset, (star_x, star_y))
 
     def __render_second_chord(self):
         for i in range(2):
