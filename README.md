@@ -17,7 +17,7 @@ Este repositório contém o código fonte do Trabalho de Conclusão de Curso (TC
 
 ## Instalação
 
-A versão do Python utilizada no projeto é a 3.11.9 por conta da compatibilidade de uma das dependências do projeto. Para instalar as dependências do projeto, execute o comando abaixo:
+A versão do Python utilizada no projeto é a 3.11.9. Para instalar as dependências do projeto, execute o comando abaixo:
 
 ```bash
 git clone https://github.com/davi-takayama/tcc
@@ -114,6 +114,12 @@ O segundo módulo é uma introdução ao ritmo. O usuário é apresentado ao con
 O primeiro desafio consiste em identificar a duração de um conjunto de notas e dar outro conjunto com tempo equivalente. O segundo repete o conceito do primeiro, mas com a adição das figuras de pausa. O terceiro mistura notas e pausas e pede uma sequência de notas e pausas com tempo equivalente.
 
 Do quarto em diante, assumindo que o usuário esteja familiarizado com as figuras, é usado novamente um instrumento para que a relação entre as figuras e a duração real delas seja mais clara.
+
+### Módulo 3
+
+No módulo 3, os dois conceitos apresentados anteriormente são combinados para que o usuário identifique e toque as notas no tempo correto.
+
+A partitura apresentada é a da música "Ode à alegria", de Beethoven. Nos dois primeiros capítulos, alguns compassos desta são apresentados ao usuário para que ele se camiliarize com a partitura. No terceiro e último capítulo, o usuário deve tocar a partitura na íntegra.
 
 ---
 
