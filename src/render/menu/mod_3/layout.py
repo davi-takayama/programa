@@ -22,7 +22,7 @@ class Module3(ModuleClass):
         super().__init__(screen, staff, change_state, x_pos, width, module)
         self.text = self.generate_text(module, "Melodia")
         self.note_y_placement = [self.staff.c3_position - i * self.staff.note_spacing for i in range(9)]
-        self.note_x_placement = self.calculate_note_x_placements(width, 5)
+        self.note_x_placement = self.calculate_note_x_placements(width, 6)
 
     def render(self):
         text = pygame.font.Font(None, size=32).render(self.text, True, "black")
@@ -45,16 +45,26 @@ class Module3(ModuleClass):
         self.draw_chapter_quarter((self.note_x_placement[4], self.note_y_placement[1]), 2, True)
         self.__last_chord()
 
-    def event_check(self, event_arg: Event | None = None):
-        def check_and_change_state(x, y, height, chapter_index, challenge_class: int, unlock_next: bool = False,
-                                   unlock_previous: bool = False):
-            if self.calculate_rect(x, y, height).collidepoint(event_arg.pos):
-                print("Clicked")
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                check_and_change_state(self.note_x_placement[1], self.note_y_placement[1], 3, 0, 1, unlock_previous=True)
-                check_and_change_state(self.note_x_placement[2], self.note_y_placement[2], 3, 1, 2, unlock_previous=True)
-                check_and_change_state(self.note_x_placement[4], self.note_y_placement[1], 3, 2, 3, unlock_previous=True)
+    def event_check(self, event_arg: Event):
+        def check_and_change_state(x, y, height, chapter_index, ):
+            if self.calculate_rect(self.note_x_placement[x], self.note_y_placement[y], height).collidepoint(event_arg.pos) and \
+                    self.module.chapters[chapter_index]["unlocked"]:
+                self.action_sound.play()
+
+        if event_arg.type == pygame.MOUSEBUTTONDOWN:
+            if self.calculate_rect(self.note_x_placement[0], self.note_y_placement[4], 3).collidepoint(event_arg.pos) and \
+                    self.module.unlocked:
+                self.action_sound.play()
+                from .explanation import Explanation
+                self.change_state(Explanation(self.screen, self.change_state))
+
+            check_and_change_state(1, 1, 1, 0)
+            check_and_change_state(2, 2, 1, 1)
+            check_and_change_state(4, 1, 1, 2)
+
+            if self.calculate_rect(self.note_x_placement[5], self.note_y_placement[4], 3).collidepoint(event_arg.pos) and \
+                    self.module.chapters[-1]["completed"]:
+                self.action_sound.play()
 
     def __first_chord(self):
         for i in range(3):
