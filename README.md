@@ -1,7 +1,5 @@
 # TCC
 
----
-
 ## Descrição
 
 Este repositório contém o código fonte do Trabalho de Conclusão de Curso (TCC) do curso de Engenharia de Software da Universidade Tecnológica Federal do Paraná (UTFPR) - Campus Dois Vizinhos. O trabalho tem como título "desenvolvimento de uma aplicação gamificada para educação musical", desenvolvida por Davi Takayama e orientada pela professora Dra. Simone de Sousa Borges
