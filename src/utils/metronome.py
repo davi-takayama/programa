@@ -32,7 +32,10 @@ class Metronome(pygame.threads.Thread):
         self.playing = False
         self.running = False
         self.__metronome_counter = 0
-        self.join()
+        try:
+            self.join()
+        except RuntimeError:
+            pass
 
     def increase_bpm(self, by: int = 1):
         self.bpm += by

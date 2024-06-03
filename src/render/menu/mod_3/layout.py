@@ -9,7 +9,6 @@ from ....utils.save_operations.read_save import Module
 
 
 class Module3(ModuleClass):
-
     def __init__(
             self,
             screen: Surface,
@@ -50,6 +49,8 @@ class Module3(ModuleClass):
             if self.calculate_rect(self.note_x_placement[x], self.note_y_placement[y], height).collidepoint(event_arg.pos) and \
                     self.module.chapters[chapter_index]["unlocked"]:
                 self.action_sound.play()
+                from .challenge import Challenge
+                self.change_state(Challenge(self.screen, self.change_state, chapter_index))
 
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.calculate_rect(self.note_x_placement[0], self.note_y_placement[4], 3).collidepoint(event_arg.pos) and \
