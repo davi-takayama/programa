@@ -41,7 +41,6 @@ class Challenge(ChallengeBase):
         self.__curr_sheet = {
             0: self.__full_sheet[0: len(self.__full_sheet) // 2],
             1: self.__full_sheet[len(self.__full_sheet) // 2:],
-            2: self.__full_sheet[:]
         }.get(chapter_index, self.__full_sheet)
         self.num_challenges = len(self.__curr_sheet) // 2
         self.__curr_bars = self.__curr_sheet[:2]
@@ -270,7 +269,6 @@ class Challenge(ChallengeBase):
         total_sum = sum([item[1] for item in note_list])
         for item in note_list:
             fraction = item[1] / total_sum
-            print(item[1], total_sum, fraction)
             possible_values = [0.125, 0.25, 0.5]
             rounded = min(possible_values, key=lambda x, fraction_arg=fraction: abs(x - fraction_arg))
             rounded_array.append((item[0], rounded))
@@ -285,8 +283,6 @@ class Challenge(ChallengeBase):
                     self.score += 0.5 / obtainable_score / 2
                 if np.isclose(item[1], self.__curr_bars[bar_list.index(bar)][bar.index(item)][1], rtol=1e-09, atol=1e-09):
                     self.score += 0.5 / obtainable_score / 2
-
-        print(self.score)
 
     def __init_start_button(self):
         def callback():
