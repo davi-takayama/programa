@@ -156,8 +156,14 @@ class ChallengeBase(Renderable):
             )
             self.screen.blit(text_surface, text_rect.topleft)
 
+        score = 0
+        if isinstance(score, int):
+            score = self.score
+        elif isinstance(score, float):
+            score = round(self.score, 2)
+            
         text = (
-                "Sua pontuação foi: " + str(self.score) + "/" + str(self.num_challenges)
+                "Sua pontuação foi: " + str(score) + "/" + str(self.num_challenges)
         )
         width, _ = self.font.size(text)
         self.screen.blit(

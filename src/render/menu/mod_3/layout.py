@@ -49,8 +49,12 @@ class Module3(ModuleClass):
             if self.calculate_rect(self.note_x_placement[x], self.note_y_placement[y], height).collidepoint(event_arg.pos) and \
                     self.module.chapters[chapter_index]["unlocked"]:
                 self.action_sound.play()
-                from .challenge import Challenge
-                self.change_state(Challenge(self.screen, self.change_state, chapter_index))
+                if chapter_index != 2:
+                    from .challenge import Challenge
+                    self.change_state(Challenge(self.screen, self.change_state, chapter_index))
+                else:
+                    from .full_sheet import Challenge
+                    self.change_state(Challenge(self.screen, self.change_state, chapter_index))
 
         if event_arg.type == pygame.MOUSEBUTTONDOWN:
             if self.calculate_rect(self.note_x_placement[0], self.note_y_placement[4], 3).collidepoint(event_arg.pos) and \
@@ -84,7 +88,7 @@ class Module3(ModuleClass):
         star_x = self.note_x_placement[0] - star_asset.get_width() // 4
         star_y = self.note_y_placement[0] + self.staff.line_spacing
         perfected_completed_text = f"{self.perfected_chapters}/{self.total_chapters}"
-        text = pygame.font.Font(size=24).render(perfected_completed_text, True, "black")
+        text = pygame.font.Font(None, size=24).render(perfected_completed_text, True, "black")
         text_y = star_y + star_height + 5
         self.screen.blit(text, (star_x + 5, text_y))
         self.screen.blit(star_asset, (star_x, star_y))
