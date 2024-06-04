@@ -74,16 +74,23 @@ class ModuleClass(Renderable):
             star_y = pos[1] + self.staff.line_spacing
             self.screen.blit(star_asset, (star_x, star_y))
 
-    def draw_chapter_quarter(self, pos: tuple[int, int], chapter_index: int, half: bool = False):
-        self.note_renderer.quarter(
-            x_pos=pos[0],
-            y_pos=pos[1],
-            color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
-        ) if not half else self.note_renderer.half(
-            x_pos=pos[0],
-            y_pos=pos[1],
-            color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
-        )
+    def draw_chapter_quarter(self, pos: tuple[int, int], chapter_index: int, half: bool = False, whole: bool = False):
+        if not whole:
+            self.note_renderer.quarter(
+                x_pos=pos[0],
+                y_pos=pos[1],
+                color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
+            ) if not half else self.note_renderer.half(
+                x_pos=pos[0],
+                y_pos=pos[1],
+                color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
+            )
+        else:
+            self.note_renderer.whole(
+                x_pos=pos[0],
+                y_pos=pos[1],
+                color="black" if self.module.chapters[chapter_index]["unlocked"] else "gray"
+            )
 
         if self.module.chapters[chapter_index]["completed"]:
             self.__draw_star(pos, chapter_index)

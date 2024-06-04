@@ -41,8 +41,7 @@ class Module3(ModuleClass):
             5,
         )
 
-        self.draw_chapter_quarter((self.note_x_placement[4], self.note_y_placement[1]), 2, True)
-        self.__last_chord()
+        self.draw_chapter_quarter((self.note_x_placement[4], self.note_y_placement[0]), 2, whole=True)
 
     def event_check(self, event_arg: Event):
         def check_and_change_state(x, y, height, chapter_index, ):
@@ -67,10 +66,6 @@ class Module3(ModuleClass):
             check_and_change_state(2, 2, 1, 1)
             check_and_change_state(4, 1, 1, 2)
 
-            if self.calculate_rect(self.note_x_placement[5], self.note_y_placement[4], 3).collidepoint(event_arg.pos) and \
-                    self.module.chapters[-1]["completed"]:
-                self.action_sound.play()
-
     def __first_chord(self):
         for i in range(3):
             self.note_renderer.half(
@@ -92,11 +87,3 @@ class Module3(ModuleClass):
         text_y = star_y + star_height + 5
         self.screen.blit(text, (star_x + 5, text_y))
         self.screen.blit(star_asset, (star_x, star_y))
-
-    def __last_chord(self):
-        for i in range(3):
-            self.note_renderer.half(
-                x_pos=self.note_x_placement[-1],
-                y_pos=self.note_y_placement[i * 2],
-                color="black" if self.module.chapters[-1]["completed"] else "gray",
-            )
