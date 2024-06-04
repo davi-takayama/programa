@@ -117,7 +117,7 @@ Do quarto em diante, assumindo que o usuário esteja familiarizado com as figura
 
 No módulo 3, os dois conceitos apresentados anteriormente são combinados para que o usuário identifique e toque as notas no tempo correto.
 
-A partitura apresentada é a da música "Ode à alegria", de Beethoven. Nos dois primeiros capítulos, alguns compassos desta são apresentados ao usuário para que ele se camiliarize com a partitura. No terceiro e último capítulo, o usuário deve tocar a partitura na íntegra.
+A partitura apresentada é a da música "Ode à alegria", de Beethoven. Nos dois primeiros capítulos, alguns compassos desta são apresentados ao usuário para que ele se camiliarize com a partitura. No terceiro e último capítulo, o usuário deve tocar a partitura na íntegra, porém, ainda seccionada para se acostumar com a continuidade do rítmo até que possa tocar a música por inteiro.
 
 ---
 
