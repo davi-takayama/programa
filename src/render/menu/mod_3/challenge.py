@@ -23,8 +23,8 @@ class Challenge(ChallengeBase):
             change_state,
             chapter_index: int
     ) -> None:
-        self.__start_audio_devices()
         super().__init__(screen, change_state, chapter_index)
+        self.__start_audio_devices()
         d___c___ = [("D", 0.5), ("C", 0.5)]
         c___c___d___e___ = [("C", 0.25), ("C", 0.25), ("D", 0.25), ("E", 0.25)]
         g___f___e___d___ = [("G", 0.25), ("F", 0.25), ("E", 0.25), ("D", 0.25)]
@@ -47,9 +47,7 @@ class Challenge(ChallengeBase):
         self.__back_button = self.init_back_button(self.__close_threads)
         self.__continue_button = self.init_continue_button(self.__click_continue)
         self.__end_button = self.init_end_button(self.__click_end)
-        self.__sensibility_button = self.__init_sensibility_button()
         self.__start_button = self.__init_start_button()
-        self.__vol_sensibility = 2
         self.__played: list[tuple[str, float]] = []
         self.__audio_processed = False
         self.__metronome = Metronome(60)
@@ -77,7 +75,6 @@ class Challenge(ChallengeBase):
 
             if not self.__started_challenge and not self.__finished_challenge:
                 self.__start_button.render()
-                self.__sensibility_button.render()
                 text = "Analise a partitura e clique em iniciar para começar o desafio"
                 text_width = self.font.size(text)[0]
                 self.screen.blit(
@@ -136,7 +133,6 @@ class Challenge(ChallengeBase):
 
             if not self.__started_challenge and not self.__finished_challenge:
                 self.__start_button.event_check(event_arg)
-                self.__sensibility_button.event_check(event_arg)
 
             elif not self.__started_challenge and self.__finished_challenge:
                 self.__continue_button.event_check(event_arg)
@@ -301,23 +297,6 @@ class Challenge(ChallengeBase):
                 self.screen.get_width() // 2 - (self.font.size("Iniciar desafio")[0] // 2) - 10,
                 self.screen.get_height() - 50,
             ),
-            text,
-            self.font,
-            callback,
-        )
-
-        return button
-
-    def __init_sensibility_button(self):
-        def callback():
-            self.__vol_sensibility = (vol * 1.2) if vol > 1.5 else 2
-
-        text = "Ajustar sensibilidade"
-        x = self.screen.get_width() - self.font.size(text)[0] - 30
-        y = self.screen.get_height() - self.font.size(text)[1] - 20
-        button = Button(
-            self.screen,
-            (x, y),
             text,
             self.font,
             callback,
