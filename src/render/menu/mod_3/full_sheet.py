@@ -90,32 +90,35 @@ class Challenge(ChallengeBase):
                     (self.screen.get_width() // 2 - text_width // 2, self.screen.get_height() // 3 * 2)
                 )
             else:
-                text = "Comece a tocar em: X"
-                if self.__start_time + self.__metronome.get_cycle_time() * 5 <= pygame.time.get_ticks():
-                    self.__end_current_challenge()
-                elif self.__start_time + self.__metronome.get_cycle_time() <= pygame.time.get_ticks():
-                    text = "Toque!"
-                    self.__get_audio()
-                if self.__started_challenge and not self.__finished_challenge:
-                    cycle_time = self.__metronome.get_cycle_time()
-                    elapsed_time = pygame.time.get_ticks() - self.__start_time
-                    ticks_per_cycle = self.__metronome.time_signature[0]
-                    time_per_tick = cycle_time // ticks_per_cycle
-                    elapsed_ticks = elapsed_time // time_per_tick
-                    remaining_ticks = ticks_per_cycle - elapsed_ticks
-                    text = text.replace("X", str(remaining_ticks))
-                    text_width = self.font.size(text)[0]
-                    text_height = self.font.size(text)[1]
-                    self.screen.blit(
-                        self.font.render(text, True, "black"),
-                        (self.screen.get_width() // 2 - text_width // 2, self.screen.get_height() - text_height - 10),
-                    )
+                self.render_challenge_status()
             if self.__finished_challenge:
                 self.__continue_button.render()
 
         else:
             self.end_render()
             self.__end_button.render()
+
+    def render_challenge_status(self):
+        text = "Comece a tocar em: X"
+        if self.__start_time + self.__metronome.get_cycle_time() * 5 <= pygame.time.get_ticks():
+            self.__end_current_challenge()
+        elif self.__start_time + self.__metronome.get_cycle_time() <= pygame.time.get_ticks():
+            text = "Toque!"
+            self.__get_audio()
+        if self.__started_challenge and not self.__finished_challenge:
+            cycle_time = self.__metronome.get_cycle_time()
+            elapsed_time = pygame.time.get_ticks() - self.__start_time
+            ticks_per_cycle = self.__metronome.time_signature[0]
+            time_per_tick = cycle_time // ticks_per_cycle
+            elapsed_ticks = elapsed_time // time_per_tick
+            remaining_ticks = ticks_per_cycle - elapsed_ticks
+            text = text.replace("X", str(remaining_ticks))
+            text_width = self.font.size(text)[0]
+            text_height = self.font.size(text)[1]
+            self.screen.blit(
+                self.font.render(text, True, "black"),
+                (self.screen.get_width() // 2 - text_width // 2, self.screen.get_height() - text_height - 10),
+            )
 
     def __render_top_sheet(self):
         x_pos = [self.staff.start_x + i * 70 for i in
@@ -288,14 +291,19 @@ class Challenge(ChallengeBase):
         return rounded_array
 
     def calculate_score(self, bar_list):
-        for i, bar in enumerate(bar_list):
+        scored = 0
+        for i, bar in enumerate(self.__curr_bars):
             obtainable_score = len(bar)
             for j, item in enumerate(bar):
-                if j < len(self.__curr_bars[i]):
-                    if any(note in self.__curr_bars[i][j][0] for note in item[0]):
-                        self.score += 0.5 / obtainable_score / len(bar_list)
-                    if np.isclose(item[1], self.__curr_bars[bar_list.index(bar)][bar.index(item)][1], rtol=1e-09, atol=1e-09):
-                        self.score += 0.5 / obtainable_score / len(bar_list)
+                print(j, len(self.__curr_bars[i]))
+                if j < len(bar_list[i]):
+                    if any(note in bar_list[i][j][0] for note in item[0]):
+                        scored += 0.5 / obtainable_score / len(self.__curr_bars)
+                    if np.isclose(item[1], bar_list[i][j][1], rtol=1e-09, atol=1e-09):
+                        scored += 0.5 / obtainable_score / len(self.__curr_bars)
+
+        if scored >= 0.7:
+            self.score += 1
 
     def __init_start_button(self):
         def callback():

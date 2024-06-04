@@ -160,8 +160,9 @@ class ChallengeBase(Renderable):
         if isinstance(score, int):
             score = self.score
         elif isinstance(score, float):
+            print("true")
             score = round(self.score, 2)
-            
+
         text = (
                 "Sua pontuação foi: " + str(score) + "/" + str(self.num_challenges)
         )

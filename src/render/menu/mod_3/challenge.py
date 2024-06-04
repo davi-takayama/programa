@@ -272,13 +272,18 @@ class Challenge(ChallengeBase):
         return rounded_array
 
     def calculate_score(self, bar_list):
-        for i, bar in enumerate(bar_list):
+        scored = 0
+        for i, bar in enumerate(self.__curr_bars):
             obtainable_score = len(bar)
             for j, item in enumerate(bar):
-                if any(note in self.__curr_bars[i][j][0] for note in item[0]):
-                    self.score += 0.5 / obtainable_score / 2
-                if np.isclose(item[1], self.__curr_bars[bar_list.index(bar)][bar.index(item)][1], rtol=1e-09, atol=1e-09):
-                    self.score += 0.5 / obtainable_score / 2
+                if j < len(bar_list[i]):
+                    if any(note in bar_list[i][j][0] for note in item[0]):
+                        scored += 0.5 / obtainable_score / len(self.__curr_bars)
+                    if np.isclose(item[1], self.__curr_bars[i][j][1], rtol=1e-09, atol=1e-09):
+                        scored += 0.5 / obtainable_score / len(self.__curr_bars)
+
+        if scored >= 0.7:
+            self.score += 1
 
     def __init_start_button(self):
         def callback():
