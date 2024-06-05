@@ -33,37 +33,40 @@ class Challenge(ChallengeBase):
     ) -> None:
         super().__init__(screen, change_state, chapter_index, use_audio, num_challenges)
         self.staff_notes = ["E", "F", "G", "A", "B", "C", "D", "E", "F"]
-        self.__chromatic = chromatic
-        self.__current_note = self.__pick_random_note()
-        self.__continue = False
-        self.__note_buttons: List[Button] = []
-        self.__init_note_buttons()
-        self.__continue_button = self.init_continue_button(self.__click_continue)
-        self.__continue_text = ""
-        self.__played_notes = []
+        self.chromatic = chromatic
+        self.current_note = self.pick_random_note()
+        self._continue = False
+        self.note_buttons: List[Button] = []
+        self.init_note_buttons()
+        self.continue_button = self.init_continue_button(self.click_continue)
+        self.continue_text = ""
+        self.played_notes = []
+        self.queue = None
+        self.stream = None
+        self.analyzer = None
         if use_audio:
-            self.__start_audio_devices()
-        self.__level = self.__regular_challenges if not use_audio else self.__audio_challenges
-        self.__start_time = 0
-        self.__note_played = None
-        self.end_button = self.init_end_button(self.__click_end)
-        self.__event: callable = (
-            self.__handle_event_with_audio
+            self.start_audio_devices()
+        self.level = self.regular_challenges if not use_audio else self.audio_challenges
+        self.start_time = 0
+        self.note_played = None
+        self.end_button = self.init_end_button(self.click_end)
+        self.event: callable = (
+            self.handle_event_with_audio
             if use_audio
-            else self.__handle_event_without_audio
+            else self.handle_event_without_audio
         )
-        self.go_back_button = self.init_back_button(self.__close_threads)
-        self.__vol_sensibility = 5
-        self.__sensibility_button = self.__init_sensibility_button()
-        self.__continue_timer = 0
-        self.__unlock_next = unlock_next
+        self.go_back_button = self.init_back_button(self.close_threads)
+        self.vol_sensibility = 5
+        self.sensibility_button = self.init_sensibility_button()
+        self.continue_timer = 0
+        self.unlock_next = unlock_next
 
     def render(self):
         if self.current_challenge == self.num_challenges:
             self.final_screen()
             self.end_button.render()
         else:
-            self.__level()
+            self.level()
             self.go_back_button.render()
             self.render_challenge_info()
 
@@ -71,39 +74,39 @@ class Challenge(ChallengeBase):
         if self.current_challenge == self.num_challenges:
             self.end_button.event_check(event_arg)
         else:
-            self.__event(event_arg)
+            self.event(event_arg)
             self.go_back_button.event_check(event_arg)
 
         if event_arg.type == pygame.QUIT:
             try:
-                self.__close_threads()
+                self.close_threads()
             except AttributeError:
                 pass
 
-    def __handle_event_without_audio(self, event):
-        if not self.__continue:
-            for button in self.__note_buttons:
+    def handle_event_without_audio(self, event):
+        if not self._continue:
+            for button in self.note_buttons:
                 button.event_check(event)
         else:
-            self.__continue_button.event_check(event)
+            self.continue_button.event_check(event)
 
-    def __handle_event_with_audio(self, event):
-        if self.__continue:
-            self.__continue_button.event_check(event)
+    def handle_event_with_audio(self, event):
+        if self._continue:
+            self.continue_button.event_check(event)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                self.__continue_button.on_click()
+                self.continue_button.on_click()
         else:
-            self.__sensibility_button.event_check(event)
+            self.sensibility_button.event_check(event)
 
-    def __regular_challenges(self):
+    def regular_challenges(self):
         self.screen.fill("white")
         self.staff.render()
 
-        sharp = self.__get_sharp_or_flat()
+        sharp = self.get_sharp_or_flat()
 
         self.note_renderer.quarter(
             x_pos=self.staff.trebble_cleff_asset.get_width() * 2 + 20,
-            y_pos=(self.staff.c3_position - self.staff.note_spacing * 2) - (self.__current_note[1] * self.staff.note_spacing),
+            y_pos=(self.staff.c3_position - self.staff.note_spacing * 2) - (self.current_note[1] * self.staff.note_spacing),
             has_sharp=sharp
         )
 
@@ -117,33 +120,33 @@ class Challenge(ChallengeBase):
             ),
         )
 
-        if not self.__continue:
-            for button in self.__note_buttons:
+        if not self._continue:
+            for button in self.note_buttons:
                 button.render()
         else:
-            text_width, text_height = self.font.size(self.__continue_text)
+            text_width, text_height = self.font.size(self.continue_text)
             text_x = self.screen.get_width() // 2 - text_width // 2
-            text_y = self.__continue_button.pos[1] - text_height - 10
+            text_y = self.continue_button.pos[1] - text_height - 10
             self.screen.blit(
-                self.font.render(self.__continue_text, True, "black"),
+                self.font.render(self.continue_text, True, "black"),
                 (text_x, text_y),
             )
 
-            self.__continue_button.render()
+            self.continue_button.render()
 
-    def __audio_challenges(self):
+    def audio_challenges(self):
         self.screen.fill("white")
         self.staff.render()
 
-        sharp = self.__get_sharp_or_flat()
+        sharp = self.get_sharp_or_flat()
 
         self.note_renderer.quarter(
             x_pos=self.staff.trebble_cleff_asset.get_width() * 2 + 20,
-            y_pos=(self.staff.c3_position - self.staff.note_spacing * 2) - self.__current_note[1] * self.staff.note_spacing,
+            y_pos=(self.staff.c3_position - self.staff.note_spacing * 2) - self.current_note[1] * self.staff.note_spacing,
             has_sharp=sharp,
         )
 
-        if self.__note_played is None:
+        if self.note_played is None:
             text = "Use seu microfone para tocar a nota sendo exibida"
             width, _ = self.font.size(text)
             self.screen.blit(
@@ -153,21 +156,21 @@ class Challenge(ChallengeBase):
                     (self.screen.get_height() // 2),
                 ),
             )
-            self.__get_note()
-            self.__sensibility_button.render()
+            self.get_note()
+            self.sensibility_button.render()
         else:
 
-            width, _ = self.font.size(self.__continue_text)
+            width, _ = self.font.size(self.continue_text)
             self.screen.blit(
-                self.font.render(self.__continue_text, True, "black"),
+                self.font.render(self.continue_text, True, "black"),
                 (
                     (self.screen.get_width() // 2) - (width // 2),
                     ((self.screen.get_height() // 4) * 3),
                 ),
             )
-            self.__continue_button.render()
+            self.continue_button.render()
 
-            time_left = 3 - (pygame.time.get_ticks() - self.__continue_timer) // 1000
+            time_left = 3 - (pygame.time.get_ticks() - self.continue_timer) // 1000
             text = "continuando em X...".replace("X", str(time_left))
             width, _ = self.font.size(text)
             self.screen.blit(
@@ -178,53 +181,53 @@ class Challenge(ChallengeBase):
                 ),
             )
 
-            if pygame.time.get_ticks() - self.__continue_timer > 3000:
-                self.__continue_button.on_click()
+            if pygame.time.get_ticks() - self.continue_timer > 3000:
+                self.continue_button.on_click()
 
-    def __get_sharp_or_flat(self):
+    def get_sharp_or_flat(self):
         sharp: Literal['none', 'sharp', 'flat']
-        if self.__current_note[0].find("#") != -1:
+        if self.current_note[0].find("#") != -1:
             sharp = 'sharp'
-        elif self.__current_note[0].find("b") != -1:
+        elif self.current_note[0].find("b") != -1:
             sharp = 'flat'
         else:
             sharp = 'none'
         return sharp
 
-    def __click_continue(self):
-        self.__current_note = self.__pick_random_note()
-        self.__continue = False
+    def click_continue(self):
+        self.current_note = self.pick_random_note()
+        self._continue = False
         self.current_challenge += 1
-        if self.__note_played is not None:
-            self.__note_played = None
-            self.__played_notes = []
+        if self.note_played is not None:
+            self.note_played = None
+            self.played_notes = []
 
-    def __init_note_buttons(self):
+    def init_note_buttons(self):
         def check_answer(text: str):
-            checked_value = self.__current_note[0]
-            checked_value = self.__swap_note_if_invalid(checked_value)
+            checked_value = self.current_note[0]
+            checked_value = self.swap_note_if_invalid(checked_value)
 
             answ = text.split('/')
             if len(answ) > 1:
                 if checked_value == answ[0] or checked_value == answ[1]:
                     self.score += 1
-                    self.__continue_text = "Correto!"
+                    self.continue_text = "Correto!"
                     self.correct_se.play()
                 else:
-                    self.__continue_text = ("Incorreto! A resposta correta era: " + checked_value)
+                    self.continue_text = ("Incorreto! A resposta correta era: " + checked_value)
                     self.incorrect_se.play()
             else:
                 if text == checked_value:
                     self.score += 1
-                    self.__continue_text = "Correto!"
+                    self.continue_text = "Correto!"
                     self.correct_se.play()
                 else:
-                    self.__continue_text = ("Incorreto! A resposta correta era: " + checked_value)
+                    self.continue_text = ("Incorreto! A resposta correta era: " + checked_value)
                     self.incorrect_se.play()
-            self.__continue = True
+            self._continue = True
 
         buttons = []
-        notes = ["C", "D", "E", "F", "G", "A", "B"] if not self.__chromatic else ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G",
+        notes = ["C", "D", "E", "F", "G", "A", "B"] if not self.chromatic else ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G",
                                                                                   "G#/Ab", "A", "A#/Bb", "B"]
 
         for index, letter in enumerate(notes):
@@ -240,9 +243,9 @@ class Challenge(ChallengeBase):
             )
             buttons.append(button)
 
-        self.__note_buttons = buttons
+        self.note_buttons = buttons
 
-    def __click_end(self):
+    def click_end(self):
         save = Save.load()
         chapter = save.md1.chapters[self.chapter_index]
 
@@ -251,7 +254,7 @@ class Challenge(ChallengeBase):
 
         if self.chapter_index + 1 < len(save.md1.chapters):
             next_chapter = save.md1.chapters[self.chapter_index + 1]
-            next_chapter["unlocked"] = True if self.__unlock_next else next_chapter["unlocked"]
+            next_chapter["unlocked"] = True if self.unlock_next else next_chapter["unlocked"]
         else:
             save.md2.unlocked = True
         save.md1.chapters[self.chapter_index] = chapter
@@ -259,22 +262,22 @@ class Challenge(ChallengeBase):
         from ..main_menu import Menu
 
         try:
-            self.__close_threads()
+            self.close_threads()
         except AttributeError:
             pass
 
         self.change_state(Menu(self.screen, self.change_state))
 
-    def __pick_random_note(self):
+    def pick_random_note(self):
         num = randint(0, len(self.staff_notes) - 1)
-        if self.__chromatic:
+        if self.chromatic:
             hassharp = randint(0, 2)
             return_char = ['', 'b', '#']
             return self.staff_notes[num] + return_char[hassharp], num
         else:
             return self.staff_notes[num], num
 
-    def __calc_note_position(self, note: str):
+    def calc_note_position(self, note: str):
         note_name = note[0]
         has_sharp = note.find("#") != -1
         notes = ["E", "F", "G", "A", "B", "C", "D"]
@@ -291,59 +294,59 @@ class Challenge(ChallengeBase):
             color="gray",
         )
 
-    def __get_note(self):
+    def get_note(self):
         end_time = time.time()
         global vol
 
-        if self.__note_played is None and vol > self.__vol_sensibility and not self.__continue:
+        if self.note_played is None and vol > self.vol_sensibility and not self._continue:
             (
-                self.__calc_note_position(self.__played_notes[-1])
-                if self.__played_notes
+                self.calc_note_position(self.played_notes[-1])
+                if self.played_notes
                 else None
             )
-            if self.__start_time == 0:
-                self.__start_time = time.time()
+            if self.start_time == 0:
+                self.start_time = time.time()
 
-            freq = self.__queue.get()
+            freq = self.queue.get()
             if freq is not None:
                 note = self.analyzer.frequency_to_note_name(freq, 440)
                 note_letter = re.sub(r"\d", "", note)
-                self.__played_notes.append(re.sub(r"\d", "", note_letter))
-                self.__calc_note_position(note)
+                self.played_notes.append(re.sub(r"\d", "", note_letter))
+                self.calc_note_position(note)
 
-            if end_time - self.__start_time > 1 and self.__start_time != 0:
-                self.__process_note_played()
+            if end_time - self.start_time > 1 and self.start_time != 0:
+                self.process_note_played()
         else:
-            self.__start_time = 0
-            self.__played_notes = []
+            self.start_time = 0
+            self.played_notes = []
 
-    def __process_note_played(self):
-        self.__note_played = statistics.mode(self.__played_notes)
-        self.__continue = True
-        checked_value = self.__current_note[0]
+    def process_note_played(self):
+        self.note_played = statistics.mode(self.played_notes)
+        self._continue = True
+        checked_value = self.current_note[0]
 
-        checked_value = self.__swap_note_if_invalid(checked_value)
+        checked_value = self.swap_note_if_invalid(checked_value)
         note_equivalents: dict[str, str] = {"Cb": "B", "Db": "C#", "Eb": "D#", "Fb": "E", "Gb": "F#", "Ab": "G#", "Bb": "A#"}
         if checked_value in note_equivalents:
             checked_value = note_equivalents[checked_value]
 
-        if self.__note_played == checked_value:
+        if self.note_played == checked_value:
             self.score += 1
-            self.__continue_text = "Correto!"
+            self.continue_text = "Correto!"
             self.correct_se.play()
         else:
-            self.__continue_text = (
+            self.continue_text = (
                     "Incorreto! A nota correta era: "
                     + checked_value
                     + ". Você tocou: "
-                    + self.__note_played
+                    + self.note_played
             )
             self.incorrect_se.play()
-        self.__played_notes = []
-        self.__continue_timer = pygame.time.get_ticks()
+        self.played_notes = []
+        self.continue_timer = pygame.time.get_ticks()
 
     @staticmethod
-    def __swap_note_if_invalid(checked_value):
+    def swap_note_if_invalid(checked_value):
         if checked_value == 'E#':
             checked_value = 'F'
         elif checked_value == 'B#':
@@ -354,7 +357,7 @@ class Challenge(ChallengeBase):
             checked_value = 'E'
         return checked_value
 
-    def __close_threads(self):
+    def close_threads(self):
         try:
             self.stream.stop()
             self.stream.close()
@@ -363,7 +366,7 @@ class Challenge(ChallengeBase):
         except AttributeError:
             pass
 
-    def __start_audio_devices(self):
+    def start_audio_devices(self):
         def get_volume(indata, *_):
             volume_norm = np.linalg.norm(indata) * 10
             global prev_vol
@@ -371,17 +374,17 @@ class Challenge(ChallengeBase):
             prev_vol = vol
             vol = round(volume_norm, 2)
 
-        self.__queue = ProtectedList()
-        self.analyzer = AudioAnalyzer(self.__queue)
+        self.queue = ProtectedList()
+        self.analyzer = AudioAnalyzer(self.queue)
         self.analyzer.start()
         self.stream = sd.InputStream(callback=get_volume)
         self.stream.start()
 
-    def __init_sensibility_button(self):
+    def init_sensibility_button(self):
 
         def callback():
             global vol
-            self.__vol_sensibility = (vol * 1.25) if vol > 1.5 else 2
+            self.vol_sensibility = (vol * 1.25) if vol > 1.5 else 2
 
         text = "Ajustar sensibilidade de volume"
         x = self.screen.get_width() - self.font.size(text)[0] - 30
