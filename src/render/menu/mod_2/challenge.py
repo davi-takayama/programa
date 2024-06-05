@@ -22,59 +22,59 @@ class Challenge(ChallengeBase):
             use_pauses: bool = False,
     ):
         super().__init__(screen, change_state, chapter_index, False, num_challenges)
-        self.__use_pauses = use_pauses
+        self.use_pauses = use_pauses
         from typing import Dict, Callable
 
-        self.__notes_dict: Dict[float, Callable] = {
+        self.notes_dict: Dict[float, Callable] = {
             1.0: self.note_renderer.whole,
             0.5: self.note_renderer.half,
             0.25: self.note_renderer.quarter,
             0.125: self.note_renderer.single_eighth,
         }
-        self.__chosen_notes = []
-        self.__pushed_notes = []
-        self.__note_buttons = self.__init_note_option_buttons() if not self.__use_pauses else self.__init_pause_option_buttons()
-        self.__delete_button = self.__init_delete_button()
-        self.__continue_button = self.init_continue_button(self.__click_continue)
-        self.__pick_notes()
-        self.__note_pos_area = abs(self.staff.trebble_cleff_asset.get_width() * 2.2 - self.screen.get_width() // 2)
-        self.__end_button = self.init_end_button(self.__click_end)
-        self.__added_score = False
+        self.chosen_notes = []
+        self.pushed_notes = []
+        self.note_buttons = self.init_note_option_buttons() if not self.use_pauses else self.init_pause_option_buttons()
+        self.delete_button = self.init_delete_button()
+        self.continue_button = self.init_continue_button(self.click_continue)
+        self.pick_notes()
+        self.note_pos_area = abs(self.staff.trebble_cleff_asset.get_width() * 2.2 - self.screen.get_width() // 2)
+        self.end_button = self.init_end_button(self.click_end)
+        self.added_score = False
 
     def render(self):
         self.screen.fill("white")
         if self.current_challenge < self.num_challenges:
-            if len(self.__pushed_notes) < self.__num_notes_selected():
-                self.__challenge_render()
+            if len(self.pushed_notes) < self.num_notes_selected():
+                self.challenge_render()
             else:
-                self.__continue_render()
+                self.continue_render()
             self.render_challenge_info()
         else:
             self.end_render()
-            self.__end_button.render()
+            self.end_button.render()
 
     def event_check(self, event_arg: Event | None = None):
         if self.num_challenges != self.current_challenge:
             self.go_back_button.event_check(event_arg)
-            if len(self.__pushed_notes) < self.__num_notes_selected():
-                for button in self.__note_buttons:
+            if len(self.pushed_notes) < self.num_notes_selected():
+                for button in self.note_buttons:
                     button.event_check(event_arg)
-                self.__delete_button.event_check(event_arg)
+                self.delete_button.event_check(event_arg)
             else:
-                self.__continue_button.event_check(event_arg)
+                self.continue_button.event_check(event_arg)
         else:
-            self.__end_button.event_check(event_arg)
+            self.end_button.event_check(event_arg)
 
-    def __challenge_render(self):
+    def challenge_render(self):
         self.staff.render()
-        self.__cleff_notes_render()
-        for button in self.__note_buttons:
+        self.cleff_notes_render()
+        for button in self.note_buttons:
             button.render()
         self.go_back_button.render()
-        self.__delete_button.render()
+        self.delete_button.render()
 
-        button_word = "notas" if not self.__use_pauses else "pausas"
-        text = f"Selecione {self.__num_notes_selected()} {button_word} cujo valor seja igual às figuras da esquerda"
+        button_word = "notas" if not self.use_pauses else "pausas"
+        text = f"Selecione {self.num_notes_selected()} {button_word} cujo valor seja igual às figuras da esquerda"
         width, _ = self.font.size(text)
         self.screen.blit(
             self.font.render(text, True, "black"),
@@ -84,7 +84,7 @@ class Challenge(ChallengeBase):
             ),
         )
 
-    def __cleff_notes_render(self):
+    def cleff_notes_render(self):
         def render_pause(x_pos, pause_key):
             match pause_key:
                 case 1:
@@ -97,34 +97,34 @@ class Challenge(ChallengeBase):
                     self.note_renderer.pause(x_pos, 3)
 
         note_y = int(self.staff.c3_position - self.staff.line_spacing * 2.5)
-        for index, note in enumerate(self.__chosen_notes):
-            x = (self.staff.trebble_cleff_asset.get_width() * 2.2) + (index * (self.__note_pos_area // len(self.__chosen_notes)))
-            x = x if not self.__use_pauses else x + 20
-            self.__notes_dict[note](x, note_y) if not self.__use_pauses else render_pause(x, note)
+        for index, note in enumerate(self.chosen_notes):
+            x = (self.staff.trebble_cleff_asset.get_width() * 2.2) + (index * (self.note_pos_area // len(self.chosen_notes)))
+            x = x if not self.use_pauses else x + 20
+            self.notes_dict[note](x, note_y) if not self.use_pauses else render_pause(x, note)
         pygame.draw.line(self.screen, "black", (self.screen.get_width() // 2, self.staff.line_positions[0]),
                          (self.screen.get_width() // 2, self.staff.line_positions[-1]), 5)
-        for index, note in enumerate(self.__pushed_notes):
+        for index, note in enumerate(self.pushed_notes):
             x = (self.staff.trebble_cleff_asset.get_width() * 2.2) + (
-                    index * (self.__note_pos_area // len(self.__pushed_notes))) + self.screen.get_width() // 2
-            self.__notes_dict[note](int(x), note_y) if not self.__use_pauses else render_pause(x, note)
+                    index * (self.note_pos_area // len(self.pushed_notes))) + self.screen.get_width() // 2
+            self.notes_dict[note](int(x), note_y) if not self.use_pauses else render_pause(x, note)
 
-    def __continue_render(self):
+    def continue_render(self):
         self.staff.render()
         self.go_back_button.render()
-        self.__cleff_notes_render()
-        self.__continue_button.render()
-        text = "Correto!" if sum(self.__pushed_notes) == sum(self.__chosen_notes) else "Incorreto!"
+        self.cleff_notes_render()
+        self.continue_button.render()
+        text = "Correto!" if sum(self.pushed_notes) == sum(self.chosen_notes) else "Incorreto!"
         text = self.font.render(text, True, "black")
         self.screen.blit(text, (self.screen.get_width() // 2 - text.get_width() // 2, 20))
-        if not self.__added_score:
-            self.__added_score = True
-            if sum(self.__pushed_notes) == sum(self.__chosen_notes):
+        if not self.added_score:
+            self.added_score = True
+            if sum(self.pushed_notes) == sum(self.chosen_notes):
                 self.score += 1
                 self.correct_se.play()
             else:
                 self.incorrect_se.play()
 
-    def __init_note_option_buttons(self) -> List[Button]:
+    def init_note_option_buttons(self) -> List[Button]:
         from typing import Dict, Callable
         from src.utils.note_renderer import NoteRenderer
         button_renderer = NoteRenderer(self.screen, draw_lines=False)
@@ -136,7 +136,7 @@ class Challenge(ChallengeBase):
         }
 
         def make_button_callback(value):
-            return lambda: self.__pushed_notes.append(value)
+            return lambda: self.pushed_notes.append(value)
 
         def override_button_render(button_arg, note_val, x_pos, increase_height):
             original_render = button_arg.render
@@ -154,7 +154,7 @@ class Challenge(ChallengeBase):
             button_arg.render = new_render
 
         note_buttons = [
-            self.__create_button(
+            self.create_button(
                 i, note, notes_dict, make_button_callback, override_button_render
             )
             for i, note in enumerate([1, 0.5, 0.25, 0.125])
@@ -162,7 +162,7 @@ class Challenge(ChallengeBase):
 
         return note_buttons
 
-    def __init_pause_option_buttons(self) -> List[Button]:
+    def init_pause_option_buttons(self) -> List[Button]:
         note_renderer = NoteRenderer(self.screen, self.screen.get_height() // 9 * 8)
         notes_dict: dict[float, int] = {1: 0, 0.5: 1, 0.25: 2, 0.125: 3}
 
@@ -173,7 +173,7 @@ class Challenge(ChallengeBase):
                 (x, self.screen.get_height() // 4 * 3),
                 "     ",
                 self.font,
-                lambda: self.__pushed_notes.append(value)
+                lambda: self.pushed_notes.append(value)
             )
             button.height = int(button.height * 2.5)
             button.pos = (button.pos[0], button.pos[1] - 16)
@@ -190,7 +190,7 @@ class Challenge(ChallengeBase):
 
         return [create_button(index, value) for index, value in enumerate(notes_dict.keys())]
 
-    def __create_button(
+    def create_button(
             self, i, note, notes_dict, make_button_callback, override_button_render
     ):
         note_callback = make_button_callback(note)
@@ -208,10 +208,10 @@ class Challenge(ChallengeBase):
         override_button_render(button, note, button_x_pos, i)
         return button
 
-    def __pick_notes(self):
+    def pick_notes(self):
         nums = [
-            random.choice(list(self.__notes_dict.keys()))
-            for _ in range(self.__num_notes_selected())
+            random.choice(list(self.notes_dict.keys()))
+            for _ in range(self.num_notes_selected())
         ]
         nums_dict = {1: 8, 0.5: 4, 0.25: 2, 0.125: 1}
         num_of_notes = sum([nums_dict[num] for num in nums])
@@ -220,14 +220,14 @@ class Challenge(ChallengeBase):
         chosen_notes = []
         while sum(chosen_notes) < sum(nums):
             chosen_notes = [
-                random.choice(list(self.__notes_dict.keys()))
+                random.choice(list(self.notes_dict.keys()))
                 for _ in range(num_of_notes)
             ]
 
         max_iter = 500
         iters = 0
         while sum(chosen_notes) != sum(nums):
-            values_list = list(self.__notes_dict.keys())
+            values_list = list(self.notes_dict.keys())
             for i in range(len(chosen_notes)):
                 if sum(chosen_notes) != sum(nums):
                     chosen_notes[i] = random.choice(values_list)
@@ -237,15 +237,15 @@ class Challenge(ChallengeBase):
             if iters > max_iter:
                 chosen_notes = nums
 
-        self.__chosen_notes = chosen_notes
+        self.chosen_notes = chosen_notes
 
-    def __num_notes_selected(self):
+    def num_notes_selected(self):
         return (self.current_challenge // 5) + 2
 
-    def __init_delete_button(self):
+    def init_delete_button(self):
         def click_delete():
-            if self.__pushed_notes:
-                self.__pushed_notes.pop()
+            if self.pushed_notes:
+                self.pushed_notes.pop()
 
         button_text = "Apagar"
         w, _ = self.font.size(button_text)
@@ -254,15 +254,15 @@ class Challenge(ChallengeBase):
             self.screen, (self.screen.get_width() - 36 - w, self.staff.c3_position), button_text, self.font, click_delete
         )
 
-    def __click_continue(self):
+    def click_continue(self):
 
         self.current_challenge += 1
-        self.__pushed_notes = []
-        self.__chosen_notes = []
-        self.__pick_notes()
-        self.__added_score = False
+        self.pushed_notes = []
+        self.chosen_notes = []
+        self.pick_notes()
+        self.added_score = False
 
-    def __click_end(self):
+    def click_end(self):
         save = Save.load()
         chapter = save.md2.chapters[self.chapter_index]
 

@@ -13,12 +13,12 @@ from src.utils.save_operations.read_save import Save
 class Challenge2(ChallengeBase):
     def __init__(self, screen: Surface, change_state, chapter_index: int, num_challenges: int = 10) -> None:
         super().__init__(screen, change_state, chapter_index, num_challenges=num_challenges)
-        self.__get_random_time_signature()
-        self.staff.time_signature = self.__time_signature
+        self.get_random_time_signature()
+        self.staff.time_signature = self.time_signature
         self.notes = []
-        self.__notes_and_pauses = []
+        self.notes_and_pauses = []
         self.get_random_notes()
-        self.__continue = False
+        self._continue = False
         self.notes_dict = {
             1: self.note_renderer.whole,
             0.5: self.note_renderer.half,
@@ -27,11 +27,11 @@ class Challenge2(ChallengeBase):
         }
         self.pauses_dict = {1: 0, 0.5: 1, 0.25: 2, 0.125: 3}
 
-        self.buttons = self.__init_buttons()
-        self.__continue_button = self.init_continue_button(self.__click_continue)
-        self.__feedback_text = ""
+        self.buttons = self.init_buttons()
+        self.continue_button = self.init_continue_button(self.click_continue)
+        self.feedback_text = ""
 
-        self.__end_button = self.init_end_button(self.click_end)
+        self.end_button = self.init_end_button(self.click_end)
 
     def render(self):
         self.screen.fill("white")
@@ -41,8 +41,8 @@ class Challenge2(ChallengeBase):
 
             notes_render_width = self.screen.get_width() - self.staff.trebble_cleff_asset.get_width() * 4
 
-            self.__render_notes(notes_render_width)
-            if not self.__continue:
+            self.render_notes(notes_render_width)
+            if not self._continue:
                 for button in self.buttons:
                     button.render()
 
@@ -52,16 +52,16 @@ class Challenge2(ChallengeBase):
                                  (self.screen.get_width() // 2 - text_render.get_width() // 2, self.screen.get_height() // 2))
 
             else:
-                text_render = self.font.render(self.__feedback_text, True, "black")
+                text_render = self.font.render(self.feedback_text, True, "black")
                 self.screen.blit(text_render,
                                  (self.screen.get_width() // 2 - text_render.get_width() // 2, self.screen.get_height() // 2))
 
-                self.__continue_button.render()
+                self.continue_button.render()
 
             self.render_challenge_info()
         else:
             self.end_render()
-            self.__end_button.render()
+            self.end_button.render()
 
     def event_check(self, event_arg: Event | None = None):
         if self.current_challenge != self.num_challenges:
@@ -69,12 +69,12 @@ class Challenge2(ChallengeBase):
             for button in self.buttons:
                 button.event_check(event_arg)
 
-            if self.__continue:
-                self.__continue_button.event_check(event_arg)
+            if self._continue:
+                self.continue_button.event_check(event_arg)
         else:
-            self.__end_button.event_check(event_arg)
+            self.end_button.event_check(event_arg)
 
-    def __render_notes(self, width):
+    def render_notes(self, width):
         x_positions = [
             (self.staff.trebble_cleff_asset.get_width()) + i * (width // len(self.notes) + 1) for i in
             range(1, len(self.notes) + 1)
@@ -82,20 +82,20 @@ class Challenge2(ChallengeBase):
         y_pos = int(self.staff.c3_position - self.staff.line_spacing * 2.5)
 
         def render_eighth_note(x_pos, i):
-            if not self.__notes_and_pauses[i]:
+            if not self.notes_and_pauses[i]:
                 self.note_renderer.pause(x_pos[i], 3, shift=True)
             else:
-                if i + 1 < len(self.notes) and self.__notes_and_pauses[i + 1] and np.isclose(
+                if i + 1 < len(self.notes) and self.notes_and_pauses[i + 1] and np.isclose(
                         self.notes[i + 1], 0.125, rtol=1e-09, atol=1e-09):
                     self.note_renderer.eighth([(x_pos[i], y_pos), (x_pos[i + 1], y_pos)])
-                elif i - 1 >= 0 and self.__notes_and_pauses[i - 1] and np.isclose(
+                elif i - 1 >= 0 and self.notes_and_pauses[i - 1] and np.isclose(
                         self.notes[i - 1], 0.125, rtol=1e-09, atol=1e-09):
                     return
                 else:
                     self.note_renderer.eighth([(x_pos[i], y_pos)])
 
         def render_note_or_pause(x_pos, i, render_note_method, pause_arg):
-            if self.__notes_and_pauses[i]:
+            if self.notes_and_pauses[i]:
                 render_note_method(x_pos[i], y_pos)
             else:
                 self.note_renderer.pause(x_pos[i], pause_arg, shift=True)
@@ -110,7 +110,7 @@ class Challenge2(ChallengeBase):
             else:
                 render_note_or_pause(x_positions, i, self.note_renderer.whole, 0)
 
-    def __get_random_time_signature(self):
+    def get_random_time_signature(self):
         upper_numbers = [2, 3, 4, 6, 8]
         lower_numbers = [2, 4, 8]
         upper_num = random.choice(upper_numbers)
@@ -119,11 +119,11 @@ class Challenge2(ChallengeBase):
             upper_num = 4
         if lower_num == 2 and upper_num == 8:
             lower_num = 4
-        self.__time_signature = upper_num, lower_num
+        self.time_signature = upper_num, lower_num
 
     def get_random_notes(self):
         time_values = [1, 0.5, 0.25, 0.125]
-        time_sig_value = self.__time_signature[0] / self.__time_signature[1]
+        time_sig_value = self.time_signature[0] / self.time_signature[1]
         num_notes = random.randint(2, min(int(8 * time_sig_value), 8))
 
         def adjust_values(values):
@@ -148,27 +148,27 @@ class Challenge2(ChallengeBase):
             if not notes_and_pauses_list[i] and not notes_and_pauses_list[i + 1]:
                 notes_and_pauses_list[i + 1] = True
 
-        self.__notes_and_pauses = notes_and_pauses_list
+        self.notes_and_pauses = notes_and_pauses_list
 
-    def __init_buttons(self) -> List[Button]:
+    def init_buttons(self) -> List[Button]:
         def button_callback(value: bool):
-            if (sum(self.notes) == self.__time_signature[0] / self.__time_signature[1]) == value:
+            if (sum(self.notes) == self.time_signature[0] / self.time_signature[1]) == value:
                 self.score += 1
                 if value:
-                    self.__feedback_text = "Correto! Estas notas fecham um compasso da assinatura de tempo!"
+                    self.feedback_text = "Correto! Estas notas fecham um compasso da assinatura de tempo!"
                 else:
-                    if sum(self.notes) < self.__time_signature[0] / self.__time_signature[1]:
-                        self.__feedback_text = "Correto! Estas notas não fecham um compasso da assinatura de tempo!"
+                    if sum(self.notes) < self.time_signature[0] / self.time_signature[1]:
+                        self.feedback_text = "Correto! Estas notas não fecham um compasso da assinatura de tempo!"
                     else:
-                        self.__feedback_text = "Correto! Estas notas passam de um compasso da assinatura de tempo!"
+                        self.feedback_text = "Correto! Estas notas passam de um compasso da assinatura de tempo!"
                 self.correct_se.play()
             else:
-                self.__feedback_text = (
-                    f"Incorreto! As notas somam {sum(self.notes) * self.__time_signature[1]} tempos e o compasso requer "
-                    f"{self.__time_signature[0]} tempos.")
+                self.feedback_text = (
+                    f"Incorreto! As notas somam {sum(self.notes) * self.time_signature[1]} tempos e o compasso requer "
+                    f"{self.time_signature[0]} tempos.")
                 self.incorrect_se.play()
 
-            self.__continue = True
+            self._continue = True
 
         x_pos = [int((self.screen.get_width() / 3) * i) for i in range(1, 3)]
         y_pos = self.screen.get_height() // 4 * 3
@@ -184,11 +184,11 @@ class Challenge2(ChallengeBase):
             for i in range(2)
         ]
 
-    def __click_continue(self):
+    def click_continue(self):
         self.current_challenge += 1
-        self.__continue = False
-        self.__get_random_time_signature()
-        self.staff.time_signature = self.__time_signature
+        self._continue = False
+        self.get_random_time_signature()
+        self.staff.time_signature = self.time_signature
         self.notes = []
         self.get_random_notes()
 

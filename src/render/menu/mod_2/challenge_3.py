@@ -17,55 +17,55 @@ vol = 0
 class Challenge3(ChallengeBase):
     def __init__(self, screen: Surface, change_state, chapter_index: int, use_pauses: bool = False):
         super().__init__(screen, change_state, chapter_index, True)
-        self.__start_audio_devices()
-        self.__continue_button = self.init_continue_button(self.__click_continue)
-        self.__back_button = self.init_back_button(self.__close_audio_devices)
-        self.__end_button = self.init_end_button(self.__click_end)
-        self.__start_button = self.__init_start_button()
-        self.__sensibility_button = self.__init_sensibility_button()
-        self.__metronome = Metronome(90, (4, 4))
-        self.__vol_stream = []
-        self.__vol_sensibility = 2
-        self.__start_time = 0
-        self.__times: list[list[tuple[str, float]]] = [
+        self.start_audio_devices()
+        self.continue_button = self.init_continue_button(self.click_continue)
+        self.back_button = self.init_back_button(self.close_audio_devices)
+        self.end_button = self.init_end_button(self.click_end)
+        self.start_button = self.init_start_button()
+        self.sensibility_button = self.init_sensibility_button()
+        self.metronome = Metronome(90, (4, 4))
+        self.vol_stream = []
+        self.vol_sensibility = 2
+        self.start_time = 0
+        self.times: list[list[tuple[str, float]]] = [
             [('note', 0.25), ('note', 0.25), ('note', 0.25), ('note', 0.25)],
             [('note', 0.25), ('note', 0.25), ('note', 0.5)],
             [('note', 0.5), ('note', 0.25), ('note', 0.25)],
             [('note', 0.25), ('note', 0.125), ('note', 0.125), ('note', 0.25), ('note', 0.25)],
             [('note', 0.25), ('note', 0.125), ('note', 0.125), ('note', 0.25), ('note', 0.125), ('note', 0.125)],
         ]
-        self.__times_with_pauses: list[list[tuple[str, float]]] = [
+        self.times_with_pauses: list[list[tuple[str, float]]] = [
             [("", 0.25), ("", 0.25), ("", 0.25), ("", 0.25)],
             [("", 0.25), ("", 0.25), ("", 0.5)],
             [("", 0.25), ("", 0.125), ("", 0.125), ("", 0.25), ("", 0.25)],
             [("", 0.25), ("", 0.125), ("", 0.125), ("", 0.25), ("", 0.125), ("", 0.125)],
             [("", 0.125), ("", 0.125), ("", 0.125), ("", 0.125), ("", 0.25), ("", 0.125), ("", 0.125)],
         ]
-        self.__curr_rythm = self.__times[self.current_challenge] if not use_pauses else self.__random_challenge()
-        self.__played: list[tuple[str, tuple[int, int]]] = []
-        self.num_challenges = len(self.__times)
-        self.__started_challenge = False
-        self.__finished_challenge = False
-        self.__y_pos: int = int(self.staff.line_positions[3] - self.staff.note_spacing)
-        self.__stream_processed = False
-        self.__use_pauses = use_pauses
+        self.curr_rythm = self.times[self.current_challenge] if not use_pauses else self.random_challenge()
+        self.played: list[tuple[str, tuple[int, int]]] = []
+        self.num_challenges = len(self.times)
+        self.started_challenge = False
+        self.finished_challenge = False
+        self.y_pos: int = int(self.staff.line_positions[3] - self.staff.note_spacing)
+        self.stream_processed = False
+        self.use_pauses = use_pauses
 
     def render(self):
         self.screen.fill("white")
 
         if self.current_challenge == self.num_challenges:
             self.end_render()
-            self.__end_button.render()
+            self.end_button.render()
         else:
-            self.__render_challenge()
+            self.render_challenge()
             self.render_challenge_info()
 
-    def __render_challenge(self):
-        self.__back_button.render()
+    def render_challenge(self):
+        self.back_button.render()
         self.staff.render()
         possible_area = (self.screen.get_width() // 2) - self.staff.start_x
-        x_pos = [int(self.staff.start_x + i * (possible_area / len(self.__curr_rythm))) for i in range(len(self.__curr_rythm))]
-        self.__render_notes(x_pos, self.__curr_rythm)
+        x_pos = [int(self.staff.start_x + i * (possible_area / len(self.curr_rythm))) for i in range(len(self.curr_rythm))]
+        self.render_notes(x_pos, self.curr_rythm)
         line_y_start = self.staff.line_positions[0]
         line_y_end = self.staff.line_positions[-1]
         pygame.draw.line(
@@ -76,9 +76,9 @@ class Challenge3(ChallengeBase):
             4
         )
 
-        if not self.__started_challenge and not self.__finished_challenge:
-            self.__start_button.render()
-            self.__sensibility_button.render()
+        if not self.started_challenge and not self.finished_challenge:
+            self.start_button.render()
+            self.sensibility_button.render()
             text = "Analise a partitura e clique em iniciar para começar o desafio"
             text_width = self.font.size(text)[0]
             self.screen.blit(
@@ -88,15 +88,15 @@ class Challenge3(ChallengeBase):
 
         else:
             text = "Comece a tocar em: X"
-            if self.__start_time + self.__metronome.get_cycle_time() * 2 <= pygame.time.get_ticks():
-                self.__end_current_challenge()
-            elif self.__start_time + self.__metronome.get_cycle_time() <= pygame.time.get_ticks():
+            if self.start_time + self.metronome.get_cycle_time() * 2 <= pygame.time.get_ticks():
+                self.end_current_challenge()
+            elif self.start_time + self.metronome.get_cycle_time() <= pygame.time.get_ticks():
                 text = "Toque!"
-                self.__get_volume_stream()
-            if self.__started_challenge and not self.__finished_challenge:
-                cycle_time = self.__metronome.get_cycle_time()
-                elapsed_time = pygame.time.get_ticks() - self.__start_time
-                ticks_per_cycle = self.__metronome.time_signature[0]
+                self.get_volume_stream()
+            if self.started_challenge and not self.finished_challenge:
+                cycle_time = self.metronome.get_cycle_time()
+                elapsed_time = pygame.time.get_ticks() - self.start_time
+                ticks_per_cycle = self.metronome.time_signature[0]
                 time_per_tick = cycle_time // ticks_per_cycle
                 elapsed_ticks = elapsed_time // time_per_tick
                 remaining_ticks = ticks_per_cycle - elapsed_ticks
@@ -107,13 +107,13 @@ class Challenge3(ChallengeBase):
                     self.font.render(text, True, "black"),
                     (self.screen.get_width() // 2 - text_width // 2, self.screen.get_height() - text_height - 10),
                 )
-        if self.__finished_challenge:
-            self.__continue_button.render()
-            if self.__stream_processed:
+        if self.finished_challenge:
+            self.continue_button.render()
+            if self.stream_processed:
                 half_screen_width = self.screen.get_width() // 2
-                num_played = len(self.__played)
+                num_played = len(self.played)
                 x_pos = [half_screen_width + 20 + i * (possible_area // num_played) for i in range(num_played)]
-                self.__render_notes(x_pos, self.__played)
+                self.render_notes(x_pos, self.played)
                 text = "Você tocou:"
                 text_width = self.font.size(text)[0]
                 text_y_pos = self.staff.line_positions[0] - self.staff.note_spacing * 4
@@ -122,72 +122,72 @@ class Challenge3(ChallengeBase):
                     (half_screen_width * 1.5 - text_width // 2, text_y_pos)
                 )
 
-    def __end_current_challenge(self):
-        self.__finished_challenge = True
-        self.__started_challenge = False
-        if self.__metronome.playing:
-            self.__metronome.playing = False
-        if not self.__stream_processed:
+    def end_current_challenge(self):
+        self.finished_challenge = True
+        self.started_challenge = False
+        if self.metronome.playing:
+            self.metronome.playing = False
+        if not self.stream_processed:
             self.process_audio_stream()
 
-    def __render_notes(self, x_pos, notes):
+    def render_notes(self, x_pos, notes):
         for i in range(len(notes)):
             if np.isclose(notes[i][1], 0.125, rtol=1e-09, atol=1e-09):
-                self.__render_eighth_note(x_pos, notes, i)
+                self.render_eighth_note(x_pos, notes, i)
             elif np.isclose(notes[i][1], 0.25, rtol=1e-09, atol=1e-09):
-                self.__render_quarter_note(x_pos, notes, i)
+                self.render_quarter_note(x_pos, notes, i)
             elif np.isclose(notes[i][1], 0.5, rtol=1e-09, atol=1e-09):
-                self.__render_half_note(x_pos, notes, i)
+                self.render_half_note(x_pos, notes, i)
 
-    def __render_eighth_note(self, x_pos, notes, i):
+    def render_eighth_note(self, x_pos, notes, i):
         if notes[i][0] == 'pause':
             self.note_renderer.pause(x_pos[i], 3, shift=True)
         else:
             if i + 1 < len(notes) and notes[i + 1][0] == 'note' and np.isclose(
                     notes[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
-                self.note_renderer.eighth([(x_pos[i], self.__y_pos), (x_pos[i + 1], self.__y_pos)])
+                self.note_renderer.eighth([(x_pos[i], self.y_pos), (x_pos[i + 1], self.y_pos)])
             elif i - 1 >= 0 and notes[i - 1][0] == 'note' and np.isclose(
                     notes[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
                 return
             else:
-                self.note_renderer.eighth([(x_pos[i], self.__y_pos)])
+                self.note_renderer.eighth([(x_pos[i], self.y_pos)])
 
-    def __render_quarter_note(self, x_pos, notes, i):
+    def render_quarter_note(self, x_pos, notes, i):
         if notes[i][0] == "note":
-            self.note_renderer.quarter(x_pos[i], self.__y_pos)
+            self.note_renderer.quarter(x_pos[i], self.y_pos)
         else:
             self.note_renderer.pause(x_pos[i], 2, shift=True)
 
-    def __render_half_note(self, x_pos, notes, i):
+    def render_half_note(self, x_pos, notes, i):
         if notes[i][0] == "note":
-            self.note_renderer.half(x_pos[i], self.__y_pos)
+            self.note_renderer.half(x_pos[i], self.y_pos)
         else:
             self.note_renderer.pause(x_pos[i], 1, shift=True)
 
     def event_check(self, event_arg: Event):
         if event_arg.type == pygame.QUIT:
             try:
-                self.__close_audio_devices()
+                self.close_audio_devices()
             except AttributeError:
                 pass
         if self.current_challenge < self.num_challenges:
-            self.__check_challenge(event_arg)
+            self.check_challenge(event_arg)
         else:
-            self.__end_button.event_check(event_arg)
+            self.end_button.event_check(event_arg)
 
-    def __check_challenge(self, event_arg):
+    def check_challenge(self, event_arg):
         if self.current_challenge == self.num_challenges:
-            self.__end_button.event_check(event_arg)
+            self.end_button.event_check(event_arg)
         if self.current_challenge < self.num_challenges:
-            self.__back_button.event_check(event_arg)
-            if not self.__started_challenge and not self.__finished_challenge:
-                self.__start_button.event_check(event_arg)
-                self.__sensibility_button.event_check(event_arg)
+            self.back_button.event_check(event_arg)
+            if not self.started_challenge and not self.finished_challenge:
+                self.start_button.event_check(event_arg)
+                self.sensibility_button.event_check(event_arg)
 
-            elif not self.__started_challenge and self.__finished_challenge:
-                self.__continue_button.event_check(event_arg)
+            elif not self.started_challenge and self.finished_challenge:
+                self.continue_button.event_check(event_arg)
 
-    def __click_end(self):
+    def click_end(self):
         save = Save.load()
         chapter = save.md2.chapters[self.chapter_index]
 
@@ -203,15 +203,15 @@ class Challenge3(ChallengeBase):
         save.save()
 
         try:
-            self.__close_audio_devices()
+            self.close_audio_devices()
         except AttributeError:
             pass
 
         try:
-            self.__metronome.playing = False
-            self.__metronome.running = False
-            self.__metronome.stop()
-            self.__metronome.join()
+            self.metronome.playing = False
+            self.metronome.running = False
+            self.metronome.stop()
+            self.metronome.join()
         except RuntimeError:
             pass
 
@@ -219,54 +219,32 @@ class Challenge3(ChallengeBase):
 
         self.change_state(Menu(self.screen, self.change_state))
 
-    def __click_continue(self):
-        self.__metronome.playing = False
+    def click_continue(self):
+        self.metronome.playing = False
         self.current_challenge += 1
-        self.__vol_stream = []
-        self.__played = []
+        self.vol_stream = []
+        self.played = []
         if self.current_challenge < self.num_challenges:
-            self.__curr_rythm = self.__times[self.current_challenge] if not self.__use_pauses else self.__random_challenge()
-            self.__finished_challenge = False
-            self.__stream_processed = False
-            self.__start_time = 0
-            self.__started_challenge = False
+            self.curr_rythm = self.times[self.current_challenge] if not self.use_pauses else self.random_challenge()
+            self.finished_challenge = False
+            self.stream_processed = False
+            self.start_time = 0
+            self.started_challenge = False
 
-    def __random_challenge(self):
-        num_challenges_available = len(self.__times_with_pauses)
-        rng = np.random.default_rng(seed=69)
-        index = rng.integers(0, num_challenges_available)
-        challenge = self.__times_with_pauses[index].copy()
-        random.shuffle(self.__times_with_pauses[index])
-        for i in range(len(challenge)):
-            challenge[i] = ('note', challenge[i][1])
-        num_pauses = random.randint(1, len(challenge) // 3 if len(challenge) > 3 else 1)
-        pause_indices: set[int] = set()
-
-        for i in range(num_pauses):
-            pause_index = random.randint(1, len(challenge) - 2)
-            while pause_index - 1 in pause_indices or pause_index + 1 in pause_indices or pause_index in pause_indices:
-                pause_index = random.randint(1, len(challenge) - 2)
-            pause_indices.add(pause_index)
-
-        for i in pause_indices:
-            challenge[i] = ('pause', challenge[i][1])
-        self.__times_with_pauses.pop(index)
-        return challenge
-
-    def __get_volume_stream(self):
+    def get_volume_stream(self):
         global vol
-        self.__vol_stream.append(vol)
+        self.vol_stream.append(vol)
 
-    def __start_audio_devices(self):
+    def start_audio_devices(self):
         def get_volume(indata, *_):
             global vol
             vol = round(np.linalg.norm(indata) * 10, 2)
 
         self.stream = sd.InputStream(callback=get_volume)
         self.stream.start()
-        self.__vol_sensibility = self.__init_sensibility_button().on_click()
+        self.vol_sensibility = self.init_sensibility_button().on_click()
 
-    def __close_audio_devices(self):
+    def close_audio_devices(self):
         try:
             self.stream.stop()
             self.stream.close()
@@ -274,17 +252,17 @@ class Challenge3(ChallengeBase):
             pass
 
         try:
-            self.__metronome.playing = False
-            self.__metronome.running = False
-            self.__metronome.stop()
-            self.__metronome.join()
+            self.metronome.playing = False
+            self.metronome.running = False
+            self.metronome.stop()
+            self.metronome.join()
         except RuntimeError:
             pass
 
-    def __init_sensibility_button(self):
+    def init_sensibility_button(self):
         def callback():
             global vol
-            self.__vol_sensibility = (vol * 1.2) if vol > 1.5 else 2
+            self.vol_sensibility = (vol * 1.2) if vol > 1.5 else 2
 
         text = "Ajustar sensibilidade"
         x = self.screen.get_width() - self.font.size(text)[0] - 30
@@ -299,15 +277,15 @@ class Challenge3(ChallengeBase):
 
         return button
 
-    def __init_start_button(self):
+    def init_start_button(self):
         def callback():
-            if self.__metronome.is_alive():
-                self.__metronome.restart()
+            if self.metronome.is_alive():
+                self.metronome.restart()
             else:
-                self.__metronome.start()
-            self.__metronome.playing = True
-            self.__start_time = pygame.time.get_ticks()
-            self.__started_challenge = True
+                self.metronome.start()
+            self.metronome.playing = True
+            self.start_time = pygame.time.get_ticks()
+            self.started_challenge = True
 
         text = "Iniciar desafio"
         button = Button(
@@ -323,29 +301,51 @@ class Challenge3(ChallengeBase):
 
         return button
 
+    def random_challenge(self):
+        num_challenges_available = len(self.times_with_pauses)
+        rng = np.random.default_rng(seed=69)
+        index = rng.integers(0, num_challenges_available)
+        challenge = self.times_with_pauses[index].copy()
+        random.shuffle(self.times_with_pauses[index])
+        for i in range(len(challenge)):
+            challenge[i] = ('note', challenge[i][1])
+        num_pauses = random.randint(1, len(challenge) // 3 if len(challenge) > 3 else 1)
+        pause_indices: set[int] = set()
+
+        for i in range(num_pauses):
+            pause_index = random.randint(1, len(challenge) - 2)
+            while pause_index - 1 in pause_indices or pause_index + 1 in pause_indices or pause_index in pause_indices:
+                pause_index = random.randint(1, len(challenge) - 2)
+            pause_indices.add(pause_index)
+
+        for i in pause_indices:
+            challenge[i] = ('pause', challenge[i][1])
+        self.times_with_pauses.pop(index)
+        return challenge
+
     def process_audio_stream(self):
-        self.__played = []  # [(type, (start, length)), ...]
-        mean_vol_threshold = self.__calculate_mean_vol_threshold()
+        self.played = []  # [(type, (start, length)), ...]
+        mean_vol_threshold = self.calculate_mean_vol_threshold()
 
-        audio_stream = self.__filter_audio_stream(self.__vol_stream, self.__vol_sensibility)
+        audio_stream = self.filter_audio_stream(self.vol_stream, self.vol_sensibility)
 
-        threshold_meet = self.__find_threshold_meet(audio_stream, mean_vol_threshold)
-        self.__played = self.__convert_threshold_meet_to_played(threshold_meet)
+        threshold_meet = self.find_threshold_meet(audio_stream, mean_vol_threshold)
+        self.played = self.convert_threshold_meet_to_played(threshold_meet)
 
-        self.__insert_pauses_between_notes()
-        self.__join_adjacent_pauses()
-        self.__round_played_values()
+        self.insert_pauses_between_notes()
+        self.join_adjacent_pauses()
+        self.round_played_values()
 
-        self.__stream_processed = True
+        self.stream_processed = True
         self.calculate_score()
 
-    def __calculate_mean_vol_threshold(self):
-        if len(self.__vol_stream) > 0 and not np.isnan(self.__vol_stream).any() and not np.isinf(self.__vol_stream).any():
-            return np.mean(self.__vol_stream) * 0.7
+    def calculate_mean_vol_threshold(self):
+        if len(self.vol_stream) > 0 and not np.isnan(self.vol_stream).any() and not np.isinf(self.vol_stream).any():
+            return np.mean(self.vol_stream) * 0.7
         return 0
 
     @staticmethod
-    def __filter_audio_stream(audio_stream, vol_sensibility):
+    def filter_audio_stream(audio_stream, vol_sensibility):
         filtered_stream = audio_stream.copy()
         for i in range(len(filtered_stream)):
             if filtered_stream[i] < vol_sensibility:
@@ -353,7 +353,7 @@ class Challenge3(ChallengeBase):
         return filtered_stream
 
     @staticmethod
-    def __find_threshold_meet(audio_stream, mean_vol_threshold):
+    def find_threshold_meet(audio_stream, mean_vol_threshold):
         threshold_meet = []
         length = 0
         for i in range(len(audio_stream)):
@@ -367,56 +367,57 @@ class Challenge3(ChallengeBase):
             threshold_meet.append((len(audio_stream) - length, length))
         return threshold_meet
 
-    def __convert_threshold_meet_to_played(self, threshold_meet) -> list[tuple[str, tuple[int, int]]]:
+    @staticmethod
+    def convert_threshold_meet_to_played(threshold_meet) -> list[tuple[str, tuple[int, int]]]:
         return [("note", (start, start + length)) for start, length in threshold_meet]
 
-    def __insert_pauses_between_notes(self):
+    def insert_pauses_between_notes(self):
         aux_arr = []
-        for i, item in enumerate(self.__played[:-1]):
-            next_play = self.__played[i + 1]
+        for i, item in enumerate(self.played[:-1]):
+            next_play = self.played[i + 1]
             aux_arr.append(item)
             if next_play[1][0] - item[1][1] > 0 and item[0] == "note" and next_play[0] == "note":
                 aux_arr.append(("pause", (item[1][1], next_play[1][0])))
-        aux_arr.append(self.__played[-1])
-        self.__played = aux_arr
+        aux_arr.append(self.played[-1])
+        self.played = aux_arr
 
-    def __join_adjacent_pauses(self):
+    def join_adjacent_pauses(self):
         i = 0
-        while i < len(self.__played) - 1:
-            if self.__played[i][0] == "pause" and self.__played[i + 1][0] == "pause":
-                self.__played[i] = ("pause", (self.__played[i][1][0], self.__played[i + 1][1][1]))
-                self.__played.pop(i + 1)
-            elif self.__played[i][0] == "pause" and self.__played[i][1][1] - self.__played[i][1][0] <= 7:
-                self.__played[i + 1] = (
-                    self.__played[i + 1][0],
+        while i < len(self.played) - 1:
+            if self.played[i][0] == "pause" and self.played[i + 1][0] == "pause":
+                self.played[i] = ("pause", (self.played[i][1][0], self.played[i + 1][1][1]))
+                self.played.pop(i + 1)
+            elif self.played[i][0] == "pause" and self.played[i][1][1] - self.played[i][1][0] <= 7:
+                self.played[i + 1] = (
+                    self.played[i + 1][0],
                     (
-                        self.__played[i][1][0],
-                        self.__played[i + 1][1][1]
+                        self.played[i][1][0],
+                        self.played[i + 1][1][1]
                     )
                 )
-                self.__played.pop(i)
+                self.played.pop(i)
             else:
                 i += 1
 
-    def __round_played_values(self):
+    def round_played_values(self):
         rounded_array = []
-        for item in self.__played:
-            fraction = (item[1][1] - item[1][0]) / len(self.__vol_stream)
+        for item in self.played:
+            fraction = (item[1][1] - item[1][0]) / len(self.vol_stream)
             possible_values = [0.125, 0.25, 0.5]
             rounded = min(possible_values, key=lambda x, fraction_arg=fraction: abs(x - fraction_arg))
             rounded_array.append((item[0], rounded))
-        self.__played = rounded_array
+        self.played = rounded_array
 
     def calculate_score(self):
         correct_plays = 0
-        for i in range(len(self.__played)):
-            if i < len(self.__curr_rythm) and self.__played[i][0] == self.__curr_rythm[i][0] and np.isclose(self.__played[i][1],
-                                                                                                            self.__curr_rythm[i][1],
-                                                                                                            rtol=1e-09, atol=1e-09):
+        for i in range(len(self.played)):
+            if i < len(self.curr_rythm) and self.played[i][0] == self.curr_rythm[i][0] and np.isclose(self.played[i][1],
+                                                                                                      self.curr_rythm[i][1],
+                                                                                                      rtol=1e-09, atol=1e-09):
                 correct_plays += 1
-        print(f"Correct plays: {correct_plays}; Score: {round(correct_plays / len(self.__curr_rythm), 2)}")
+        print(f"Correct plays: {correct_plays}; Score: {round(correct_plays / len(self.curr_rythm), 2)}")
         print()
-        score = round(correct_plays / len(self.__curr_rythm), 2)
+        score = round(correct_plays / len(self.curr_rythm), 2)
         self.score += score
         if score >= 0.7:
             self.correct_se.play()
