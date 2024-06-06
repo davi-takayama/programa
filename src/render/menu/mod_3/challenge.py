@@ -24,13 +24,18 @@ class Challenge(ChallengeBase):
             chapter_index: int
     ) -> None:
         super().__init__(screen, change_state, chapter_index)
-        self.__start_audio_devices()
+
+        self.stream = None
+        self.queue = ProtectedList()
+        self.alyzer = AudioAnalyzer(self.queue)
+
+        self.start_audio_devices()
         d___c___ = [("D", 0.5), ("C", 0.5)]
         c___c___d___e___ = [("C", 0.25), ("C", 0.25), ("D", 0.25), ("E", 0.25)]
         g___f___e___d___ = [("G", 0.25), ("F", 0.25), ("E", 0.25), ("D", 0.25)]
         e___e___f___g___ = [("E", 0.25), ("E", 0.25), ("F", 0.25), ("G", 0.25)]
 
-        self.__full_sheet: list[tuple[str, float]] = [
+        self.full_sheet: list[tuple[str, float]] = [
             e___e___f___g___, g___f___e___d___, c___c___d___e___, [("E", 0.5), ("D", 0.5)],
             e___e___f___g___, g___f___e___d___, c___c___d___e___, d___c___,
 
@@ -38,21 +43,22 @@ class Challenge(ChallengeBase):
             [("D", 0.25), ("E", 0.125), ("F", 0.125), ("E", 0.25), ("D", 0.25)], [("C", 0.25), ("D", 0.25), ("G", 0.5)],
             e___e___f___g___, g___f___e___d___, c___c___d___e___, d___c___,
         ]
-        self.__curr_sheet = {
-            0: self.__full_sheet[0: len(self.__full_sheet) // 2],
-            1: self.__full_sheet[len(self.__full_sheet) // 2:],
-        }.get(chapter_index, self.__full_sheet)
-        self.num_challenges = len(self.__curr_sheet) // 2
-        self.__curr_bars = self.__curr_sheet[:2]
-        self.__back_button = self.init_back_button(self.__close_threads)
-        self.__continue_button = self.init_continue_button(self.__click_continue)
-        self.__end_button = self.init_end_button(self.__click_end)
-        self.__start_button = self.__init_start_button()
-        self.__played: list[tuple[str, float]] = []
-        self.__audio_processed = False
-        self.__metronome = Metronome(60)
+        self.curr_sheet = {
+            0: self.full_sheet[0: len(self.full_sheet) // 2],
+            1: self.full_sheet[len(self.full_sheet) // 2:],
+        }.get(chapter_index, self.full_sheet)
+        self.num_challenges = len(self.curr_sheet) // 2
+        self.curr_bars = self.curr_sheet[:2]
+        self.back_button = self.init_back_button(self.close_threads)
+        self.continue_button = self.init_continue_button(self.click_continue)
+        self.end_button = self.init_end_button(self.click_end)
+        self.start_button = self.init_start_button()
+        self.played: list[tuple[str, float]] = []
+        self.audio_processed = False
+        self.metronome = Metronome(60)
+        self.start_time = None
 
-        self.__notes_dict = {
+        self.notes_dict = {
             'C': self.staff.c3_position,
             'D': self.staff.c3_position - self.staff.note_spacing,
             'E': self.staff.c3_position - self.staff.note_spacing * 2,
@@ -61,8 +67,8 @@ class Challenge(ChallengeBase):
             'A': self.staff.c3_position - self.staff.note_spacing * 5,
         }
 
-        self.__started_challenge = False
-        self.__finished_challenge = False
+        self.started_challenge = False
+        self.finished_challenge = False
 
     def render(self):
         self.screen.fill("white")
@@ -71,10 +77,10 @@ class Challenge(ChallengeBase):
             self.staff.render()
             self.go_back_button.render()
 
-            self.__render_current_sheet()
+            self.render_current_sheet()
 
-            if not self.__started_challenge and not self.__finished_challenge:
-                self.__start_button.render()
+            if not self.started_challenge and not self.finished_challenge:
+                self.start_button.render()
                 text = "Analise a partitura e clique em iniciar para começar o desafio"
                 text_width = self.font.size(text)[0]
                 self.screen.blit(
@@ -83,15 +89,15 @@ class Challenge(ChallengeBase):
                 )
             else:
                 text = "Comece a tocar em: X"
-                if self.__start_time + self.__metronome.get_cycle_time() * 3 <= pygame.time.get_ticks():
-                    self.__end_current_challenge()
-                elif self.__start_time + self.__metronome.get_cycle_time() <= pygame.time.get_ticks():
+                if self.start_time + self.metronome.get_cycle_time() * 3 <= pygame.time.get_ticks():
+                    self.end_current_challenge()
+                elif self.start_time + self.metronome.get_cycle_time() <= pygame.time.get_ticks():
                     text = "Toque!"
-                    self.__get_audio()
-                if self.__started_challenge and not self.__finished_challenge:
-                    cycle_time = self.__metronome.get_cycle_time()
-                    elapsed_time = pygame.time.get_ticks() - self.__start_time
-                    ticks_per_cycle = self.__metronome.time_signature[0]
+                    self.get_audio()
+                if self.started_challenge and not self.finished_challenge:
+                    cycle_time = self.metronome.get_cycle_time()
+                    elapsed_time = pygame.time.get_ticks() - self.start_time
+                    ticks_per_cycle = self.metronome.time_signature[0]
                     time_per_tick = cycle_time // ticks_per_cycle
                     elapsed_ticks = elapsed_time // time_per_tick
                     remaining_ticks = ticks_per_cycle - elapsed_ticks
@@ -102,28 +108,28 @@ class Challenge(ChallengeBase):
                         self.font.render(text, True, "black"),
                         (self.screen.get_width() // 2 - text_width // 2, self.screen.get_height() - text_height - 10),
                     )
-            if self.__finished_challenge:
-                self.__continue_button.render()
+            if self.finished_challenge:
+                self.continue_button.render()
 
         else:
             self.end_render()
-            self.__end_button.render()
+            self.end_button.render()
 
-    def __render_current_sheet(self):
+    def render_current_sheet(self):
         x_pos = [self.staff.start_x + i * 70 for i in
-                 range(len(self.__curr_bars[0]))]
-        self.__render_notes(x_pos,
-                            self.__curr_bars[0])
+                 range(len(self.curr_bars[0]))]
+        self.render_notes(x_pos,
+                          self.curr_bars[0])
 
         pygame.draw.line(self.screen, "black", (x_pos[-1] + 72, self.staff.line_positions[0]),
                          (x_pos[-1] + 72, self.staff.line_positions[-1]), 5)
 
-        x_pos2 = [x_pos[-1] + 140 + i * 70 for i in range(len(self.__curr_bars[1]))]
-        self.__render_notes(x_pos2, self.__curr_bars[1])
+        x_pos2 = [x_pos[-1] + 140 + i * 70 for i in range(len(self.curr_bars[1]))]
+        self.render_notes(x_pos2, self.curr_bars[1])
 
     def event_check(self, event_arg: Event):
         if event_arg.type == pygame.QUIT:
-            self.__close_threads()
+            self.close_threads()
 
             from ..main_menu import Menu
             self.change_state(Menu(self.screen, self.change_state))
@@ -131,86 +137,83 @@ class Challenge(ChallengeBase):
         if self.current_challenge < self.num_challenges:
             self.go_back_button.event_check(event_arg)
 
-            if not self.__started_challenge and not self.__finished_challenge:
-                self.__start_button.event_check(event_arg)
+            if not self.started_challenge and not self.finished_challenge:
+                self.start_button.event_check(event_arg)
 
-            elif not self.__started_challenge and self.__finished_challenge:
-                self.__continue_button.event_check(event_arg)
+            elif not self.started_challenge and self.finished_challenge:
+                self.continue_button.event_check(event_arg)
 
         else:
-            self.__end_button.event_check(event_arg)
+            self.end_button.event_check(event_arg)
 
-    def __render_notes(self, x_pos, notes):
+    def render_notes(self, x_pos, notes):
         for i in range(len(notes)):
             if np.isclose(notes[i][1], 0.125, rtol=1e-09, atol=1e-09):
-                self.__render_eighth_note(x_pos, notes, i)
+                self.render_eighth_note(x_pos, notes, i)
             elif np.isclose(notes[i][1], 0.25, rtol=1e-09, atol=1e-09):
-                self.__render_quarter_note(x_pos, notes, i)
+                self.render_quarter_note(x_pos, notes, i)
             elif np.isclose(notes[i][1], 0.5, rtol=1e-09, atol=1e-09):
-                self.__render_half_note(x_pos, notes, i)
+                self.render_half_note(x_pos, notes, i)
 
-    def __render_eighth_note(self, x_pos, notes, i):
+    def render_eighth_note(self, x_pos, notes, i):
         if notes[i][0] == 'P':
             self.note_renderer.pause(x_pos[i], 3, shift=True)
         else:
             if i + 1 < len(notes) and notes[i + 1][0] != 'P' and np.isclose(
                     notes[i + 1][1], 0.125, rtol=1e-09, atol=1e-09):
                 self.note_renderer.eighth(
-                    [(x_pos[i], self.__notes_dict[notes[i][0]]), (x_pos[i + 1], self.__notes_dict[notes[i + 1][0]])])
+                    [(x_pos[i], self.notes_dict[notes[i][0]]), (x_pos[i + 1], self.notes_dict[notes[i + 1][0]])])
             elif i - 1 >= 0 and notes[i - 1][0] != 'P' and np.isclose(
                     notes[i - 1][1], 0.125, rtol=1e-09, atol=1e-09):
                 return
             else:
-                self.note_renderer.eighth([(x_pos[i], self.__notes_dict[notes[i][0]])])
+                self.note_renderer.eighth([(x_pos[i], self.notes_dict[notes[i][0]])])
 
-    def __render_quarter_note(self, x_pos, notes, i):
+    def render_quarter_note(self, x_pos, notes, i):
         if notes[i][0] != "P":
-            self.note_renderer.quarter(x_pos[i], self.__notes_dict[notes[i][0]])
+            self.note_renderer.quarter(x_pos[i], self.notes_dict[notes[i][0]])
         else:
             self.note_renderer.pause(x_pos[i], 2, shift=True)
 
-    def __render_half_note(self, x_pos, notes, i):
+    def render_half_note(self, x_pos, notes, i):
         if notes[i][0] != "P":
-            self.note_renderer.half(x_pos[i], self.__notes_dict[notes[i][0]])
+            self.note_renderer.half(x_pos[i], self.notes_dict[notes[i][0]])
         else:
             self.note_renderer.pause(x_pos[i], 1, shift=True)
 
-    def __get_audio(self):
-        global vol
-        freq = self.__queue.get()
-        note = "P"
-        if freq is not None:
-            note = self.analyzer.frequency_to_note_name(freq, 440)
-            note = re.sub(r"\d", "", note)
-
-        self.__played.append((note, vol))
-
-    def __start_audio_devices(self):
+    def start_audio_devices(self):
         def get_volume(indata, *_):
             global vol
 
             volume_norm = np.linalg.norm(indata) * 10
             vol = round(volume_norm, 2)
 
-        self.__queue = ProtectedList()
-        self.analyzer = AudioAnalyzer(self.__queue)
-        self.analyzer.start()
-
+        self.alyzer.start()
         self.stream = sd.InputStream(callback=get_volume)
         self.stream.start()
 
-    def __close_threads(self):
+    def close_threads(self):
         try:
             self.stream.stop()
             self.stream.close()
-            self.analyzer.stop()
-            self.analyzer.join()
-            self.__metronome.stop()
+            self.alyzer.stop()
+            self.alyzer.join()
+            self.metronome.stop()
         except AttributeError:
             pass
 
+    def get_audio(self):
+        global vol
+        freq = self.queue.get()
+        note = "P"
+        if freq is not None:
+            note = self.alyzer.frequency_to_note_name(freq, 440)
+            note = re.sub(r"\d", "", note)
+
+        self.played.append((note, vol))
+
     def process_audio(self):
-        audio = self.__played.copy()
+        audio = self.played.copy()
 
         def calculate_mean_vol_threshold():
             volume_array = [volume for note, volume in audio if note != "P"]
@@ -219,7 +222,7 @@ class Challenge(ChallengeBase):
             return 0
 
         bar_list = []
-        num_sections = len(self.__curr_bars)
+        num_sections = len(self.curr_bars)
 
         for i in range(num_sections):
             start = int(len(audio) * i / num_sections)
@@ -227,17 +230,17 @@ class Challenge(ChallengeBase):
             bar_list.append(audio[start:end])
 
         for index, item in enumerate(bar_list):
-            item = self.__find_threshold_meet(item, calculate_mean_vol_threshold())
-            item = self.__round_played_values(item)
+            item = self.find_threshold_meet(item, calculate_mean_vol_threshold())
+            item = self.round_played_values(item)
             bar_list[index] = item
 
-        self.__audio_processed = True
-        self.__played = []
+        self.audio_processed = True
+        self.played = []
 
         self.calculate_score(bar_list)
 
     @staticmethod
-    def __find_threshold_meet(audio, mean_vol_threshold):
+    def find_threshold_meet(audio, mean_vol_threshold):
         threshold_meet = []
         length = 0
 
@@ -260,7 +263,7 @@ class Challenge(ChallengeBase):
         return threshold_meet
 
     @staticmethod
-    def __round_played_values(note_list) -> list[tuple[set[str], float]]:
+    def round_played_values(note_list) -> list[tuple[set[str], float]]:
         rounded_array = []
         total_sum = sum([item[1] for item in note_list])
         for item in note_list:
@@ -273,27 +276,27 @@ class Challenge(ChallengeBase):
 
     def calculate_score(self, bar_list):
         scored = 0
-        for i, bar in enumerate(self.__curr_bars):
+        for i, bar in enumerate(self.curr_bars):
             obtainable_score = len(bar)
             for j, item in enumerate(bar):
                 if j < len(bar_list[i]):
                     if any(note in bar_list[i][j][0] for note in item[0]):
-                        scored += 0.5 / obtainable_score / len(self.__curr_bars)
-                    if np.isclose(item[1], self.__curr_bars[i][j][1], rtol=1e-09, atol=1e-09):
-                        scored += 0.5 / obtainable_score / len(self.__curr_bars)
+                        scored += 0.5 / obtainable_score / len(self.curr_bars)
+                    if np.isclose(item[1], self.curr_bars[i][j][1], rtol=1e-09, atol=1e-09):
+                        scored += 0.5 / obtainable_score / len(self.curr_bars)
 
         if scored >= 0.7:
             self.score += 1
 
-    def __init_start_button(self):
+    def init_start_button(self):
         def callback():
-            if self.__metronome.is_alive():
-                self.__metronome.restart()
+            if self.metronome.is_alive():
+                self.metronome.restart()
             else:
-                self.__metronome.start()
-            self.__metronome.playing = True
-            self.__start_time = pygame.time.get_ticks()
-            self.__started_challenge = True
+                self.metronome.start()
+            self.metronome.playing = True
+            self.start_time = pygame.time.get_ticks()
+            self.started_challenge = True
 
         text = "Iniciar desafio"
         button = Button(
@@ -309,21 +312,21 @@ class Challenge(ChallengeBase):
 
         return button
 
-    def __click_continue(self):
-        self.__metronome.playing = False
+    def click_continue(self):
+        self.metronome.playing = False
         self.current_challenge += 1
-        self.__played = []
+        self.played = []
         if self.current_challenge < self.num_challenges:
-            self.__curr_bars = []
-            self.__curr_bars.append(self.__curr_sheet[self.current_challenge * 2])
-            self.__curr_bars.append(self.__curr_sheet[self.current_challenge * 2 + 1])
-        self.__finished_challenge = False
-        self.__audio_processed = False
-        self.__start_time = 0
-        self.__started_challenge = False
+            self.curr_bars = []
+            self.curr_bars.append(self.curr_sheet[self.current_challenge * 2])
+            self.curr_bars.append(self.curr_sheet[self.current_challenge * 2 + 1])
+        self.finished_challenge = False
+        self.audio_processed = False
+        self.start_time = 0
+        self.started_challenge = False
 
-    def __click_end(self):
-        self.__close_threads()
+    def click_end(self):
+        self.close_threads()
         from ..main_menu import Menu
         self.change_state(Menu(self.screen, self.change_state))
         save = Save.load()
@@ -340,10 +343,10 @@ class Challenge(ChallengeBase):
         from ..main_menu import Menu
         self.change_state(Menu(self.screen, self.change_state))
 
-    def __end_current_challenge(self):
-        self.__finished_challenge = True
-        self.__started_challenge = False
-        if self.__metronome.playing:
-            self.__metronome.playing = False
-        if not self.__audio_processed:
+    def end_current_challenge(self):
+        self.finished_challenge = True
+        self.started_challenge = False
+        if self.metronome.playing:
+            self.metronome.playing = False
+        if not self.audio_processed:
             self.process_audio()
