@@ -23,9 +23,6 @@ class Chapter:
     completed: bool
     perfected: bool
 
-    def set_item(self, key, value):
-        self.__dict__[key] = value
-
 
 @dataclass
 class Module:

@@ -107,7 +107,6 @@ class Explanation1(Renderable):
             x_pos=100, y_pos=self.staff.c3_position - self.staff.note_spacing * 4
         )
 
-
     def __show_notes_in_cleff(self, show_letter_only=False):
         horizontal_spacing = 40
         for index, word in enumerate(

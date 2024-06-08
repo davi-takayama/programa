@@ -138,7 +138,6 @@ class Explanation2(Renderable):
         draw_equals(x_pos[13], y_pos - self.staff.note_spacing * (7 + 1))
         self.note_renderer.quarter(x_pos=x_pos[14], y_pos=y_pos - self.staff.note_spacing * 6, color="black")
 
-
     def __text_under_note(self, word_param, x_pos_param, y_pos_param, color_param="black"):
         text = pygame.font.Font(None, 24).render(word_param, True, color_param)
         text_surface = text.convert_alpha()
