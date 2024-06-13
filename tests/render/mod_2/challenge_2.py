@@ -23,14 +23,29 @@ class TestChallenge2(unittest.TestCase):
         self.assertNotEqual((upper_num, lower_num), (2, 8))
         self.assertNotEqual((upper_num, lower_num), (8, 2))
 
-    def test_get_random_notes(self):
+    def test_correct_answer(self):
         self.challenge2.get_random_time_signature()
-        self.challenge2.get_random_notes()
-        self.assertTrue(2 <= len(self.challenge2.notes) <= 8)
-        self.assertEqual(sum(self.challenge2.notes), self.challenge2.time_signature[0] / self.challenge2.time_signature[1])
-        self.assertEqual(len(self.challenge2.notes), len(self.challenge2.notes_and_pauses))
-        self.assertNotEqual(self.challenge2.notes_and_pauses[-1], self.challenge2.notes_and_pauses[-2])
+        self.challenge2.time_signature = (4, 4)
+        self.challenge2.notes_and_pauses = [0.25, 0.25, 0.25, 0.25]
+        self.challenge2.buttons[1].on_click()
+        self.challenge2.click_continue()
 
+        self.assertEqual(1, self.challenge2.score)
+
+    def test_random_notes_generation(self):
+        self.challenge2.time_signature = (4, 4)
+        self.challenge2.notes = []
+        self.challenge2.notes_and_pauses = []
+        self.challenge2.get_random_notes()
+        self.assertEqual(sum(self.challenge2.notes), self.challenge2.time_signature[0] / self.challenge2.time_signature[1])
+
+    def test_consecutive_pauses_in_notes_and_pauses(self):
+        self.challenge2.time_signature = (4, 4)
+        self.challenge2.notes = []
+        self.challenge2.notes_and_pauses = []
+        self.challenge2.get_random_notes()
+        for i in range(len(self.challenge2.notes_and_pauses) - 1):
+            self.assertFalse(not self.challenge2.notes_and_pauses[i] and not self.challenge2.notes_and_pauses[i + 1])
 
 if __name__ == '__main__':
     unittest.main()

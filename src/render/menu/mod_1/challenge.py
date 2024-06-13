@@ -37,15 +37,17 @@ class Challenge(ChallengeBase):
         self.current_note = self.pick_random_note()
         self._continue = False
         self.note_buttons: List[Button] = []
-        self.init_note_buttons()
         self.continue_button = self.init_continue_button(self.click_continue)
         self.continue_text = ""
         self.played_notes = []
-        self.queue = None
+        self._queue = None
         self.stream = None
         self.analyzer = None
         if use_audio:
+            self._queue = ProtectedList()
             self.start_audio_devices()
+        else:
+            self.init_note_buttons()
         self.level = self.regular_challenges if not use_audio else self.audio_challenges
         self.start_time = 0
         self.note_played = None
@@ -307,7 +309,7 @@ class Challenge(ChallengeBase):
             if self.start_time == 0:
                 self.start_time = time.time()
 
-            freq = self.queue.get()
+            freq = self._queue.get()
             if freq is not None:
                 note = self.analyzer.frequency_to_note_name(freq, 440)
                 note_letter = re.sub(r"\d", "", note)
@@ -374,8 +376,8 @@ class Challenge(ChallengeBase):
             prev_vol = vol
             vol = round(volume_norm, 2)
 
-        self.queue = ProtectedList()
-        self.analyzer = AudioAnalyzer(self.queue)
+        self._queue = ProtectedList()
+        self.analyzer = AudioAnalyzer(self._queue)
         self.analyzer.start()
         self.stream = sd.InputStream(callback=get_volume)
         self.stream.start()
