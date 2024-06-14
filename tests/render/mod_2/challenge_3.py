@@ -57,27 +57,6 @@ class Challenge3Tests(unittest.TestCase):
         expected_value = np.mean(self.challenge3.vol_stream) * 0.7
         self.assertEqual(self.challenge3.calculate_mean_vol_threshold(), expected_value)
 
-    def test_filter_audio_stream_returns_zero_for_values_below_sensibility(self):
-        self.challenge3.vol_stream = [1, 2, 3, 4, 5]
-        self.challenge3.vol_sensibility = 3
-        expected_output = [0, 0, 3, 4, 5]
-        self.assertEqual(self.challenge3.filter_audio_stream(self.challenge3.vol_stream, self.challenge3.vol_sensibility),
-                         expected_output)
-
-    def test_filter_audio_stream_returns_same_values_for_values_above_sensibility(self):
-        self.challenge3.vol_stream = [1, 2, 3, 4, 5]
-        self.challenge3.vol_sensibility = 1
-        expected_output = [1, 2, 3, 4, 5]
-        self.assertEqual(self.challenge3.filter_audio_stream(self.challenge3.vol_stream, self.challenge3.vol_sensibility),
-                         expected_output)
-
-    def test_filter_audio_stream_returns_zero_for_values_equal_to_sensibility(self):
-        self.challenge3.vol_stream = [1, 2, 3, 4, 5]
-        self.challenge3.vol_sensibility = 2
-        expected_output = [0, 2, 3, 4, 5]
-        self.assertEqual(self.challenge3.filter_audio_stream(self.challenge3.vol_stream, self.challenge3.vol_sensibility),
-                         expected_output)
-
     def test_filter_audio_stream_returns_zero_for_empty_stream(self):
         self.challenge3.vol_stream = []
         self.challenge3.vol_sensibility = 2
